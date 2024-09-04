@@ -20,6 +20,7 @@
 #error "unexpected int width"
 #endif
 
+#ifndef __ICCARM__
 #undef __INT32_TYPE__
 #undef __UINT32_TYPE__
 #undef __INT_FAST32_TYPE__
@@ -45,6 +46,7 @@
 #define __UINT_FAST64_TYPE__ __UINT64_TYPE__
 #define __INT_LEAST64_TYPE__ __INT64_TYPE__
 #define __UINT_LEAST64_TYPE__ __UINT64_TYPE__
+#endif
 
 /*
  * The confusion also exists with __INTPTR_TYPE__ which is either an int
@@ -57,10 +59,12 @@
 #error "unexpected size difference between pointers and long ints"
 #endif
 
+#ifndef __ICCARM__
 #undef __INTPTR_TYPE__
 #undef __UINTPTR_TYPE__
 #define __INTPTR_TYPE__ long int
 #define __UINTPTR_TYPE__ long unsigned int
+#endif
 
 /*
  * Re-define the INTN_C(value) integer constant expression macros to match the

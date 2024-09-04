@@ -14,7 +14,7 @@
  * Include kernel.h instead
  */
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__ICCARM__)
 #include <zephyr/arch/arm/asm_inline_gcc.h>
 #else
 #include <arch/arm/asm_inline_other.h>
