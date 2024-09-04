@@ -227,7 +227,7 @@ static ALWAYS_INLINE bool should_preempt(struct k_thread *thread,
 
 static inline bool z_is_idle_thread_entry(void *entry_point)
 {
-	return entry_point == idle;
+	return entry_point == (void *) idle;
 }
 
 static inline bool z_is_idle_thread_object(struct k_thread *thread)
