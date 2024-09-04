@@ -223,7 +223,7 @@ do {                                                                    \
 
 #define likely(x)   (__builtin_expect((bool)!!(x), true) != 0L)
 #define unlikely(x) (__builtin_expect((bool)!!(x), false) != 0L)
-#define popcount(x) __builtin_popcount(x)
+#define POPCOUNT(x) __builtin_popcount(x)
 
 #ifndef __no_optimization
 #define __no_optimization __PRAGMA(optimize = none)
