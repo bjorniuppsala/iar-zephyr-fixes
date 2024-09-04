@@ -1,0 +1,31 @@
+# Copyright (c) 2024 IAR Systems AB
+# SPDX-License-Identifier: Apache-2.0
+
+
+config MISRA_SANE
+  bool
+  default y
+
+config PICOLIBC_SUPPORTED
+  bool
+  default n
+
+config TOOLCHAIN_HAS_BUILTIN_FFS
+  bool
+  default n
+
+config FP16
+  bool
+  default y
+
+# ICCARM does not support relaxation
+config LINKER_USE_NO_RELAX
+  bool
+  default y
+
+# ICCARM support C17 with some additional features from C23
+config REQUIRES_STD_C17
+	bool 
+	default y
+
+

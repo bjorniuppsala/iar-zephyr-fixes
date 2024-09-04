@@ -1,0 +1,26 @@
+# Copyright (c) 2024 IAR Systems AB
+# SPDX-License-Identifier: Apache-2.0
+
+config LD_LINKER_SCRIPT_SUPPORTED
+	bool
+	default n
+
+choice LINKER_SCRIPT
+	default CMAKE_LINKER_GENERATOR
+endchoice
+
+config STACK_CANARIES
+	bool
+	default n
+
+choice LIBC_IMPLEMENTATION
+	prompt "C Library Implementation"
+	default ICCARM_LIBC
+
+config ICCARM_LIBC
+	bool "IAR C Runtime Library for Arm"
+	help
+	  Use the full Arm Compiler runtime libraries.
+
+endchoice
+
