@@ -6,6 +6,7 @@ config MISRA_SANE
   bool
   default y
 
+#must use default n here
 config PICOLIBC_SUPPORTED
   bool
   default n
@@ -28,4 +29,9 @@ config REQUIRES_STD_C17
 	bool 
 	default y
 
+config CODING_GUIDELINE_CHECK
+	bool
+	default n
+	help
+          Not applicable to ICCARM
 
