@@ -596,8 +596,12 @@ void arch_switch_to_main_thread(struct k_thread *main_thread, char *stack_ptr,
 __used void arch_irq_unlock_outlined(unsigned int key)
 {
 #if defined(CONFIG_ARMV7_M_ARMV8_M_MAINLINE)
+#ifndef __ICCARM__
+	// TBD: Workaround for "arch/arm/core/cortex_m/thread.c",599  Error[Ta148]: Intrinsic
+	// function "__nounwind __iar_builtin_enable_fiq" is not available in this architecture
 	__enable_fault_irq(); /* alters FAULTMASK */
-	__enable_irq(); /* alters PRIMASK */
+	__enable_irq();       /* alters PRIMASK */
+#endif
 #endif
 	arch_irq_unlock(key);
 }
