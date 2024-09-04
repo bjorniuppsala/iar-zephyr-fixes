@@ -1404,6 +1404,7 @@ int shell_init(const struct shell *sh, const void *transport_config,
 
 void shell_uninit(const struct shell *sh, shell_uninit_cb_t cb)
 {
+	int err;
 	__ASSERT_NO_MSG(sh);
 
 	if (IS_ENABLED(CONFIG_MULTITHREADING)) {
@@ -1417,7 +1418,7 @@ void shell_uninit(const struct shell *sh, shell_uninit_cb_t cb)
 		return;
 	}
 
-	int err = instance_uninit(sh);
+	err = instance_uninit(sh);
 
 	if (cb) {
 		cb(sh, err);
