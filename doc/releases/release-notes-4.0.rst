@@ -40,6 +40,7 @@ Removed APIs in this release
 
 * Macro ``K_THREAD_STACK_MEMBER``, deprecated since v3.5.0, has been removed.
   Use :c:macro:`K_KERNEL_STACK_MEMBER` instead.
+* ``CBPRINTF_PACKAGE_COPY_*`` macros, deprecated since Zephyr 3.5.0, have been removed.
 
 Deprecated in this release
 ==========================
@@ -106,6 +107,8 @@ Boards & SoC Support
 
 Build system and Infrastructure
 *******************************
+
+* Added support for .elf files to the west flash command for jlink, pyocd and linkserver runners.
 
 Documentation
 *************
@@ -292,6 +295,8 @@ Libraries / Subsystems
 
     * Added support for :ref:`mcumgr_smp_group_10`, which allows for listing information on
       supported groups.
+    * Fixed formatting of milliseconds in :c:enum:`OS_MGMT_ID_DATETIME_STR` by adding
+      leading zeros.
 
 * Logging
 

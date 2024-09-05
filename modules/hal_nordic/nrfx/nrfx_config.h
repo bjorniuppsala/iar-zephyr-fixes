@@ -835,6 +835,9 @@
 #ifdef CONFIG_NRFX_WDT
 #define NRFX_WDT_ENABLED 1
 #endif
+#ifdef CONFIG_WDT_NRFX_NO_IRQ
+#define NRFX_WDT_CONFIG_NO_IRQ 1
+#endif
 #ifdef CONFIG_NRFX_WDT_LOG
 #define NRFX_WDT_CONFIG_LOG_ENABLED 1
 #endif
@@ -1047,6 +1050,8 @@
     #include <nrfx_config_nrf54l15_enga_application.h>
 #elif (defined(NRF54L15_XXAA) || defined(NRF54L15_ENGA_XXAA)) && defined(NRF_FLPR)
     #include <nrfx_config_nrf54l15_enga_flpr.h>
+#elif (defined(NRF54L20_XXAA) || defined(NRF54L20_ENGA_XXAA)) && defined(NRF_APPLICATION)
+    #include <nrfx_config_nrf54l20_enga_application.h>
 #elif defined(NRF9120_XXAA) || defined(NRF9160_XXAA)
     #include <nrfx_config_nrf91.h>
 #elif defined(NRF9230_ENGB_XXAA) && defined(NRF_APPLICATION)

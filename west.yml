@@ -157,7 +157,7 @@ manifest:
       groups:
         - hal
     - name: hal_espressif
-      revision: 8c2ae3b0017cadac3de1f57592e879a7bb6ef75d
+      revision: e589b872d92d8515ce512b2d34f255d0bccb0e0f
       path: modules/hal/espressif
       west-commands: west/west-commands.yml
       groups:
@@ -285,7 +285,7 @@ manifest:
       groups:
         - crypto
     - name: mcuboot
-      revision: fb2cf0ec3da3687b93f28e556ab682bdd4b85223
+      revision: 52e2afc2f809c424b0f337f56059d1dfcc7e6d98
       path: bootloader/mcuboot
       groups:
         - bootloader
@@ -300,7 +300,7 @@ manifest:
       groups:
         - tools
     - name: nrf_hw_models
-      revision: 6e70c2dc5d4c67c4da5913b2969c0774b27f0cd0
+      revision: 4b0b020e25dbf1a11ccccf7b7741d6ca991ba9e4
       path: modules/bsim_hw_models/nrf_hw_models
     - name: open-amp
       revision: 76d2168bcdfcd23a9a7dce8c21f2083b90a1e60a
@@ -327,7 +327,7 @@ manifest:
       groups:
         - crypto
     - name: trusted-firmware-m
-      revision: 069455be098383bf96eab73e3ff8e0c66c60fa5a
+      revision: a11cd27905aecc4416cfc85552bfc3b997375056
       path: modules/tee/tf-m/trusted-firmware-m
       groups:
         - tee

@@ -166,10 +166,7 @@ static void ethernet_update_rx_stats(struct net_if *iface,
 
 static inline bool eth_is_vlan_tag_stripped(struct net_if *iface)
 {
-	const struct device *dev = net_if_get_device(iface);
-	const struct ethernet_api *api = dev->api;
-
-	return (api->get_capabilities(dev) & ETHERNET_HW_VLAN_TAG_STRIP);
+	return (net_eth_get_hw_capabilities(iface) & ETHERNET_HW_VLAN_TAG_STRIP);
 }
 
 /* Drop packet if it has broadcast destination MAC address but the IP
@@ -199,18 +196,20 @@ static void ethernet_mcast_monitor_cb(struct net_if *iface, const struct net_add
 			.type = ETHERNET_FILTER_TYPE_DST_MAC_ADDRESS,
 		},
 	};
-	const struct device *dev;
-	const struct ethernet_api *api;
+
+	const struct device *dev = net_if_get_device(iface);
+	const struct ethernet_api *api = dev->api;
 
 	/* Make sure we're an ethernet device */
 	if (net_if_l2(iface) != &NET_L2_GET_NAME(ETHERNET)) {
 		return;
 	}
 
-	dev = net_if_get_device(iface);
-	api = dev->api;
+	if (!(net_eth_get_hw_capabilities(iface) & ETHERNET_HW_FILTERING)) {
+		return;
+	}
 
-	if (!(api->get_capabilities(dev) & ETHERNET_HW_FILTERING) || api->set_config == NULL) {
+	if (!api || !api->set_config) {
 		return;
 	}
 
@@ -621,6 +620,11 @@ static int ethernet_send(struct net_if *iface, struct net_pkt *pkt)
 		goto error;
 	}
 
+	if (!api->send) {
+		ret = -ENOTSUP;
+		goto error;
+	}
+
 	if (IS_ENABLED(CONFIG_NET_ETHERNET_BRIDGE) &&
 	    net_pkt_is_l2_bridged(pkt)) {
 		net_pkt_cursor_init(pkt);
@@ -868,7 +872,7 @@ const struct device *net_eth_get_ptp_clock(struct net_if *iface)
 		return NULL;
 	}
 
-	if (!(api->get_capabilities(dev) & ETHERNET_PTP)) {
+	if (!(net_eth_get_hw_capabilities(iface) & ETHERNET_PTP)) {
 		return NULL;
 	}
 
