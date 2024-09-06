@@ -70,10 +70,12 @@
 #define BUILD_ASSERT(EXPR, MSG...) _Static_assert(EXPR, "" MSG)
 #endif
 
-/* This is only to avoid what is in `common.h` */
-//#if defined(__IAR_SYSTEMS_ASM__)
-//#define BUILD_ASSERT
-//#endif
+/* Zephyr makes use of __ATOMIC_SEQ_CST */
+#ifdef __STDC_NO_ATOMICS__
+#ifndef __ATOMIC_SEQ_CST
+#define __MEMORY_ORDER_SEQ_CST__ 5
+#endif
+#endif
 #ifndef __ATOMIC_SEQ_CST
 #define __ATOMIC_SEQ_CST __MEMORY_ORDER_SEQ_CST__
 #endif
