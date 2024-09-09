@@ -7,8 +7,6 @@
 
 #include <zephyr/arch/common/semihost.h>
 
-#if 1
-
 #ifdef __ICCARM__
 // IAR WA VAAK-88: __asm instead of __asm__
 
