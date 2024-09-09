@@ -137,7 +137,7 @@ manifest:
       groups:
         - fs
     - name: hal_adi
-      revision: 1a700a62511c96d8c3d8b4e29c9503855fec50c5
+      revision: a9ea9646a354bddf678c3ea5e4748ed1e38da542
       path: modules/hal/adi
       groups:
         - hal
@@ -188,7 +188,7 @@ manifest:
       groups:
         - hal
     - name: hal_nordic
-      revision: 9717cc2845116ac1c4465b1eb8cc913513601e2a
+      revision: d1099d6c52fba81ed23f1ce6cb54f4387a88ccea
       path: modules/hal/nordic
       groups:
         - hal
@@ -198,7 +198,7 @@ manifest:
       groups:
         - hal
     - name: hal_nxp
-      revision: 466000a80e6eb5bbcb691bae936ec5654a7796d4
+      revision: f90b09dea9a7f61e901afa6ce691e687900f5598
       path: modules/hal/nxp
       groups:
         - hal
@@ -214,7 +214,7 @@ manifest:
         - hal
     - name: hal_renesas
       path: modules/hal/renesas
-      revision: d17dc07ba2af3cedf869454c9cb9c293d8379fe4
+      revision: 1ec88911defaba8aebe265d57497cacfbb6afeb8
       groups:
         - hal
     - name: hal_rpi_pico
@@ -280,7 +280,7 @@ manifest:
       revision: 2b498e6f36d6b82ae1da12c8b7742e318624ecf5
       path: modules/lib/gui/lvgl
     - name: mbedtls
-      revision: 2f24831ee13d399ce019c4632b0bcd440a713f7c
+      revision: fb36f3fe20f9f62e67b1a20c0cfe0a6788ec2bf6
       path: modules/crypto/mbedtls
       groups:
         - crypto
@@ -295,7 +295,7 @@ manifest:
         - debug
       revision: 71ace1f5caa03e56c8740a09863e685efb4b2360
     - name: net-tools
-      revision: 7c7a856814d7f27509c8511fef14cec21f7d0c30
+      revision: a1fb781b67c33e9a6868b0915b627315c5cac668
       path: tools/net-tools
       groups:
         - tools

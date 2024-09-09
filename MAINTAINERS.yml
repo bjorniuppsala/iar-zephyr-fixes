@@ -1739,7 +1739,7 @@ Release Notes:
     - drivers/led/
     - include/zephyr/drivers/led/
     - include/zephyr/drivers/led.h
-    - samples/drivers/led_*/
+    - samples/drivers/led/
     - tests/drivers/led/
     - doc/hardware/peripherals/led.rst
     - tests/drivers/build_all/led/
@@ -2803,7 +2803,6 @@ Networking:
     - samples/net/lwm2m_client/
     - samples/net/wifi/
     - samples/net/dhcpv4_client/
-    - subsys/net/buf*.c
     - subsys/net/l2/ethernet/gptp/
     - subsys/net/l2/ieee802154/
     - subsys/net/l2/wifi/
@@ -2836,7 +2835,7 @@ Networking:
   tests:
     - net.socket
 
-"Networking: Buffers":
+"Networking Buffers":
   status: maintained
   maintainers:
     - jhedberg
@@ -2845,13 +2844,15 @@ Networking:
     - tbursztyka
     - jukkar
   files:
+    - doc/services/net_buf/
     - include/zephyr/net/buf.h
-    - subsys/net/buf*.c
-    - tests/net/buf/
+    - include/zephyr/net_buf.h
+    - lib/net_buf/
+    - tests/lib/net_buf/
   labels:
     - "area: Networking Buffers"
   tests:
-    - net.buf
+    - libraries.net_buf
 
 "Networking: Connection Manager":
   status: maintained

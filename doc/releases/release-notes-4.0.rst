@@ -78,6 +78,8 @@ Bluetooth
 
 * Audio
 
+  * :c:func:`bt_tbs_client_register_cb` now supports multiple listeners and may now return an error.
+
 * Host
 
   * Added API :c:func:`bt_gatt_get_uatt_mtu` to get current Unenhanced ATT MTU of a given
@@ -164,7 +166,11 @@ Drivers and Sensors
 
   * lp5569: added ``enable-gpios`` property to describe the EN/PWM GPIO of the lp5569.
 
+  * LED code samples have been consolidated under the :zephyr_file:`samples/drivers/led` directory.
+
 * LED Strip
+
+  * Updated ws2812 GPIO driver to support dynamic bus timings
 
 * LoRa
 
@@ -175,6 +181,9 @@ Drivers and Sensors
 * MFD
 
 * Modem
+
+  * Added support for the U-Blox LARA-R6 modem.
+  * Added support for setting the modem's UART baudrate during init.
 
 * MIPI-DBI
 
@@ -305,6 +314,9 @@ Libraries / Subsystems
 * Power management
 
 * Crypto
+
+  * Mbed TLS was updated to version 3.6.1. The release notes can be found at:
+    https://github.com/Mbed-TLS/mbedtls/releases/tag/mbedtls-3.6.1
 
 * CMSIS-NN
 
