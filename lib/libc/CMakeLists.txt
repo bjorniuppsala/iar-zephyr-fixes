@@ -6,6 +6,7 @@ zephyr_syscall_header(
 
 add_subdirectory_ifdef(CONFIG_ARCMWDT_LIBC      arcmwdt)
 add_subdirectory_ifdef(CONFIG_ARMCLANG_STD_LIBC armstdc)
+add_subdirectory_ifdef(CONFIG_ICCARM_LIBC       iccarm)
 add_subdirectory_ifdef(CONFIG_MINIMAL_LIBC      minimal)
 add_subdirectory_ifdef(CONFIG_NEWLIB_LIBC       newlib)
 add_subdirectory_ifdef(CONFIG_PICOLIBC          picolibc)
