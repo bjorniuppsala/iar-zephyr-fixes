@@ -13,7 +13,6 @@
 #define ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_ERRNO_H_
 
 #include_next <errno.h>
-//#include <zephyr/sys/errno_private.h> /* Also includes errno.h from icc stdlib */
 
 #define EPERM            1  /**< Not owner */
 #define ENOENT           2  /**< No such file or directory */
@@ -92,6 +91,5 @@
 #define EOVERFLOW       139 /**< Value overflow */
 #define ECANCELED       140 /**< Operation canceled */
 #define EWOULDBLOCK  EAGAIN /**< Operation would block */
-
 
 #endif /* ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_ERRNO_H_ */
