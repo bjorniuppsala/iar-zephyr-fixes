@@ -61,7 +61,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --diag_suppress=Pe054  # too few arguments in invocation of macro
   --diag_suppress=Pa082  # undefined behavior: the order of volatile accesses is undefined
   --diag_suppress=Pa084  # pointless integer comparison, the result is always false
-#  --diag_error=Pa167  # Warning for unknown attribute
+#  --diag_suppress=Pa167  # Warning for unknown attribute
   --diag_error=Pe191
 
   --diag_suppress=Pe068  # integer conversion resulted in a change of sign
@@ -89,6 +89,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --diag_suppress=Pe1143 # arithmetic on pointer to void or function type
   --diag_suppress=Be006  # possible conflict for segment/section "xxx"
   --diag_suppress=Ta184  # Using zero sized arrays except for as last member of a struct is discouraged and dereferencing elements in such an array has undefined behavior
+  #--diag_suppress=Pa181  # incompatible redefinition of macro
 
 )
 
@@ -108,7 +109,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   #"SHELL:--preprocess=c ."
 
 #  -r
-  --separate_cluster_for_initialized_variables
+#  --separate_cluster_for_initialized_variables
 #  --warnings_are_errors
 #  --trace BE_CODEGEN
 )
@@ -118,6 +119,11 @@ list(APPEND TOOLCHAIN_ASM_FLAGS
   -mcpu=${GCC_M_CPU}
   -mabi=aapcs
   )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  # GCC defaults to Dwarf 5 output
+  list(APPEND TOOLCHAIN_ASM_FLAGS -gdwarf-4)
+endif()
 
 if (DEFINED CONFIG_ARM_SECURE_FIRMWARE)
   list(APPEND TOOLCHAIN_C_FLAGS --cmse)
