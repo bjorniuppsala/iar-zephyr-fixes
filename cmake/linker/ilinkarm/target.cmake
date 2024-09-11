@@ -11,17 +11,11 @@ find_program(CMAKE_LINKER
 
 add_custom_target(ilinkarm)
 
-macro(toolchain_ld_base)
-endmacro()
-
 function(toolchain_ld_force_undefined_symbols)
 #  foreach(symbol ${ARGN})
 #    zephyr_link_libraries(--place_holder=${symbol})
 #  endforeach()
 endfunction()
-
-macro(toolchain_ld_baremetal)
-endmacro()
 
 macro(configure_linker_script linker_script_gen linker_pass_define)
   set(STEERING_FILE)
