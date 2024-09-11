@@ -148,7 +148,7 @@ else()
   endif()
 endif()
 
-if(CONFIG_ICCARM_STD_LIB)
+if(CONFIG_ICCARM_LIBC)
   # Zephyr requires AEABI portability to ensure correct functioning of the C
   # library, for example error numbers, errno.h.
   list(APPEND TOOLCHAIN_C_FLAGS -D__AEABI_PORTABILITY_LEVEL=1)
