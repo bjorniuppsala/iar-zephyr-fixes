@@ -23,6 +23,10 @@ config IAR_LIBC_SUPPORTED
   bool
   default y
 
+config THREAD_LOCAL_STORAGE
+  bool
+  default y
+
 # ICCARM does not support relaxation
 config LINKER_USE_NO_RELAX
   bool
