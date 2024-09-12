@@ -167,7 +167,12 @@ static uint32_t elapsed(void)
  * tracing overflow, so here is a stripped down version of it.
  */
 ARCH_ISR_DIAG_OFF
-__attribute__((interrupt("IRQ"))) void sys_clock_isr(void)
+#ifdef __ICCARM__
+__irq
+#else
+__attribute__((interrupt("IRQ")))
+#endif
+void sys_clock_isr(void)
 {
 	uint32_t dcycles;
 	uint32_t dticks;
