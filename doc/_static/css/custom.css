@@ -171,6 +171,8 @@ a.icon-home:visited {
 
 .wy-nav-content {
     background-color: var(--content-background-color);
+    min-height: 100vh;
+    display: flex;
 }
 
 .wy-body-for-nav {
@@ -757,6 +759,9 @@ kbd, .kbd,
         overflow-y: initial;
         max-height: initial;
     }
+    .wy-nav-content {
+        min-height: calc(100dvh - 64px);
+    }
 }
 
 /* Scrollbar styling */
@@ -778,23 +783,6 @@ kbd, .kbd,
 }
 .wy-menu.wy-menu-vertical::-webkit-scrollbar-thumb:active {
     background-color: var(--navbar-scrollbar-active-color);
-}
-
-/* Breathe tweaks */
-
-.rst-content .section > dl > dd {
-    margin-left: 0;
-}
-
-.rst-content p.breathe-sectiondef-title {
-    font-size: 115%;
-    color: var(--link-color);
-}
-
-.rst-content dl:not(.docutils) dl:not(.rst-other-versions) dt {
-    background: var(--admonition-note-background-color) !important;
-    border-top: none !important;
-    border-left: none !important;
 }
 
 /* Misc tweaks */
@@ -898,6 +886,24 @@ dark-mode-toggle::part(toggleLabel){
    line-height: 1.5;
    font-size: 3rem;
    color: white;
+}
+
+.lastupdated {
+    font-weight: 200;
+    font-size: 0.9rem;
+}
+
+/* Make actual document take all vertical space available so that footer is always at the bottom */
+
+.rst-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.document {
+    flex-grow: 1;
 }
 
 /* Custom search box, including search engine selection */

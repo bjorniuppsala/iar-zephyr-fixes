@@ -32,6 +32,13 @@ Boards
 * STM32WBA: The command used for fetching blobs required to build ble applications is now
   `west blobs fetch hal_stm32` instead of `west blobs fetch stm32`.
 
+STM32
+=====
+
+* On all official STM32 boards, `west flash` selects STM32CubeProgrammer as the default west runner.
+  If you want to enforce the selection of another runner like OpenOCD or pyOCD for flashing, you should
+  specify it using the west `--runner` or `-r` option. (:github:`75284`)
+
 Modules
 *******
 
@@ -40,6 +47,9 @@ Mbed TLS
 
 * The Kconfig options ``CONFIG_MBEDTLS_TLS_VERSION_1_0`` and ``CONFIG_MBEDTLS_TLS_VERSION_1_1``
   have been removed because Mbed TLS doesn't support TLS 1.0 and 1.1 anymore since v3.0. (:github:`76833`)
+* The following Kconfig symbols were renamed (:github:`76408`):
+  * ``CONFIG_MBEDTLS_ENTROPY_ENABLED`` is now :kconfig:option:``CONFIG_MBEDTLS_ENTROPY_C``,
+  * ``CONFIG_MBEDTLS_ZEPHYR_ENTROPY`` is now :kconfig:option:``CONFIG_MBEDTLS_ENTROPY_POLL_ZEPHYR``.
 
 Trusted Firmware-M
 ==================
@@ -97,9 +107,12 @@ Enhanced Serial Peripheral Interface (eSPI)
 GNSS
 ====
 
- * The u-blox M10 driver has been renamed to M8 as it only supports M8 based devices.
-   Existing devicetree compatibles should be updated to :dtcompatible:`u-blox,m8`, and Kconfig
-   symbols swapped to :kconfig:option:`CONFIG_GNSS_U_BLOX_M8`.
+* The u-blox M10 driver has been renamed to M8 as it only supports M8 based devices.
+  Existing devicetree compatibles should be updated to :dtcompatible:`u-blox,m8`, and Kconfig
+  symbols swapped to :kconfig:option:`CONFIG_GNSS_U_BLOX_M8`.
+
+* The APIs :c:func:`gnss_set_periodic_config` and :c:func:`gnss_get_periodic_config` have
+  been removed. (:github:`76392`)
 
 Input
 =====
@@ -197,6 +210,19 @@ Bluetooth Audio
   the connection.
   This needs to be added to all instances of VCP Volume Renderer callback functions defined.
   (:github:`76992`)
+
+* The Unicast Server has a new registration function :c:func:`bt_bap_unicast_server_register` which
+  takes a :c:struct:`bt_bap_unicast_server_register_param` as argument. This allows the Unicast
+  Server to dynamically register Source and Sink ASE count at runtime. The old
+  :kconfig:option:`CONFIG_BT_ASCS_ASE_SRC_COUNT` and :kconfig:option:`CONFIG_BT_ASCS_ASE_SNK_COUNT`
+  has been renamed to :kconfig:option:`CONFIG_BT_ASCS_MAX_ASE_SRC_COUNT` and
+  :kconfig:option:`CONFIG_BT_ASCS_MAX_ASE_SNK_COUNT` to reflect that they now serve as a
+  compile-time maximum configuration of ASEs to be used.
+  :c:func:`bt_bap_unicast_server_register` needs to be called once before using the Unicast Server,
+  and more specfically prior to calling :c:func:`bt_bap_unicast_server_register_cb` for the first
+  time. It does not need to be called again until the new function
+  :c:func:`bt_bap_unicast_server_unregister` has been called.
+  (:github:`76632`)
 
 Bluetooth Classic
 =================
