@@ -180,7 +180,20 @@ static inline void arch_isr_direct_footer(int maybe_swap)
 #define ARCH_ISR_DIAG_OFF
 #define ARCH_ISR_DIAG_ON
 #endif
-
+#ifdef __ICCARM__
+#define ARCH_ISR_DIRECT_DECLARE(name)                                                              \
+	static inline int name##_body(void);                                                       \
+	ARCH_ISR_DIAG_OFF                                                                          \
+	__irq void name(void)                                          \
+	{                                                                                          \
+		int check_reschedule;                                                              \
+		ISR_DIRECT_HEADER();                                                               \
+		check_reschedule = name##_body();                                                  \
+		ISR_DIRECT_FOOTER(check_reschedule);                                               \
+	}                                                                                          \
+	ARCH_ISR_DIAG_ON                                                                           \
+	static inline int name##_body(void)
+#else
 #define ARCH_ISR_DIRECT_DECLARE(name) \
 	static inline int name##_body(void); \
 	ARCH_ISR_DIAG_OFF \
@@ -193,6 +206,7 @@ static inline void arch_isr_direct_footer(int maybe_swap)
 	} \
 	ARCH_ISR_DIAG_ON \
 	static inline int name##_body(void)
+#endif
 
 #if defined(CONFIG_DYNAMIC_DIRECT_INTERRUPTS)
 
