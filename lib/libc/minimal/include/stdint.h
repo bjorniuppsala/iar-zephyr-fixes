@@ -104,7 +104,7 @@ typedef __UINT_LEAST64_TYPE__	uint_least64_t;
 typedef __INTPTR_TYPE__		intptr_t;
 typedef __UINTPTR_TYPE__	uintptr_t;
 
-#if defined(__GNUC__) || defined(__clang__)
+#if !defined(__ICCARM__) && (defined(__GNUC__) || defined(__clang__) )
 /* These macros must produce constant integer expressions, which can't
  * be done in the preprocessor (casts aren't allowed).  Defer to the
  * GCC internal functions where they're available.
