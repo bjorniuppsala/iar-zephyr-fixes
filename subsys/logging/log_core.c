@@ -541,11 +541,12 @@ static inline bool z_log_unordered_pending(void)
 
 bool z_impl_log_process(void)
 {
+	k_timeout_t backoff; 
 	if (!IS_ENABLED(CONFIG_LOG_MODE_DEFERRED)) {
 		return false;
 	}
 
-	k_timeout_t backoff = K_NO_WAIT;
+	backoff = K_NO_WAIT;
 	union log_msg_generic *msg;
 
 	if (!backend_attached) {
