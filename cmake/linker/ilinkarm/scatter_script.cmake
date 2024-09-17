@@ -282,7 +282,7 @@ function(system_to_string)
   # build for ram, require no initialize
 
   # set(${STRING_STRING} "${${STRING_STRING}}initialize by address_translation { readwrite } except { section .irq_info, section .intList };\n")
-  set(${STRING_STRING} "${${STRING_STRING}}initialize by address_translation { readwrite };\n")
+  set(${STRING_STRING} "${${STRING_STRING}}initialize by address_translation { readwrite data };\n")
 
   # armlink variant
   set(${STRING_STRING} "${${STRING_STRING}}\n")
