@@ -275,15 +275,6 @@ function(system_to_string)
 
   set(${STRING_STRING} "${${STRING_STRING}}\n\n")
 
-  # # set(${STRING_STRING} "${${STRING_STRING}}initialize by copy with packing = none { readwrite };\n")
-  # set(${STRING_STRING} "${${STRING_STRING}}initialize by copy with packing = none { readwrite } except { section .irq_info, section .intList };\n")
-  # # set(${STRING_STRING} "${${STRING_STRING}}initialize by copy { readwrite };\n")
-  # # set(${STRING_STRING} "${${STRING_STRING}}initialize manually { readwrite };\n")
-  # build for ram, require no initialize
-
-  # set(${STRING_STRING} "${${STRING_STRING}}initialize by address_translation { readwrite } except { section .irq_info, section .intList };\n")
-  set(${STRING_STRING} "${${STRING_STRING}}initialize by address_translation { readwrite data };\n")
-
   # armlink variant
   set(${STRING_STRING} "${${STRING_STRING}}\n")
   foreach(region ${regions})
@@ -462,9 +453,6 @@ function(group_to_string)
     foreach(section ${sections})
 
       # message("\ngroup: section(3) ${vma} ${section}")
-
-      set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
-
       to_string(OBJECT ${section} STRING ${STRING_STRING})
       get_property(name     GLOBAL PROPERTY ${section}_NAME)
       string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
@@ -548,6 +536,8 @@ function(section_to_string)
 
   get_property(parent_type GLOBAL PROPERTY ${parent}_OBJ_TYPE)
   if(${parent_type} STREQUAL GROUP)
+    get_property(group_parent_vma GLOBAL PROPERTY ${parent}_VMA)
+    get_property(group_parent_lma GLOBAL PROPERTY ${parent}_LMA)
     if(NOT DEFINED vma)
       get_property(vma GLOBAL PROPERTY ${parent}_VMA)
     endif()
@@ -555,6 +545,8 @@ function(section_to_string)
       get_property(lma GLOBAL PROPERTY ${parent}_LMA)
     endif()
   endif()
+
+  set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
 
   # message("\nsection_to_string")
   # message("format ${format}")
@@ -574,6 +566,8 @@ function(section_to_string)
   # message("end_syms   ${end_syms}")
 
   # message("parent   ${parent}")
+  # message("group_parent_vma      ${group_parent_vma}")
+  # message("group_parent_lma      ${group_parent_lma}")
 
   get_property(indicies GLOBAL PROPERTY ${STRING_SECTION}_SETTINGS_INDICIES)
   # message("indicies ${indicies}")
@@ -816,10 +810,10 @@ function(section_to_string)
           set(ANY_FLAG "readwrite")
         elseif("${flag}" STREQUAL +ZI)
           set(ANY_FLAG "zeroinit")
+          set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "${ANY_FLAG}")
         endif()
       endforeach()
       set(TEMP "${TEMP} ${ANY_FLAG} }")
-      set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "${ANY_FLAG}")
     endif()
 
     if(DEFINED symbol_end)
@@ -898,7 +892,23 @@ function(section_to_string)
   #   set(TEMP "${TEMP}\ndefine exported symbol __${name_clean}_size = __${name_clean}_end - __${name_clean}_start;")
   # endif()
 
+
+  get_property(current_sections GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
+
+  if(DEFINED group_parent_vma AND DEFINED group_parent_lma)
+    if(DEFINED current_sections)
+      set(TEMP "${TEMP}\ninitialize by address_translation\n")
+      set(TEMP "${TEMP}{\n")
+      foreach(section ${current_sections})
+        set(TEMP "${TEMP}  ${section},\n")
+      endforeach()
+      set(TEMP "${TEMP}};")
+      set(current_sections)
+    endif()
+  endif()
+
   # message("TEMP == ${TEMP}")
+
   set(${STRING_STRING} "${${STRING_STRING}}\n${TEMP}\n" PARENT_SCOPE)
 endfunction()
 
@@ -922,7 +932,7 @@ function(symbol_to_string)
   string(REGEX MATCHALL "@([^@]*)@" match_res ${expr})
 
   # foreach(match ${match_res})
-  #   #message("match = ${match}")
+  #   message("match = ${match}")
   #   string(REPLACE "@" "" match ${match})
   #   get_property(symbol_val GLOBAL PROPERTY SYMBOL_TABLE_${match})
   #   string(REPLACE "@${match}@" "ImageBase(${symbol_val})" expr ${expr})
@@ -931,7 +941,7 @@ function(symbol_to_string)
   foreach(match ${match_res})
     string(REPLACE "@" "" match ${match})
     get_property(symbol_val GLOBAL PROPERTY SYMBOL_TABLE_${match})
-    # # message("symbol_val == ${symbol_val}")
+    #  message("symbol_val == ${symbol_val}")
     # if(symbol_val)
     #   set_property(GLOBAL APPEND PROPERTY SECTION_STEERING_C
     #     "\n#pragma section=\"${match}\""
