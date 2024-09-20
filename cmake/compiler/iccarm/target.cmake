@@ -85,7 +85,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --diag_suppress=Pe128  # loop is not reachable
   --diag_suppress=Pe118  # a void function may not return a value
   --diag_suppress=Pe513  # a value of type "void *" cannot be assigned to an entity of type "int (*)(int)"
-#  --diag_suppress=Pe042  # operand types are incompatible ("void *" and "void (*)(void *, void *, void *)")
+  --diag_suppress=Pe042  # operand types are incompatible ("void *" and "void (*)(void *, void *, void *)")
   --diag_suppress=Pe1143 # arithmetic on pointer to void or function type
   --diag_suppress=Be006  # possible conflict for segment/section "xxx"
   --diag_suppress=Ta184  # Using zero sized arrays except for as last member of a struct is discouraged and dereferencing elements in such an array has undefined behavior
