@@ -91,7 +91,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --diag_suppress=Ta184  # Using zero sized arrays except for as last member of a struct is discouraged and dereferencing elements in such an array has undefined behavior
   #--diag_suppress=Pa181  # incompatible redefinition of macro
   --diag_suppress=Pe1153  # declaration does not match its alias variable "xxx"
-
+  --diag_suppress=Pe191  # type qualifier is meaningless on cast type
 )
 
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
