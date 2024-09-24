@@ -8,7 +8,11 @@ if(CONFIG_CMSIS_DSP)
 
   zephyr_library()
 
-  zephyr_library_compile_options(-Ofast)
+  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+    # ICCARM does not support -Ofast
+  else()
+    zephyr_library_compile_options(-Ofast)
+  endif()
 
   zephyr_include_directories(
     ${CMSIS_DSP_DIR}/Include
@@ -47,8 +51,12 @@ if(CONFIG_CMSIS_DSP)
     endif()
   endif()
 
-  zephyr_library_compile_options(-Ofast)
-
+  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+    # ICCARM does not support -Ofast
+  else()
+    zephyr_library_compile_options(-Ofast)
+  endif()
+  
   zephyr_compile_definitions_ifndef(CONFIG_ARM __GNUC_PYTHON__)
 
   # BasicMathFunctions

@@ -8,7 +8,11 @@ if(CONFIG_CMSIS_NN)
 
   zephyr_library()
 
-  zephyr_library_compile_options(-Ofast)
+  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+    # ICCARM does not support -Ofast
+  else()
+    zephyr_library_compile_options(-Ofast)
+  endif()
 
   zephyr_include_directories(${CMSIS_NN_DIR}/Include)
 
