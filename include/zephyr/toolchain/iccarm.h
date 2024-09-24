@@ -23,10 +23,7 @@
 
 //#define TOOLCHAIN_HAS_ZLA 1
 
-#ifndef __cplusplus
 #define __thread _Thread_local
-#endif
-
 /*
  * Older versions of ICCARM do not define __BYTE_ORDER__, so it must be manually
  * detected and defined using arch-specific definitions.
