@@ -145,7 +145,7 @@ else()
 
   if(CONFIG_FPU)
     list(APPEND TOOLCHAIN_C_FLAGS --fpu=${ICCARM_FPU})
-    list(APPEND TOOLCHAIN_ASM_FLAGS --fpu=${GCC_M_FPU})
+    list(APPEND TOOLCHAIN_ASM_FLAGS -mfpu=${GCC_M_FPU})
   endif()
 endif()
 
