@@ -4,6 +4,8 @@
 
 # Avoids running the linker during try_compile()
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+#set(NO_BUILD_TYPE_WARNING 1)
+set(CMAKE_NOT_USING_CONFIG_FLAGS 1)
 
 find_program(CMAKE_C_COMPILER
   NAMES iccarm
