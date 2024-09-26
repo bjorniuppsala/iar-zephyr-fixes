@@ -151,7 +151,7 @@ static inline uintptr_t arch_syscall_invoke1(uintptr_t arg1,
 
 static inline uintptr_t arch_syscall_invoke0(uintptr_t call_id)
 {
-	register uint32_t ret __asm__("r0");
+	register uint32_t ret __asm__("r0") = 0;
 	register uint32_t r6 __asm__("r6") = call_id;
 
 	__asm__ volatile("svc %[svid]\n"
