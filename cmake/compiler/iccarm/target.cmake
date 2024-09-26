@@ -4,7 +4,7 @@
 
 # Avoids running the linker during try_compile()
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-#set(NO_BUILD_TYPE_WARNING 1)
+set(NO_BUILD_TYPE_WARNING 1)
 set(CMAKE_NOT_USING_CONFIG_FLAGS 1)
 
 find_program(CMAKE_C_COMPILER
@@ -125,7 +125,7 @@ list(APPEND TOOLCHAIN_ASM_FLAGS
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   # GCC defaults to Dwarf 5 output
-  list(APPEND TOOLCHAIN_ASM_FLAGS -gdwarf-4)
+#  list(APPEND TOOLCHAIN_ASM_FLAGS -gdwarf-4)
 endif()
 
 if (DEFINED CONFIG_ARM_SECURE_FIRMWARE)

@@ -99,7 +99,9 @@ set_compiler_property(PROPERTY hosted)
 set_compiler_property(PROPERTY freestanding)
 
 # Flag to include debugging symbol in compilation
-#set_compiler_property(PROPERTY debug $<$<COMPILE_LANGUAGE:C,CXX>:--debug>)
+set_property(TARGET compiler PROPERTY debug --debug)
+set_property(TARGET compiler-cpp PROPERTY debug --debug)
+set_property(TARGET asm PROPERTY debug -gdwarf-4)
 
 set_compiler_property(PROPERTY no_common)
 
