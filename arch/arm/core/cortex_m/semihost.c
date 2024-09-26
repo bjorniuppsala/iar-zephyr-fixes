@@ -20,20 +20,10 @@
 #define __volatile__ volatile
 #endif
 
-// IAR WA VAAK-8: Using _Pragma location instead of __asm__
+#endif
+
 
 long semihost_exec(enum semihost_instr instr, void *args)
-{
-	int ret;
-	// IAR WA VAAK-8: Using specific registers 
-
-	__asm__ __volatile__("bkpt 0xab" : "=r0"(ret) : "r0"(instr), "r1"(args) : "memory");
-	return ret;
-}
-
-#else
-
-	long semihost_exec(enum semihost_instr instr, void *args)
 {
 	register unsigned int r0 __asm__("r0") = instr;
 	register void *r1 __asm__("r1") = args;
@@ -42,4 +32,3 @@ long semihost_exec(enum semihost_instr instr, void *args)
 	__asm__ __volatile__("bkpt 0xab" : "=r"(ret) : "r"(r0), "r"(r1) : "memory");
 	return ret;
 }
-#endif
