@@ -123,9 +123,9 @@ list(APPEND TOOLCHAIN_ASM_FLAGS
   -mabi=aapcs
   )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if(CONFIG_DEBUG)
   # GCC defaults to Dwarf 5 output
-#  list(APPEND TOOLCHAIN_ASM_FLAGS -gdwarf-4)
+  list(APPEND TOOLCHAIN_ASM_FLAGS -gdwarf-4)
 endif()
 
 if (DEFINED CONFIG_ARM_SECURE_FIRMWARE)
