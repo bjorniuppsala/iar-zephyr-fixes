@@ -75,6 +75,15 @@ function(toolchain_ld_link_elf)
   endforeach()
   #message("")
 
+  set(ILINK_SEMIHOSTING)
+  set(ILINK_BUFFERED_WRITE)
+  if(${CONFIG_IAR_SEMIHOSTING})
+    set(ILINK_SEMIHOSTING "--semihosting")
+  endif()
+  if(${CONFIG_IAR_BUFFERED_WRITE})
+    set(ILINK_BUFFERED_WRITE "--redirect __write=__write_buffered")
+  endif()
+
   target_link_libraries(
     ${TOOLCHAIN_LD_LINK_ELF_TARGET_ELF}
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_PRE_SCRIPT}
@@ -92,6 +101,8 @@ function(toolchain_ld_link_elf)
     #"--keep=\"*.o(.init_*)\""
     #"--keep=\"*.o(.device_*)\""
 
+    ${ILINK_SEMIHOSTING}
+    ${ILINK_BUFFERED_WRITE}
     # Do not remove symbols
     #--no_remove
     $<TARGET_OBJECTS:ilinkarm_steering>
