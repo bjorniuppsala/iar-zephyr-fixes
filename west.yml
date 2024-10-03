@@ -157,7 +157,7 @@ manifest:
       groups:
         - hal
     - name: hal_espressif
-      revision: 0bd00ce82fcf48281c9206fc28bd39785f059d64
+      revision: 1082a6923353c4a01aeb7acafd1b9a7866820f38
       path: modules/hal/espressif
       west-commands: west/west-commands.yml
       groups:
@@ -178,7 +178,7 @@ manifest:
       groups:
         - hal
     - name: hal_intel
-      revision: 0905a528623de56b1bedf817536321bcdbc0efae
+      revision: 8876a1815bc59e0464d285459b71e3d69872edfd
       path: modules/hal/intel
       groups:
         - hal
@@ -188,7 +188,7 @@ manifest:
       groups:
         - hal
     - name: hal_nordic
-      revision: af7b21c4f875bea26689307daa8e52e9a8e8323c
+      revision: 6d4acb8dbd9e92c7c5d6e18724197e3f007ae45e
       path: modules/hal/nordic
       groups:
         - hal
@@ -223,7 +223,7 @@ manifest:
       groups:
         - hal
     - name: hal_silabs
-      revision: 4c813a1f6c0bba03dec45a3878ba06cfb385565d
+      revision: d07d744a933bada3a87377dc46241960f620011f
       path: modules/hal/silabs
       groups:
         - hal
@@ -259,7 +259,7 @@ manifest:
         - hal
     - name: hostap
       path: modules/lib/hostap
-      revision: cbae0170437dbe196d436b2b53d7aefb97044b0c
+      revision: 9896a2ea803ec62e0998c0e569f12af88537d647
     - name: libmetal
       revision: a6851ba6dba8c9e87d00c42f171a822f7a29639b
       path: modules/hal/libmetal
@@ -285,7 +285,7 @@ manifest:
       groups:
         - crypto
     - name: mcuboot
-      revision: e890df7ab975da181a9f3fb3abc470bf935625ab
+      revision: 3a195f2207d5eadf45a5c989a870e91aff020d86
       path: bootloader/mcuboot
       groups:
         - bootloader
@@ -300,13 +300,13 @@ manifest:
       groups:
         - tools
     - name: nrf_hw_models
-      revision: d2a119a9c7600ce06033a794de042e0ad9a38702
+      revision: bf8e45bd1f870e49cc15392e045c28d54ea12285
       path: modules/bsim_hw_models/nrf_hw_models
     - name: open-amp
-      revision: 76d2168bcdfcd23a9a7dce8c21f2083b90a1e60a
+      revision: b735edbc739ad59156eb55bb8ce2583d74537719
       path: modules/lib/open-amp
     - name: openthread
-      revision: e10a92570f94ff1e0bc5e0da9ecf0ee135d955a6
+      revision: 2aeb8b833ba760ec29d5f340dd1ce7bcb61c5d56
       path: modules/lib/openthread
     - name: percepio
       path: modules/debug/percepio
@@ -315,7 +315,7 @@ manifest:
         - debug
     - name: picolibc
       path: modules/lib/picolibc
-      revision: 06bde1fd7531b1f788f6e42b6f7b358c0fe4f814
+      revision: e15656f7682500fc8953e1a2008f7b1ae4f65ce8
     - name: segger
       revision: b011c45b585e097d95d9cf93edf4f2e01588d3cd
       path: modules/debug/segger
