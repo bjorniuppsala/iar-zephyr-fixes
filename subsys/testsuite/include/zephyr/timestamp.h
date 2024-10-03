@@ -16,7 +16,7 @@
 #include <zephyr/kernel.h>
 
 #include <limits.h>
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__ICCARM__)
 #include <zephyr/test_asm_inline_gcc.h>
 #else
 #include <zephyr/test_asm_inline_other.h>

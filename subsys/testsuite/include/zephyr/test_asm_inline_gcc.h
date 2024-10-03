@@ -11,7 +11,7 @@
 
 #include <zephyr/sys/barrier.h>
 
-#if !defined(__GNUC__)
+#if !defined(__GNUC__) && !defined(__ICCARM__)
 #error test_asm_inline_gcc.h goes only with GCC
 #endif
 
