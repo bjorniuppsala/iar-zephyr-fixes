@@ -21,15 +21,13 @@
 #ifndef __CHAR_BIT__
 #define __CHAR_BIT__ __CHAR_BITS__
 #endif
-#define __SCHAR_MAX__ __CHAR_MAX__
-//#else
-//#error "unexpected __CHAR_BITS__ value"
-//#endif
+#define __SCHAR_MAX__ __SIGNED_CHAR_MAX__
 
 #define __INT_MAX__    __SIGNED_INT_MAX__
 #define __INT_WIDTH__ (__INT_SIZE__*8)
 #define __SIZEOF_INT__ __INT_SIZE__
 
+#define __SHRT_MAX__     __SIGNED_SHORT_MAX__
 #define __SHRT_WIDTH__  (__SHORT_SIZE__*8)
 #define __SIZEOF_SHORT__ __SHORT_SIZE__
 
@@ -155,6 +153,9 @@
 
 #define __UINT_LEAST64_MAX__  __UINT_LEAST64_T_MAX__
 #define __UINT_LEAST64_TYPE__ __UINT_LEAST64_T_TYPE__
+
+
+
 
 #endif /* __IAR_SYSTEMS_ICC__ */
 
