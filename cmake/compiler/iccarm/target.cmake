@@ -94,6 +94,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   #--diag_suppress=Pa181  # incompatible redefinition of macro
   --diag_suppress=Pe1153  # declaration does not match its alias variable "xxx"
   --diag_suppress=Pe191  # type qualifier is meaningless on cast type
+  --diag_suppress=Pe177  # function "xxx" was declared but never referenced
 )
 
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
@@ -113,7 +114,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
 
 #  -r
 #  --separate_cluster_for_initialized_variables
-#  --warnings_are_errors
+# --warnings_are_errors
 #  --trace BE_CODEGEN
 )
 
