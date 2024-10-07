@@ -8,7 +8,6 @@
 #define ZEPHYR_INCLUDE_SYS_ERRNO_PRIVATE_H_
 
 #include <zephyr/toolchain.h>
-#include <zephyr/types.h> /* For Z_THREAD_LOCAL */
 
 #ifdef __cplusplus
 extern "C" {
