@@ -176,6 +176,9 @@ static inline void arch_isr_direct_footer(int maybe_swap)
 	_Pragma("GCC diagnostic push") \
 	_Pragma("GCC diagnostic ignored \"-Wattributes\"")
 #define ARCH_ISR_DIAG_ON _Pragma("GCC diagnostic pop")
+#elif defined(__ICCARM__)
+#define ARCH_ISR_DIAG_OFF
+#define ARCH_ISR_DIAG_ON 
 #else
 #define ARCH_ISR_DIAG_OFF
 #define ARCH_ISR_DIAG_ON
@@ -210,9 +213,13 @@ static inline void arch_isr_direct_footer(int maybe_swap)
 
 #if defined(CONFIG_DYNAMIC_DIRECT_INTERRUPTS)
 
+#ifdef __ICCARM__
+extern __irq void z_arm_irq_direct_dynamic_dispatch_reschedule(void);
+extern __irq void z_arm_irq_direct_dynamic_dispatch_no_reschedule(void);
+#else
 extern void z_arm_irq_direct_dynamic_dispatch_reschedule(void);
 extern void z_arm_irq_direct_dynamic_dispatch_no_reschedule(void);
-
+#endif
 /**
  * @brief Macro to register an ISR Dispatcher (with or without re-scheduling
  * request) for dynamic direct interrupts.
