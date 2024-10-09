@@ -9,6 +9,10 @@ We are pleased to announce the release of Zephyr version 4.0.0.
 
 Major enhancements with this release include:
 
+* The introduction of the :ref:`secure storage<secure_storage>` subsystem. It allows the use of the
+  PSA Secure Storage API and of persistent keys in the PSA Crypto API on all board targets. It
+  is now the standard way to provide device-specific protection to data at rest. (:github:`76222`)
+
 An overview of the changes required or recommended when migrating your application from Zephyr
 v3.7.0 to Zephyr v4.0.0 can be found in the separate :ref:`migration guide<migration_4.0>`.
 
@@ -143,6 +147,9 @@ Build system and Infrastructure
    * ``--edt-pickle-out``
    * ``--vendor-prefixes``
    * ``--edtlib-Werror``
+
+* Switched to using imgtool directly from the build system when signing images instead of calling
+  ``west sign``.
 
 Documentation
 *************
@@ -408,6 +415,15 @@ Libraries / Subsystems
 * LoRa/LoRaWAN
 
 * ZBus
+
+* JWT (JSON Web Token)
+
+  * The following new Kconfigs were added to specify which library to use for the
+    signature:
+
+    * :kconfig:option:`CONFIG_JWT_USE_PSA` (default) use the PSA Crypto API;
+    * :kconfig:option:`CONFIG_JWT_USE_LEGACY` use legacy libraries, i.e. TinyCrypt
+      for ECDSA and Mbed TLS for RSA.
 
 HALs
 ****

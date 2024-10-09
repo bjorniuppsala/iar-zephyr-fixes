@@ -157,7 +157,7 @@ manifest:
       groups:
         - hal
     - name: hal_espressif
-      revision: 1082a6923353c4a01aeb7acafd1b9a7866820f38
+      revision: ef9d884533208005468a118c7ada56e92ae9ba8b
       path: modules/hal/espressif
       west-commands: west/west-commands.yml
       groups:
@@ -188,7 +188,7 @@ manifest:
       groups:
         - hal
     - name: hal_nordic
-      revision: 6d4acb8dbd9e92c7c5d6e18724197e3f007ae45e
+      revision: bc25c094a8cf3064f4f9c1e8060b46e1989edf95
       path: modules/hal/nordic
       groups:
         - hal
@@ -198,7 +198,7 @@ manifest:
       groups:
         - hal
     - name: hal_nxp
-      revision: adfa0bbba6f5d36352d387527bdc486616c9f521
+      revision: 9702923eeb6f4a9ca063ca3b200324b118d3e843
       path: modules/hal/nxp
       groups:
         - hal
@@ -214,12 +214,12 @@ manifest:
         - hal
     - name: hal_renesas
       path: modules/hal/renesas
-      revision: 1ec88911defaba8aebe265d57497cacfbb6afeb8
+      revision: 3dafd030046f8d6f8a26080e9b9c1bcc92d45999
       groups:
         - hal
     - name: hal_rpi_pico
       path: modules/hal/rpi_pico
-      revision: fba7162cc7bee06d0149622bbcaac4e41062d368
+      revision: 79ee0f9e058a6327fc943d2f2a19cf3ade107cec
       groups:
         - hal
     - name: hal_silabs
@@ -259,7 +259,7 @@ manifest:
         - hal
     - name: hostap
       path: modules/lib/hostap
-      revision: 9896a2ea803ec62e0998c0e569f12af88537d647
+      revision: f6792cb45d848df5d562dd9255dfc6acf62be164
     - name: libmetal
       revision: a6851ba6dba8c9e87d00c42f171a822f7a29639b
       path: modules/hal/libmetal
@@ -280,7 +280,7 @@ manifest:
       revision: 2b498e6f36d6b82ae1da12c8b7742e318624ecf5
       path: modules/lib/gui/lvgl
     - name: mbedtls
-      revision: fb36f3fe20f9f62e67b1a20c0cfe0a6788ec2bf6
+      revision: eb55f4734585dfd8cd3da6d4b01a6e372f073ee1
       path: modules/crypto/mbedtls
       groups:
         - crypto
