@@ -255,7 +255,7 @@ uint32_t z_impl_k_timer_status_sync(struct k_timer *timer)
 		uint32_t result;
 
 		do {
-			k_spinlock_key_t key = k_spin_lock(&lock);
+			key = k_spin_lock(&lock);
 
 			if (!z_is_inactive_timeout(&timer->timeout)) {
 				result = *(volatile uint32_t *)&timer->status;
