@@ -246,6 +246,8 @@ static inline uint32_t z_vrfy_k_timer_status_get(struct k_timer *timer)
 
 uint32_t z_impl_k_timer_status_sync(struct k_timer *timer)
 {
+	k_spinlock_key_t key;
+
 	__ASSERT(!arch_is_in_isr(), "");
 	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_timer, status_sync, timer);
 
@@ -272,7 +274,7 @@ uint32_t z_impl_k_timer_status_sync(struct k_timer *timer)
 		return result;
 	}
 
-	k_spinlock_key_t key = k_spin_lock(&lock);
+	key = k_spin_lock(&lock);
 	uint32_t result = timer->status;
 
 	if (result == 0U) {
