@@ -259,6 +259,11 @@ function(section_to_string)
       endif()
     endif()
 
+    if(DEFINED offset AND NOT ("${offset}" STREQUAL "${current_offset}"))
+      set(TEMP "${TEMP}\n  . = ${offset};")
+      set(current_offset ${offset})
+    endif()
+
     if(DEFINED symbol_start)
       set(TEMP "${TEMP}\n  ${symbol_start} = .;")
     endif()
