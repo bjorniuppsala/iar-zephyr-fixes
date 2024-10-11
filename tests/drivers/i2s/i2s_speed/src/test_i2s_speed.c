@@ -278,7 +278,7 @@ ZTEST(drivers_i2s_speed, test_i2s_transfer_long)
 	void *tx_block[NUM_BLOCKS];
 	size_t rx_size;
 	int tx_idx;
-	int rx_idx = 0;
+	int rx_idx;
 	int num_verified;
 	int ret;
 
@@ -290,6 +290,7 @@ ZTEST(drivers_i2s_speed, test_i2s_transfer_long)
 		fill_buf((uint16_t *)tx_block[tx_idx], tx_idx % 3);
 	}
 
+	rx_idx = 0;
 	tx_idx = 0;
 
 	/* Prefill TX queue */

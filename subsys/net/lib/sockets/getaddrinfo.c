@@ -433,11 +433,11 @@ int zsock_getaddrinfo(const char *host, const char *service,
 		      const struct zsock_addrinfo *hints,
 		      struct zsock_addrinfo **res)
 {
+	int ret = DNS_EAI_FAIL;
+
 	if (IS_ENABLED(CONFIG_NET_SOCKETS_OFFLOAD)) {
 		return socket_offload_getaddrinfo(host, service, hints, res);
 	}
-
-	int ret = DNS_EAI_FAIL;
 
 #if defined(ANY_RESOLVER)
 	*res = calloc(AI_ARR_MAX, sizeof(struct zsock_addrinfo));
