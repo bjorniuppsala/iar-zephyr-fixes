@@ -124,7 +124,7 @@ function(process_region)
       # A trick to add the symbol for the nxp devices
       # _flash_used = LOADADDR(.last_section) + SIZEOF(.last_section) - __rom_region_start;
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL _flash_used
-        EXPR "(@Load$$.last_section$$Base@ + @.last_section$$Length@ - @__rom_region_start@)"
+        EXPR "(@Load$$last_section$$Base@ + @last_section$$Length@ - @__rom_region_start@)"
         )
     endif()
 
@@ -485,7 +485,10 @@ function(group_to_string)
         else()
           set(${STRING_STRING} "${${STRING_STRING}}define block last_section with fixed order { };\n")
         endif()
-        set(${STRING_STRING} "${${STRING_STRING}}\".last_section\": place at end of ${group_name_lma} { block last_section };\n")
+        # Not really the right place, we want the last used flash bytes not end of the world!
+        # set(${STRING_STRING} "${${STRING_STRING}}\".last_section\": place at end of ${group_name_lma} { block last_section };\n")
+        set(${STRING_STRING} "${${STRING_STRING}}\".last_section\": place in ${group_name_lma} { block last_section };\n")
+        set(${STRING_STRING} "${${STRING_STRING}}keep { block last_section };\n")
       endif()
 
     endforeach()
