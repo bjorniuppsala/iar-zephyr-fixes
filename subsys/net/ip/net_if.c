@@ -141,6 +141,11 @@ static sys_slist_t timestamp_callbacks;
 #define debug_check_packet(...)
 #endif /* CONFIG_NET_IF_LOG_LEVEL >= LOG_LEVEL_DBG */
 
+#ifdef __ICCARM__
+/* Hide warning about mixed enum types in need_calc_checksum()
+#pragma diag_suppress=Pa089
+#endif
+
 struct net_if *z_impl_net_if_get_by_index(int index)
 {
 	if (index <= 0) {
