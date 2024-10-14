@@ -798,7 +798,10 @@ __syscall int device_init(const struct device *dev);
  */
 #define Z_DEVICE_STATE_DEFINE(dev_id)                                          \
 	static Z_DECL_ALIGN(struct device_state) Z_DEVICE_STATE_NAME(dev_id)   \
-		__attribute__((__section__(".z_devstate")))
+		__attribute__((__section__(".z_devstate"))) = {                \
+                  .init_res    = 0,                                            \
+                  .initialized = 0                                             \
+                };
 
 #if defined(CONFIG_DEVICE_DEPS) || defined(__DOXYGEN__)
 
