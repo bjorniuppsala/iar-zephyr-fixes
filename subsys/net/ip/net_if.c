@@ -142,7 +142,7 @@ static sys_slist_t timestamp_callbacks;
 #endif /* CONFIG_NET_IF_LOG_LEVEL >= LOG_LEVEL_DBG */
 
 #ifdef __ICCARM__
-/* Hide warning about mixed enum types in need_calc_checksum()
+/* Hide warning about mixed enum types in need_calc_checksum() */
 #pragma diag_suppress=Pa089
 #endif
 
