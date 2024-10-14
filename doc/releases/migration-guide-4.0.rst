@@ -213,6 +213,19 @@ Interrupt Controller
 LED Strip
 =========
 
+PWM
+===
+
+* The Raspberry Pi Pico PWM driver now configures frequency adaptively.
+  This has resulted in a change in how device tree parameters are handled.
+  If the :dtcompatible:`raspberry,pico-pwm`'s ``divider-int-0`` or variations
+  for each channel are specified, or if these are set to 0,
+  the driver dynamically configures the division ratio by specified cycles.
+  The driver will operate at the specified division ratio if a non-zero value is
+  specified for ``divider-int-0``.
+  This is unchanged from previous behavior.
+  Please specify ``divider-int-0`` explicitly to make the same behavior as before.
+
 SDHC
 ====
 
@@ -227,6 +240,17 @@ Sensors
 * The existing driver for the Microchip MCP9808 temperature sensor transformed and renamed
   to support all JEDEC JC 42.4 compatible temperature sensors. It now uses the
   :dtcompatible:`jedec,jc-42.4-temp` compatible string instead to the ``microchip,mcp9808`` string.
+* The :dtcompatible:`current-sense-amplifier` sense resistor is now specified in milli-ohms
+  (``sense-resistor-milli-ohms``) instead of micro-ohms in order to increase the maximum representable
+  resistor from 4.2k to 4.2M.
+* The :dtcompatible:`current-sense-amplifier` properties ``sense-gain-mult`` and ``sense-gain-div``
+  are now limited to a maximum value of ``UINT16_MAX`` to enable smaller rounding errors in internal
+  calculations.
+
+* The ``nxp,`` prefixed properties in :dtcompatible:`nxp,kinetis-acmp` have been deprecated in favor
+  of properties without the prefix. The sensor based driver for the :dtcompatible:`nxp,kinetis-acmp`
+  has been updated to support both the new and deprecated property names. Uses of the deprecated
+  property names should be updated to the new property names.
 
 Serial
 ======
@@ -453,6 +477,12 @@ Networking
   from :zephyr_file:`include/zephyr/net/buf.h` to :zephyr_file:`include/zephyr/net_buf.h` and the
   implementation moved to :zephyr_file:`lib/net_buf/`. (:github:`78009`)
 
+* The ``work_q`` parameter to ``NET_SOCKET_SERVICE_SYNC_DEFINE`` and
+  ``NET_SOCKET_SERVICE_SYNC_DEFINE_STATIC`` has been removed as it was always ignored. (:github:`79446`)
+
+* Deprecated the :kconfig:option:`CONFIG_NET_SOCKETS_POLL_MAX` option in favour of
+  :kconfig:option:`CONFIG_ZVFS_POLL_MAX`.
+
 Other Subsystems
 ****************
 
@@ -466,6 +496,14 @@ Flash map
 
 hawkBit
 =======
+
+* :c:func:`hawkbit_autohandler` now takes one argument. This argument has to be set to
+  ``true`` for the same behavior as before the change. (:github:`71037`)
+
+* ``<zephyr/mgmt/hawkbit.h>`` is deprecated in favor of ``<zephyr/mgmt/hawkbit/hawkbit.h>``.
+  The old header will be removed in future releases and its usage should be avoided.
+  The hawkbit autohandler has been separated into ``<zephyr/mgmt/hawkbit/autohandler.h>``.
+  The configuration part of hawkbit is now in ``<zephyr/mgmt/hawkbit/config.h>``. (:github:`71037`)
 
 MCUmgr
 ======
