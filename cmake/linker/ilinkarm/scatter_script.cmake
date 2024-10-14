@@ -673,6 +673,7 @@ function(section_to_string)
     get_property(flags    GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_FLAGS)
     get_property(input    GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_INPUT)
     get_property(symbols  GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_SYMBOLS)
+    # Get the next offset and use that as this ones size!
     get_property(offset   GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx_next}_OFFSET)
 
     # message("\nidx      ${idx}, ${idx_next}")
@@ -717,6 +718,22 @@ function(section_to_string)
     endif()
     if(align)
       list(APPEND block_attr "alignment = ${align}")
+    endif()
+
+    # LD
+    # There are two ways to include more than one section:
+    #
+    # *(.text .rdata)
+    # *(.text) *(.rdata)
+    #
+    # The difference between these is the order in which
+    # the `.text' and `.rdata' input sections will appear in the output section.
+    # In the first example, they will be intermingled,
+    # appearing in the same order as they are found in the linker input.
+    # In the second example, all `.text' input sections will appear first,
+    # followed by all `.rdata' input sections.
+    if(NOT sort AND NOT first)
+      list(APPEND block_attr "fixed order")
     endif()
 
     list(JOIN block_attr ", " block_attr_str)
