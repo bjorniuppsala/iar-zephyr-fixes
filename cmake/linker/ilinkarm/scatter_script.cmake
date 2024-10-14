@@ -59,18 +59,7 @@ function(process_region)
       get_property(sort    GLOBAL PROPERTY ${section}_SETTING_${idx}_SORT)
       get_property(offset  GLOBAL PROPERTY ${section}_SETTING_${idx}_OFFSET)
       if(DEFINED offset AND NOT offset EQUAL 0 )
-        # Ignored here
-        # message(FATAL_ERROR "offset == ${offset} ==> offset != 0")
-        # foreach(symbol ${symbols})
-        #   list(POP_FRONT steering_postfixes postfix)
-        #   math(EXPR offset_dec "${offset}")
-        #   set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_C
-        #     "${name_clean}_${offset_dec}$$${postfix}"
-        #   )
-        #   set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_FILE
-        #     "--redirect ${symbol}=${name_clean}_${offset_dec}$$${postfix}\n"
-        #   )
-        # endforeach()
+        # Same behavior as in section_to_string
       elseif(DEFINED offset AND offset STREQUAL 0 )
         # Same behavior as in section_to_string
       elseif(sort)
