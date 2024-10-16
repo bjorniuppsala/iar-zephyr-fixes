@@ -1,0 +1,5 @@
+- scenarios:
+  - sample.basic.fade_led
+  - sample.drivers.led.led_pwm
+  platforms:
+  - mimxrt1060_evk
