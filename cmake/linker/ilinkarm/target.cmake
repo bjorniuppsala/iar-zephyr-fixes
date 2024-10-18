@@ -17,24 +17,28 @@ function(toolchain_ld_force_undefined_symbols)
 #  endforeach()
 endfunction()
 
+# NOTE: ${linker_script_gen} will be produced at build-time; not at configure-time
 macro(configure_linker_script linker_script_gen linker_pass_define)
-  set(STEERING_FILE)
-  set(STEERING_C)
-  set(STEERING_FILE_ARG)
-  set(STEERING_C_ARG)
+  set(extra_dependencies ${ARGN})
+  # set(STEERING_FILE)
+  # set(STEERING_C)
+  # set(STEERING_FILE_ARG)
+  # set(STEERING_C_ARG)
   set(linker_pass_define_list ${linker_pass_define})
 
-  if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
-    set(STEERING_FILE ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.steer)
-    set(STEERING_C ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.c)
-    set(STEERING_FILE_ARG "-DSTEERING_FILE=${STEERING_FILE}")
-    set(STEERING_C_ARG "-DSTEERING_C=${STEERING_C}")
-  endif()
+  # if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
+  #   set(STEERING_FILE ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.steer)
+  #   set(STEERING_C ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.c)
+  #   set(STEERING_FILE_ARG "-DSTEERING_FILE=${STEERING_FILE}")
+  #   set(STEERING_C_ARG "-DSTEERING_C=${STEERING_C}")
+  # endif()
 
   add_custom_command(
     OUTPUT ${linker_script_gen}
-	   ${STEERING_FILE}
-	   ${STEERING_C}
+	   # ${STEERING_FILE}
+	   # ${STEERING_C}
+    DEPENDS
+      ${extra_dependencies}
     COMMAND ${CMAKE_COMMAND}
       -DPASS="${linker_pass_define}"
       -DMEMORY_REGIONS="$<TARGET_PROPERTY:linker,MEMORY_REGIONS>"
@@ -42,18 +46,18 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -DSECTIONS="$<TARGET_PROPERTY:linker,SECTIONS>"
       -DSECTION_SETTINGS="$<TARGET_PROPERTY:linker,SECTION_SETTINGS>"
       -DSYMBOLS="$<TARGET_PROPERTY:linker,SYMBOLS>"
-      ${STEERING_FILE_ARG}
-      ${STEERING_C_ARG}
+      # ${STEERING_FILE_ARG}
+      # ${STEERING_C_ARG}
       -DCONFIG_LINKER_LAST_SECTION_ID=${CONFIG_LINKER_LAST_SECTION_ID}
       -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
       -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
       -P ${ZEPHYR_BASE}/cmake/linker/ilinkarm/scatter_script.cmake
   )
 
-  if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
-    add_library(ilinkarm_steering OBJECT ${STEERING_C})
-    target_link_libraries(ilinkarm_steering PRIVATE zephyr_interface)
-  endif()
+  # if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
+  #   add_library(ilinkarm_steering OBJECT ${STEERING_C})
+  #   target_link_libraries(ilinkarm_steering PRIVATE zephyr_interface)
+  # endif()
 endmacro()
 
 function(toolchain_ld_link_elf)
@@ -89,53 +93,26 @@ function(toolchain_ld_link_elf)
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_PRE_SCRIPT}
     --config=${TOOLCHAIN_LD_LINK_ELF_LINKER_SCRIPT}
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_POST_SCRIPT}
-    # $<TARGET_OBJECTS:arch__arm__core__cortex_m>
     --map=${TOOLCHAIN_LD_LINK_ELF_OUTPUT_MAP}
     --log_file=${TOOLCHAIN_LD_LINK_ELF_OUTPUT_MAP}.log
 
     ${ZEPHYR_LIBS_OBJECTS}
     kernel
     $<TARGET_OBJECTS:${OFFSETS_LIB}>
-    #--library_type=microlib
     --entry=$<TARGET_PROPERTY:linker,ENTRY>
-    #"--keep=\"*.o(.init_*)\""
-    #"--keep=\"*.o(.device_*)\""
 
     ${ILINK_SEMIHOSTING}
     ${ILINK_BUFFERED_WRITE}
     # Do not remove symbols
     #--no_remove
-    $<TARGET_OBJECTS:ilinkarm_steering>
-    #--edit=${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.steer
-    -f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.steer
+    # $<TARGET_OBJECTS:ilinkarm_steering>
+    # -f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.steer
 
-    # Resolving symbols using generated steering files will emit the warnings 6331 and 6332.
-    # Steering files are used because we want to be able to use `__device_end` instead of `Image$$device$$Limit`.
-    # Thus silence those two warnings.
-    #--diag_suppress=6331,6332
-    # The scatter file is generated, and thus sometimes input sections are specified
-    # even though there will be no such sections found in the libraries linked.
-    #--diag_suppress=6314
-    # We use empty execution sections in order to define custom symbols, such as
-    # __kernel_ram_x symbols, but nothing will go in those section, so silence
-    # the warning. Note, marking the section EMPTY causes armlink to reserve the
-    # address which in some cases leads to overlapping section errors.
-    #--diag_suppress=6312
-    # Use of '.gnu.linkonce' sections. Those are used by ld, and # supported by armlink, albeit
-    # deprecated there. For current ARMClang support phase, we accept this warning, but we should
-    # look into changing to COMDAT groups.
-    #--diag_suppress=6092
-    # Wildcard matching of keep sections, Those are needed for gnu ld, and thus we inherit the same
-    # keep flags and apply them to armlink. Consider adjusting keep flags per linker in future.
-    #--diag_suppress=6319
-    # Match pattern for an unused section that is being removed.
-    #--diag_suppress=6329
     ${TOOLCHAIN_LIBS_OBJECTS}
 
     ${TOOLCHAIN_LD_LINK_ELF_DEPENDENCIES}
   )
 endfunction(toolchain_ld_link_elf)
 
-#include(${ZEPHYR_BASE}/cmake/linker/ld/target_cpp.cmake)
 include(${ZEPHYR_BASE}/cmake/linker/ld/target_relocation.cmake)
 include(${ZEPHYR_BASE}/cmake/linker/ld/target_configure.cmake)
