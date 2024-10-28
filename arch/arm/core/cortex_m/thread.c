@@ -21,6 +21,26 @@
 #include <stdbool.h>
 #include <cmsis_core.h>
 
+
+// IARTODO: This should be fixed by upping the version of CMSIS headers.
+// This happens when you use ICCARM > 9.40.x but CMSIS_5 headers instead of CMSIS_6.
+#if defined(__ICCARM__) && defined(__enable_fault_irq)
+
+#undef __enable_fault_irq
+#undef __disable_fault_irq
+
+_Pragma("inline=forced") __intrinsic void __disable_fault_irq()
+{
+__ASM volatile ("CPSID F" ::: "memory");
+}
+
+_Pragma("inline=forced") __intrinsic void __enable_fault_irq()
+{
+__ASM volatile ("CPSIE F" ::: "memory");
+}
+
+#endif
+
 #if (MPU_GUARD_ALIGN_AND_SIZE_FLOAT > MPU_GUARD_ALIGN_AND_SIZE)
 #define FP_GUARD_EXTRA_SIZE	(MPU_GUARD_ALIGN_AND_SIZE_FLOAT - \
 				 MPU_GUARD_ALIGN_AND_SIZE)
@@ -596,11 +616,7 @@ void arch_switch_to_main_thread(struct k_thread *main_thread, char *stack_ptr,
 __used void arch_irq_unlock_outlined(unsigned int key)
 {
 #if defined(CONFIG_ARMV7_M_ARMV8_M_MAINLINE)
-#if defined(__ICCARM__) && defined(CONFIG_CPU_CORTEX_M)
-	// fault irq is not available for cortex M
-#else
 	__enable_fault_irq(); /* alters FAULTMASK */
-#endif
 	__enable_irq(); /* alters PRIMASK */
 #endif
 	arch_irq_unlock(key);
