@@ -51,7 +51,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -DCONFIG_LINKER_LAST_SECTION_ID=${CONFIG_LINKER_LAST_SECTION_ID}
       -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
       -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
-      -P ${ZEPHYR_BASE}/cmake/linker/ilinkarm/scatter_script.cmake
+      -P ${ZEPHYR_BASE}/cmake/linker/ilinkarm/config_file_script.cmake
   )
 
   if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
