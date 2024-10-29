@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #set(CMAKE_REQUIRED_QUIET 0)
-#set_property(TARGET linker PROPERTY devices_start_symbol "__device_start")
-set_property(TARGET linker PROPERTY devices_start_symbol "device$$Base")
+set_property(TARGET linker PROPERTY devices_start_symbol "_device_list_start")
 find_program(CMAKE_LINKER
   NAMES ${CROSS_COMPILE}ilinkarm
   PATHS ${TOOLCHAIN_HOME}
