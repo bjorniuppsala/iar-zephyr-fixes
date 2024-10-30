@@ -32,15 +32,7 @@ function(process_region)
     # message("process_region name_clean=${name_clean}")
 
     if(NOT nosymbols)
-      # WA for not having thing like these:
-      # set(TEMP "${TEMP}\n__${name_clean}_load_start = LOADADDR(${name});")
       if(${name} STREQUAL .ramfunc)
-        # set_property(GLOBAL APPEND PROPERTY SECTION_STEERING_C
-        #   "\n#pragma section=\".textrw_init\"\n"
-        #   )
-        # set_property(GLOBAL APPEND PROPERTY SECTION_STEERING_C
-        #   "void * __${name_clean}_load_start=__section_begin(\".textrw_init\")\;\n"
-        #   )
         create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_load_start
           EXPR "(@.textrw_init$$Base@)"
           )
@@ -64,15 +56,6 @@ function(process_region)
         # Same behavior as in section_to_string
       elseif(sort)
         # Treated by labels in the icf.
-        # foreach(symbol ${symbols})
-        #   list(POP_FRONT steering_postfixes postfix)
-        #   set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_C
-        #     "${name_clean}_${idx}$$${postfix}"
-        #   )
-        #   set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_FILE
-        #     "--redirect ${symbol}=${name_clean}_${idx}$$${postfix}\n"
-        #   )
-        # endforeach()
       elseif(DEFINED symbols AND ${length} EQUAL 1 AND noinput)
         # set(steering_postfixes Base Limit)
         # foreach(symbol ${symbols})
@@ -82,7 +65,6 @@ function(process_region)
         #   )
         #   set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_FILE
         #     "--redirect ${symbol}=${name_clean}$$${postfix}\n"
-
         #   )
         # endforeach()
       endif()
@@ -245,9 +227,6 @@ function(system_to_string)
       set(flags "")
     endif()
 
-    # # build for ram, require untyped memory
-    # set(flags "")
-
     if(DEFINED address)
       set(start "${address}")
     endif()
@@ -264,7 +243,6 @@ function(system_to_string)
 
   set(${STRING_STRING} "${${STRING_STRING}}\n\n")
 
-  # armlink variant
   set(${STRING_STRING} "${${STRING_STRING}}\n")
   foreach(region ${regions})
     get_property(empty GLOBAL PROPERTY ${region}_EMPTY)
@@ -290,8 +268,6 @@ function(group_to_string)
     get_property(name GLOBAL PROPERTY ${STRING_OBJECT}_NAME)
     get_property(address GLOBAL PROPERTY ${STRING_OBJECT}_ADDRESS)
     get_property(size GLOBAL PROPERTY ${STRING_OBJECT}_SIZE)
-    # set(${STRING_STRING} "${${STRING_STRING}}\n${name} ${address} NOCOMPRESS ${size}\n{\n")
-
     # message("name ${name}")
     # message("address ${address}")
     # message("size ${size}")
@@ -309,17 +285,6 @@ function(group_to_string)
     get_objects(LIST sections OBJECT ${STRING_OBJECT} TYPE SECTION)
     list(GET sections 0 section)
     get_property(first_section_name GLOBAL PROPERTY ${section}_NAME)
-
-    # This was/is a test to get region_start/region_end
-    # if(DEFINED first_section_name AND "${else_symbol}" STREQUAL "SECTION")
-    #   set_property(GLOBAL APPEND PROPERTY ${section}_START_SYMBOLS __${else_name}_start)
-    # endif()
-    # # A way to get the end symbols
-    # list(GET sections -1 section)
-    # get_property(last_section_name GLOBAL PROPERTY ${section}_NAME)
-    # if(DEFINED last_section_name AND "${else_symbol}" STREQUAL "SECTION")
-    #   set_property(GLOBAL APPEND PROPERTY ${section}_END_SYMBOLS __${else_name}_end)
-    # endif()
 
   endif()
 
@@ -348,7 +313,6 @@ function(group_to_string)
     # string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
     # string(REPLACE "." "_" name_clean "${name_clean}")
     get_property(name_clean GLOBAL PROPERTY ${section}_NAME_CLEAN)
-    #math(EXPR address_dec "${address} + 0")
     set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place at address mem:${address} { block ${name_clean} };\n")
   endforeach()
 
@@ -370,11 +334,8 @@ function(group_to_string)
     to_string(OBJECT ${section} STRING ${STRING_STRING})
 
     get_property(name     GLOBAL PROPERTY ${section}_NAME)
-    # string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
-    # string(REPLACE "." "_" name_clean "${name_clean}")
 
     get_property(name_clean GLOBAL PROPERTY ${section}_NAME_CLEAN)
-    # get_property(nosymbols  GLOBAL PROPERTY ${section}_NOSYMBOLS)
 
     get_property(parent   GLOBAL PROPERTY ${section}_PARENT)
     # This is only a trick to get the memories
@@ -398,15 +359,9 @@ function(group_to_string)
     endif()
 
     # message("group: section(1) place in ${ILINK_CURRENT_NAME} { block ${name_clean} };")
-    # set(${STRING_STRING} "${${STRING_STRING}}\"__${name_clean}_start\": ")
 
     set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
 
-    # if(NOT nosymbols)
-    #   set(${STRING_STRING} "${${STRING_STRING}}define exported symbol __${name_clean}_size = __${name_clean}_end - __${name_clean}_start;\n")
-    # endif()
-
-    # set(${STRING_STRING} "${${STRING_STRING}}keep symbol __${name_clean}_start;\n")
   endforeach()
 
   get_parent(OBJECT ${STRING_OBJECT} PARENT parent TYPE SYSTEM)
@@ -491,16 +446,13 @@ function(group_to_string)
   foreach(symbol ${symbols})
 
     # message("\ngroup: symbol(1) ${symbol}")
-    # set(${STRING_STRING} "${${STRING_STRING}}\n/*")
     to_string(OBJECT ${symbol} STRING ${STRING_STRING})
-    # set(${STRING_STRING} "${${STRING_STRING}}*/\n")
   endforeach()
 
   if(${type} STREQUAL REGION)
 
     # message("\ngroup: type ${type}")
 
-    #set(${STRING_STRING} "${${STRING_STRING}}\n}\n")
   endif()
   set(${STRING_STRING} ${${STRING_STRING}} PARENT_SCOPE)
 endfunction()
@@ -611,9 +563,6 @@ function(section_to_string)
       if(keep)
         # keep { section .abc* };
         set(TEMP "${TEMP}keep { section ${setting} };\n")
-        # if(${setting} STREQUAL .vectors)
-        #   set(TEMP "${TEMP}keep { section .intvec };\n")
-        # endif()
       endif()
     endforeach()
   endforeach()
@@ -721,6 +670,8 @@ function(section_to_string)
     # appearing in the same order as they are found in the linker input.
     # In the second example, all `.text' input sections will appear first,
     # followed by all `.rdata' input sections.
+    #
+    # ILINK solved by adding 'fixed order'
     if(NOT sort AND NOT first)
       list(APPEND block_attr "fixed order")
     endif()
@@ -747,28 +698,11 @@ function(section_to_string)
     foreach(setting ${input})
       # message("setting   ${setting}")
 
-      #       #set(SETTINGS ${SETTINGS_INPUT})
-      # #      # ToDo: The code below had en error in original implementation, causing
-      # #      #       settings not to be applied
-      # #      #       Verify behaviour and activate if working as intended.
-      # #      if(align)
-      # #        set(setting "${setting}, OVERALIGN ${align}")
-      # #      endif()
-      #       #if(SETTINGS_KEEP)
-      #       # armlink has --keep=<section_id>, but is there an scatter equivalant ?
-      #       #endif()
-      #       if(first)
-      #         set(setting "${setting}, +First")
-      #         set(first "")
-      #       endif()
       if(first)
         set(TEMP "${TEMP} first")
         set(first "")
       endif()
 
-      # if(${setting} STREQUAL .vectors)
-      #		set(TEMP "${TEMP} readonly section .intvec ,")
-      # endif()
       if(${setting} STREQUAL .ramfunc)
         set(TEMP "${TEMP} section .textrw,")
       endif()
@@ -808,8 +742,6 @@ function(section_to_string)
       if(NOT flags)
         message(FATAL_ERROR ".ANY requires flags to be set.")
       endif()
-      # string(REPLACE ";" " " flags "${flags}")
-      # set(TEMP "${TEMP}\n    .ANY (${flags})")
       set(ANY_FLAG "")
       foreach(flag ${flags})
         # message("flag == ${flag}")
@@ -841,34 +773,9 @@ function(section_to_string)
   endforeach()
   set(next_indicies)
 
-  # if(section_close OR DEFINED endalign)
-  #   set(section_close)
-  #   set(TEMP "${TEMP}}")
-
-  #   if(DEFINED endalign)
-  #     if(DEFINED last_index)
-  #       set(align_expr "AlignExpr(ImageLimit(${name_clean}_${last_index}), ${endalign}) FIXED")
-  #     else()
-  #       set(align_expr "AlignExpr(ImageLimit(${name_clean}), ${endalign}) FIXED")
-  #     endif()
-  #   else()
-  #     set(align_expr "+0")
-  #   endif()
-
-  #   set(TEMP "${TEMP}\n  ${name_clean}_end ${align_expr} EMPTY 0x0\n  {")
-  #   set(last_index)
-  #   set(last_input)
-  # endif()
-
-
   set(last_index)
   set(last_input)
   set(TEMP "${TEMP}")
-  # ToDo: add patterns here.
-
-  # if("${type}" STREQUAL BSS)
-  #   set(ZI "$$ZI")
-  # endif()
 
   if(NOT nosymbols)
     set(TEMP "${TEMP},\n  section __${name_clean}_end")
@@ -895,12 +802,6 @@ function(section_to_string)
     # message("size ${size}")
 
   endif()
-
-  # if(NOT nosymbols)
-  #   This need to be done on the command line
-  #   set(TEMP "${TEMP}\ndefine exported symbol __${name_clean}_size = __${name_clean}_end - __${name_clean}_start;")
-  # endif()
-
 
   get_property(current_sections GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
 
@@ -940,44 +841,16 @@ function(symbol_to_string)
   string(REPLACE "\\" "" expr "${expr}")
   string(REGEX MATCHALL "@([^@]*)@" match_res ${expr})
 
-  # foreach(match ${match_res})
-  #   message("match = ${match}")
-  #   string(REPLACE "@" "" match ${match})
-  #   get_property(symbol_val GLOBAL PROPERTY SYMBOL_TABLE_${match})
-  #   string(REPLACE "@${match}@" "ImageBase(${symbol_val})" expr ${expr})
-  # endforeach()
-
   foreach(match ${match_res})
     string(REPLACE "@" "" match ${match})
     get_property(symbol_val GLOBAL PROPERTY SYMBOL_TABLE_${match})
-    #  message("symbol_val == ${symbol_val}")
-    # if(symbol_val)
-    #   set_property(GLOBAL APPEND PROPERTY SECTION_STEERING_C
-    #     "\n#pragma section=\"${match}\""
-    #     )
-    #   string(REPLACE "@${match}@" "(size_t)(__section_begin(\"${match}\"))" expr ${expr})
-    # else()
     string(REPLACE "@${match}@" "${match}" expr ${expr})
-    # endif()
   endforeach()
-
-  # if(DEFINED subalign)
-  #   set(subalign "ALIGN ${subalign}")
-  # endif()
-  # if(NOT DEFINED size)
-  #   set(size "0x0")
-  # endif()
-  # set(${STRING_STRING}
-  #   "${${STRING_STRING}}\n// ${symbol} ${expr} ${subalign} ${size} { }\n"
-  #   )
 
   list(LENGTH match_res match_res_count)
 
   if(match_res_count)
     if(${match_res_count} GREATER 1)
-      # set_property(GLOBAL APPEND PROPERTY SECTION_STEERING_C
-      #   "\nsize_t ${symbol}_size=0 /*${expr}*/\;\n"
-      #   )
       set(${STRING_STRING}
         "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
         )
@@ -994,9 +867,6 @@ function(symbol_to_string)
         get_property(symbol_val GLOBAL PROPERTY SYMBOL_TABLE_${match})
         # message("symbol_val == ${symbol_val}")
         if(symbol_val)
-          # set_property(GLOBAL APPEND PROPERTY SECTION_STEERING_C
-          #   "\nsize_t ${symbol}_size=${expr}\;\n"
-          #   )
           set(${STRING_STRING}
             "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
             )
@@ -1005,12 +875,6 @@ function(symbol_to_string)
           set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_FILE
             "--redirect ${symbol}=${expr}\n"
             )
-          # This produce:
-          # Warning[Lt056]: Call or jump from Thumb code to an even address
-          # set(${STRING_STRING}
-          #   "${${STRING_STRING}}\ndefine image symbol ${symbol} = ${expr};\n"
-          #   )
-
         endif()
       endif()
     endif()
@@ -1036,11 +900,6 @@ if(DEFINED STEERING_C)
   file(APPEND ${STEERING_C} "#include <stdint.h>\n")
   file(APPEND ${STEERING_C} "#include <intrinsics.h>\n")
   file(APPEND ${STEERING_C} "\n")
-  # file(APPEND ${STEERING_C} "extern void z_arm_platform_init(void);\n")
-  # file(APPEND ${STEERING_C} "void SystemInit(void);\n")
-  # file(APPEND ${STEERING_C} "#pragma weak z_arm_platform_init=__iar_z_arm_platform_init\n")
-  # file(APPEND ${STEERING_C} "void __iar_z_arm_platform_init(void){return SystemInit();}\n")
-  # file(APPEND ${STEERING_C} "\n")
 
   foreach(section ${sections_c})
     file(APPEND ${STEERING_C} "${section}")
