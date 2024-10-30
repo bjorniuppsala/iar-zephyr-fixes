@@ -68,15 +68,10 @@ function(toolchain_ld_link_elf)
     ${ARGN}                                                   # input args to parse
   )
 
-  #message("The libs in the ZEPHYR_LIBS_PROPERTY")
   foreach(lib ${ZEPHYR_LIBS_PROPERTY})
-  #  message("${lib}")
-    # if(NOT ${lib} STREQUAL arch__arm__core__cortex_m)
-      list(APPEND ZEPHYR_LIBS_OBJECTS $<TARGET_OBJECTS:${lib}>)
-      list(APPEND ZEPHYR_LIBS_OBJECTS $<TARGET_PROPERTY:${lib},LINK_LIBRARIES>)
-    # endif()
+    list(APPEND ZEPHYR_LIBS_OBJECTS $<TARGET_OBJECTS:${lib}>)
+    list(APPEND ZEPHYR_LIBS_OBJECTS $<TARGET_PROPERTY:${lib},LINK_LIBRARIES>)
   endforeach()
-  #message("")
 
   set(ILINK_SEMIHOSTING)
   set(ILINK_BUFFERED_WRITE)
