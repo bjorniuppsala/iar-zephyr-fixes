@@ -26,7 +26,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
   set(linker_pass_define_list ${linker_pass_define})
 
   if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
-    set(STEERING_FILE ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.steer)
+    set(STEERING_FILE ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl)
     set(STEERING_C ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.c)
     set(STEERING_FILE_ARG "-DSTEERING_FILE=${STEERING_FILE}")
     set(STEERING_C_ARG "-DSTEERING_C=${STEERING_C}")
@@ -100,7 +100,7 @@ function(toolchain_ld_link_elf)
     # Do not remove symbols
     #--no_remove
     $<TARGET_OBJECTS:ilinkarm_steering>
-    -f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.steer
+    -f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl
 
     ${TOOLCHAIN_LIBS_OBJECTS}
 
