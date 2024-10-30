@@ -29,8 +29,6 @@ function(process_region)
     get_property(type       GLOBAL PROPERTY ${section}_TYPE)
     get_property(nosymbols  GLOBAL PROPERTY ${section}_NOSYMBOLS)
 
-    # message("process_region name_clean=${name_clean}")
-
     if(NOT nosymbols)
       if(${name} STREQUAL .ramfunc)
         create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_load_start
@@ -162,8 +160,6 @@ function(process_region)
       get_property(group_name GLOBAL PROPERTY ${group}_NAME)
       get_property(group_lma  GLOBAL PROPERTY ${group}_LMA)
       if(${group_name} STREQUAL ROM_REGION)
-        # message("group_name ${group_name}")
-        # message("group_lma ${group_lma}")
         set_property(GLOBAL PROPERTY ILINK_ROM_REGION_NAME ${group_lma})
       endif()
     endif()
@@ -204,11 +200,6 @@ function(system_to_string)
     get_property(address GLOBAL PROPERTY ${region}_ADDRESS)
     get_property(flags   GLOBAL PROPERTY ${region}_FLAGS)
     get_property(size    GLOBAL PROPERTY ${region}_SIZE)
-
-    # message("region name ${name}")
-    # message("region address ${address}")
-    # message("region flags ${flags}")
-    # message("region size ${size}")
 
     if(DEFINED flags)
       if(${flags} STREQUAL rx)
@@ -261,16 +252,11 @@ endfunction()
 function(group_to_string)
   cmake_parse_arguments(STRING "" "OBJECT;STRING" "" ${ARGN})
 
-  # message("\ngroup_to_string")
   get_property(type GLOBAL PROPERTY ${STRING_OBJECT}_OBJ_TYPE)
-  # message("type ${type}")
   if(${type} STREQUAL REGION)
     get_property(name GLOBAL PROPERTY ${STRING_OBJECT}_NAME)
     get_property(address GLOBAL PROPERTY ${STRING_OBJECT}_ADDRESS)
     get_property(size GLOBAL PROPERTY ${STRING_OBJECT}_SIZE)
-    # message("name ${name}")
-    # message("address ${address}")
-    # message("size ${size}")
 
     get_property(empty GLOBAL PROPERTY ${STRING_OBJECT}_EMPTY)
     if(empty)
@@ -293,44 +279,23 @@ function(group_to_string)
     get_property(group_address GLOBAL PROPERTY ${STRING_OBJECT}_ADDRESS)
     get_property(group_vma GLOBAL PROPERTY ${STRING_OBJECT}_VMA)
     get_property(group_lma GLOBAL PROPERTY ${STRING_OBJECT}_LMA)
-    # message("group_name ${group_name}")
-    # message("group_address ${group_address}")
-    # message("group_vma ${group_vma}")
-    # message("group_lma ${group_lma}")
   endif()
 
   get_property(sections GLOBAL PROPERTY ${STRING_OBJECT}_SECTIONS_FIXED)
-  # message("\ngroup: fixed sections ${sections}")
   foreach(section ${sections})
-
-    # message("\ngroup: fixed section ${section}")
-    # message("fixed section: type ${type}")
-    # message("ilink_current_name      ${ILINK_CURRENT_NAME}")
-    # message("address ${address}")
-
     to_string(OBJECT ${section} STRING ${STRING_STRING})
     get_property(name       GLOBAL PROPERTY ${section}_NAME)
-    # string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
-    # string(REPLACE "." "_" name_clean "${name_clean}")
     get_property(name_clean GLOBAL PROPERTY ${section}_NAME_CLEAN)
     set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place at address mem:${address} { block ${name_clean} };\n")
   endforeach()
 
   get_property(groups GLOBAL PROPERTY ${STRING_OBJECT}_GROUPS)
-  # message("\ngroup: groups ${groups}")
   foreach(group ${groups})
-
-    # message("\ngroup: group(1) ${group}")
-
     to_string(OBJECT ${group} STRING ${STRING_STRING})
   endforeach()
 
   get_property(sections GLOBAL PROPERTY ${STRING_OBJECT}_SECTIONS)
-  # message("\ngroup: sections ${sections}")
   foreach(section ${sections})
-
-    # message("\ngroup: section(1) section=${section}")
-
     to_string(OBJECT ${section} STRING ${STRING_STRING})
 
     get_property(name     GLOBAL PROPERTY ${section}_NAME)
@@ -345,11 +310,6 @@ function(group_to_string)
       get_property(lma GLOBAL PROPERTY ${parent}_LMA)
     endif()
 
-    # message("parent ${parent}")
-    # message("parent_type ${parent_type}")
-    # message("vma ${vma}")
-    # message("lma ${lma}")
-
     if(DEFINED vma)
       set(ILINK_CURRENT_NAME ${vma})
     elseif(DEFINED lma)
@@ -357,8 +317,6 @@ function(group_to_string)
     else()
       # message(FATAL_ERROR "Need either vma or lma")
     endif()
-
-    # message("group: section(1) place in ${ILINK_CURRENT_NAME} { block ${name_clean} };")
 
     set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
 
@@ -368,41 +326,25 @@ function(group_to_string)
   get_property(regions GLOBAL PROPERTY ${parent}_REGIONS)
   list(REMOVE_ITEM regions ${STRING_OBJECT})
 
-  # message("\ngroup: start regions ${regions}")
-
   foreach(region ${regions})
     get_property(vma GLOBAL PROPERTY ${region}_NAME)
     get_property(sections GLOBAL PROPERTY ${STRING_OBJECT}_${vma}_SECTIONS_FIXED)
-    # message("\ngroup: region ${region}")
-    # message("vma ${vma}")
-    # message("sections ${sections}")
 
     foreach(section ${sections})
-
-      # message("group: section(2) vma=${vma} section=${section}")
-
       to_string(OBJECT ${section} STRING ${STRING_STRING})
     endforeach()
 
     get_property(groups GLOBAL PROPERTY ${STRING_OBJECT}_${vma}_GROUPS)
     foreach(group ${groups})
-
-      # message("\ngroup: group(2) vma=${vma} group=${group}")
-
       to_string(OBJECT ${group} STRING ${STRING_STRING})
     endforeach()
 
     get_property(sections GLOBAL PROPERTY ${STRING_OBJECT}_${vma}_SECTIONS)
-    # message("\ngroup: section(3) sections ${sections}")
     foreach(section ${sections})
-
-      # message("\ngroup: section(3) ${vma} ${section}")
       to_string(OBJECT ${section} STRING ${STRING_STRING})
       get_property(name     GLOBAL PROPERTY ${section}_NAME)
       string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
       string(REPLACE "." "_" name_clean "${name_clean}")
-
-      # message("\ngroup: section(3) ${vma} ${section} \"${name}\": place in ${vma} { block ${name_clean} }")
       set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${vma} { block ${name_clean} };\n")
 
       # Insert 'do not initialize' here
@@ -436,24 +378,14 @@ function(group_to_string)
       endif()
 
     endforeach()
-    # message("group: end region ${region}")
   endforeach()
-  # message("group: end regions ${regions}")
 
   get_property(symbols GLOBAL PROPERTY ${STRING_OBJECT}_SYMBOLS)
-  # message("\ngroup: symbols ${symbols}")
   set(${STRING_STRING} "${${STRING_STRING}}\n")
   foreach(symbol ${symbols})
-
-    # message("\ngroup: symbol(1) ${symbol}")
     to_string(OBJECT ${symbol} STRING ${STRING_STRING})
   endforeach()
 
-  if(${type} STREQUAL REGION)
-
-    # message("\ngroup: type ${type}")
-
-  endif()
   set(${STRING_STRING} ${${STRING_STRING}} PARENT_SCOPE)
 endfunction()
 
@@ -492,29 +424,7 @@ function(section_to_string)
 
   set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
 
-  # message("\nsection_to_string")
-  # message("format ${format}")
-  # message("name     ${name}")
-  # message("address  ${address}")
-  # message("type     ${type}")
-  # message("align    ${align}")
-  # message("subalign ${subalign}")
-  # message("endalign ${endalign}")
-  # message("vma      ${vma}")
-  # message("lma      ${lma}")
-  # message("noinput  ${noinput}")
-  # message("noinit   ${noinit}")
-
-  # message("nosymbols   ${nosymbols}")
-  # message("start_syms   ${start_syms}")
-  # message("end_syms   ${end_syms}")
-
-  # message("parent   ${parent}")
-  # message("group_parent_vma      ${group_parent_vma}")
-  # message("group_parent_lma      ${group_parent_lma}")
-
   get_property(indicies GLOBAL PROPERTY ${STRING_SECTION}_SETTINGS_INDICIES)
-  # message("indicies ${indicies}")
 
   string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
   string(REPLACE "." "_" name_clean "${name_clean}")
@@ -614,26 +524,13 @@ function(section_to_string)
     # Get the next offset and use that as this ones size!
     get_property(offset   GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx_next}_OFFSET)
 
-    # message("\nidx      ${idx}, ${idx_next}")
-    # message("align    ${align}")
-    # message("any      ${any}")
-    # message("first    ${first}")
-    # message("keep     ${keep}")
-    # message("sort     ${sort}")
-    # message("flags    ${flags}")
-    # message("input    ${input}")
-    # message("offset   ${offset}")
-    # message("last_index ${last_index}")
-
     if(DEFINED symbols)
       list(LENGTH symbols symbols_count)
       if(${symbols_count} GREATER 0)
         list(GET symbols 0 symbol_start)
-        # message("symbol_start: ${symbol_start}")
       endif()
       if(${symbols_count} GREATER 1)
         list(GET symbols 1 symbol_end)
-        # message("symbol_end:   ${symbol_end}")
       endif()
     endif()
 
@@ -696,8 +593,6 @@ function(section_to_string)
     endif()
 
     foreach(setting ${input})
-      # message("setting   ${setting}")
-
       if(first)
         set(TEMP "${TEMP} first")
         set(first "")
@@ -728,7 +623,6 @@ function(section_to_string)
       set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${setting}")
       set(section_type "")
 
-      # message("${setting} STREQUAL ${last_input}")
       if("${setting}" STREQUAL "${last_input}")
         set(TEMP "${TEMP} }")
       else()
@@ -744,7 +638,6 @@ function(section_to_string)
       endif()
       set(ANY_FLAG "")
       foreach(flag ${flags})
-        # message("flag == ${flag}")
         if("${flag}" STREQUAL +RO OR "${flag}" STREQUAL +XO)
           set(ANY_FLAG "readonly")
         elseif("${flag}" STREQUAL +RW)
@@ -790,16 +683,10 @@ function(section_to_string)
   set(TEMP "${TEMP}\n};")
 
   get_property(type GLOBAL PROPERTY ${parent}_OBJ_TYPE)
-  # message("type ${type}")
-
   if(${type} STREQUAL REGION)
     get_property(name GLOBAL PROPERTY ${parent}_NAME)
     get_property(address GLOBAL PROPERTY ${parent}_ADDRESS)
     get_property(size GLOBAL PROPERTY ${parent}_SIZE)
-
-    # message("name ${name}")
-    # message("address ${address}")
-    # message("size ${size}")
 
   endif()
 
@@ -817,8 +704,6 @@ function(section_to_string)
     endif()
   endif()
 
-  # message("TEMP == ${TEMP}")
-
   set(${STRING_STRING} "${${STRING_STRING}}\n${TEMP}\n" PARENT_SCOPE)
 endfunction()
 
@@ -830,13 +715,6 @@ function(symbol_to_string)
   get_property(size     GLOBAL PROPERTY ${STRING_SYMBOL}_SIZE)
   get_property(symbol   GLOBAL PROPERTY ${STRING_SYMBOL}_SYMBOL)
   get_property(subalign GLOBAL PROPERTY ${STRING_SYMBOL}_SUBALIGN)
-
-  # message("\nsymbol_to_string")
-  # message("name     ${name}")
-  # message("expr     ${expr}")
-  # message("size     ${size}")
-  # message("symbol   ${symbol}")
-  # message("subalign ${subalign}")
 
   string(REPLACE "\\" "" expr "${expr}")
   string(REGEX MATCHALL "@([^@]*)@" match_res ${expr})
@@ -863,9 +741,7 @@ function(symbol_to_string)
       else()
         list(GET match_res 0 match)
         string(REPLACE "@" "" match ${match})
-        # message("match == ${match}")
         get_property(symbol_val GLOBAL PROPERTY SYMBOL_TABLE_${match})
-        # message("symbol_val == ${symbol_val}")
         if(symbol_val)
           set(${STRING_STRING}
             "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
