@@ -121,6 +121,20 @@ zephyr_linker_section(NAME .ramfunc GROUP RAM_REGION SUBALIGN 8)
 # Todo: handle MPU_ALIGN(_ramfunc_size);
 
 # ToDo - handle if(CONFIG_USERSPACE)
+if(CONFIG_USERSPACE)
+  # ToDo - handle app_smem
+  zephyr_linker_section(NAME .bss VMA RAM LMA FLASH TYPE BSS)
+  zephyr_linker_section_configure(SECTION .bss INPUT COMMON)
+  zephyr_linker_section_configure(SECTION .bss INPUT ".kernel_bss.*")
+  # As memory is cleared in words only, it is simpler to ensure the BSS
+  # section ends on a 4 byte boundary. This wastes a maximum of 3 bytes.
+  zephyr_linker_section_configure(SECTION .bss ALIGN 4)
+
+  zephyr_linker_section(NAME .noinit GROUP RAM_REGION TYPE NOLOAD NOINIT)
+  # This section is used for non-initialized objects that
+  # will not be cleared during the boot process.
+  zephyr_linker_section_configure(SECTION .noinit INPUT ".kernel_noinit.*")
+endif()
 
 zephyr_linker_section(NAME .data GROUP DATA_REGION)
 zephyr_linker_section_configure(SECTION .data INPUT ".kernel.*")
