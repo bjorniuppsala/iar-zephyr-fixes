@@ -6,7 +6,7 @@ project(kernel_common)
 
 if(CONFIG_PRINTK)
 target_sources(app PRIVATE
-	src/printk.c
+	src/test_common_printk.c
   )
 endif()
 target_sources(app PRIVATE
