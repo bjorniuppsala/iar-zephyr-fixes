@@ -24,8 +24,20 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
   set(STEERING_FILE_ARG)
   set(STEERING_C_ARG)
   set(linker_pass_define_list ${linker_pass_define})
+  set(STEERING_PRODUCE)
 
-  if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
+  # Sometimes we do not get the final stage
+  if(${CONFIG_GEN_ISR_TABLES})
+    if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
+      set(STEERING_PRODUCE TRUE)
+    endif()
+  else()
+    if("LINKER_ZEPHYR_PREBUILT" IN_LIST linker_pass_define_list)
+      set(STEERING_PRODUCE TRUE)
+    endif()
+  endif()
+
+  if(${STEERING_PRODUCE})
     set(STEERING_FILE ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl)
     set(STEERING_C ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.c)
     set(STEERING_FILE_ARG "-DSTEERING_FILE=${STEERING_FILE}")
@@ -53,7 +65,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -P ${ZEPHYR_BASE}/cmake/linker/ilinkarm/config_file_script.cmake
   )
 
-  if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
+  if(${STEERING_PRODUCE})
     add_library(ilinkarm_steering OBJECT ${STEERING_C})
     target_link_libraries(ilinkarm_steering PRIVATE zephyr_interface)
   endif()
@@ -82,6 +94,11 @@ function(toolchain_ld_link_elf)
     set(ILINK_BUFFERED_WRITE "--redirect __write=__write_buffered")
   endif()
 
+  set(ILINK_STEERING)
+  set(ILINK_XCL)
+  set(ILINK_STEERING "$<TARGET_OBJECTS:ilinkarm_steering>")
+  set(ILINK_XCL "-f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl")
+
   target_link_libraries(
     ${TOOLCHAIN_LD_LINK_ELF_TARGET_ELF}
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_PRE_SCRIPT}
@@ -99,8 +116,8 @@ function(toolchain_ld_link_elf)
     ${ILINK_BUFFERED_WRITE}
     # Do not remove symbols
     #--no_remove
-    $<TARGET_OBJECTS:ilinkarm_steering>
-    -f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl
+    ${ILINK_STEERING}
+    ${ILINK_XCL}
 
     ${TOOLCHAIN_LIBS_OBJECTS}
 
