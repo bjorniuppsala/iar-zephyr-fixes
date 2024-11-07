@@ -94,8 +94,6 @@ function(toolchain_ld_link_elf)
     set(ILINK_BUFFERED_WRITE "--redirect __write=__write_buffered")
   endif()
 
-  set(ILINK_STEERING)
-  set(ILINK_XCL)
   set(ILINK_STEERING "$<TARGET_OBJECTS:ilinkarm_steering>")
   set(ILINK_XCL "-f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl")
 
