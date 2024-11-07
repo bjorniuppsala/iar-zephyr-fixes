@@ -55,16 +55,6 @@ function(process_region)
       elseif(sort)
         # Treated by labels in the icf.
       elseif(DEFINED symbols AND ${length} EQUAL 1 AND noinput)
-        # set(steering_postfixes Base Limit)
-        # foreach(symbol ${symbols})
-        #   list(POP_FRONT steering_postfixes postfix)
-        #   set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_C
-        #     "${name_clean}$$${postfix}"
-        #   )
-        #   set_property(GLOBAL APPEND PROPERTY SYMBOL_STEERING_FILE
-        #     "--redirect ${symbol}=${name_clean}$$${postfix}\n"
-        #   )
-        # endforeach()
       endif()
     endforeach()
 
@@ -805,36 +795,6 @@ function(symbol_to_string)
 endfunction()
 
 include(${CMAKE_CURRENT_LIST_DIR}/../linker_script_common.cmake)
-
-if(DEFINED STEERING_C)
-  get_property(symbols_c GLOBAL PROPERTY SYMBOL_STEERING_C)
-  get_property(sections_c GLOBAL PROPERTY SECTION_STEERING_C)
-  file(WRITE ${STEERING_C}  "/* AUTO-GENERATED - Do not modify\n")
-  file(APPEND ${STEERING_C} " * AUTO-GENERATED - All changes will be lost\n")
-  file(APPEND ${STEERING_C} " */\n")
-  file(APPEND ${STEERING_C} "\n")
-
-  file(APPEND ${STEERING_C} "#include <stddef.h>\n")
-  file(APPEND ${STEERING_C} "#include <stdint.h>\n")
-  file(APPEND ${STEERING_C} "#include <intrinsics.h>\n")
-  file(APPEND ${STEERING_C} "\n")
-
-  foreach(section ${sections_c})
-    file(APPEND ${STEERING_C} "${section}")
-  endforeach()
-  file(APPEND ${STEERING_C} "\n")
-  foreach(symbol ${symbols_c})
-    file(APPEND ${STEERING_C} "extern char ${symbol}[];\n")
-  endforeach()
-
-  file(APPEND ${STEERING_C} "\nint __ilinkarm_symbol_steering(void) {\n")
-  file(APPEND ${STEERING_C} "\tint res=-1;\n")
-  foreach(symbol ${symbols_c})
-    file(APPEND ${STEERING_C} "\tres = res & (int)${symbol};\n")
-  endforeach()
-  file(APPEND ${STEERING_C} "\treturn res;\n")
-  file(APPEND ${STEERING_C} "\t;\n}\n")
-endif()
 
 if(DEFINED STEERING_FILE)
   get_property(steering_content GLOBAL PROPERTY SYMBOL_STEERING_FILE)

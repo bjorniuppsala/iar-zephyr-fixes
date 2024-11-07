@@ -19,37 +19,14 @@ endfunction()
 # NOTE: ${linker_script_gen} will be produced at build-time; not at configure-time
 macro(configure_linker_script linker_script_gen linker_pass_define)
   set(extra_dependencies ${ARGN})
-  set(STEERING_FILE)
-  set(STEERING_C)
-  set(STEERING_FILE_ARG)
-  set(STEERING_C_ARG)
-  set(linker_pass_define_list ${linker_pass_define})
-  set(STEERING_PRODUCE)
-
-  # Sometimes we do not get the final stage
-  if(${CONFIG_GEN_ISR_TABLES})
-    if("LINKER_ZEPHYR_FINAL" IN_LIST linker_pass_define_list)
-      set(STEERING_PRODUCE TRUE)
-    endif()
-  else()
-    if("LINKER_ZEPHYR_PREBUILT" IN_LIST linker_pass_define_list)
-      set(STEERING_PRODUCE TRUE)
-    endif()
-  endif()
-
-  if(${STEERING_PRODUCE})
-    set(STEERING_FILE ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl)
-    set(STEERING_C ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_symbol_steering.c)
-    set(STEERING_FILE_ARG "-DSTEERING_FILE=${STEERING_FILE}")
-    set(STEERING_C_ARG "-DSTEERING_C=${STEERING_C}")
-  endif()
+  set(STEERING_FILE "${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.xcl")
+  set(STEERING_FILE_ARG "-DSTEERING_FILE=${STEERING_FILE}")
 
   add_custom_command(
     OUTPUT ${linker_script_gen}
 	   ${STEERING_FILE}
-	   ${STEERING_C}
-    # DEPENDS
-    #   ${extra_dependencies}
+    DEPENDS
+      ${extra_dependencies}
     COMMAND ${CMAKE_COMMAND}
       -DPASS="${linker_pass_define}"
       -DMEMORY_REGIONS="$<TARGET_PROPERTY:linker,MEMORY_REGIONS>"
@@ -58,17 +35,12 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -DSECTION_SETTINGS="$<TARGET_PROPERTY:linker,SECTION_SETTINGS>"
       -DSYMBOLS="$<TARGET_PROPERTY:linker,SYMBOLS>"
       ${STEERING_FILE_ARG}
-      ${STEERING_C_ARG}
       -DCONFIG_LINKER_LAST_SECTION_ID=${CONFIG_LINKER_LAST_SECTION_ID}
       -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
       -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
       -P ${ZEPHYR_BASE}/cmake/linker/ilinkarm/config_file_script.cmake
   )
 
-  if(${STEERING_PRODUCE})
-    add_library(ilinkarm_steering OBJECT ${STEERING_C})
-    target_link_libraries(ilinkarm_steering PRIVATE zephyr_interface)
-  endif()
 endmacro()
 
 function(toolchain_ld_link_elf)
@@ -94,8 +66,7 @@ function(toolchain_ld_link_elf)
     set(ILINK_BUFFERED_WRITE "--redirect __write=__write_buffered")
   endif()
 
-  set(ILINK_STEERING "$<TARGET_OBJECTS:ilinkarm_steering>")
-  set(ILINK_XCL "-f ${CMAKE_CURRENT_BINARY_DIR}/ilinkarm_commands.xcl")
+  set(ILINK_XCL "-f ${TOOLCHAIN_LD_LINK_ELF_LINKER_SCRIPT}.xcl")
 
   target_link_libraries(
     ${TOOLCHAIN_LD_LINK_ELF_TARGET_ELF}
@@ -114,7 +85,6 @@ function(toolchain_ld_link_elf)
     ${ILINK_BUFFERED_WRITE}
     # Do not remove symbols
     #--no_remove
-    ${ILINK_STEERING}
     ${ILINK_XCL}
 
     ${TOOLCHAIN_LIBS_OBJECTS}
