@@ -26,7 +26,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
     OUTPUT ${linker_script_gen}
 	   ${STEERING_FILE}
     DEPENDS
-      ${extra_dependencies}
+           ${extra_dependencies}
     COMMAND ${CMAKE_COMMAND}
       -DPASS="${linker_pass_define}"
       -DMEMORY_REGIONS="$<TARGET_PROPERTY:linker,MEMORY_REGIONS>"

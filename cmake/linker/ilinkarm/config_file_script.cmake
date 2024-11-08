@@ -53,7 +53,7 @@ function(process_region)
       elseif(DEFINED offset AND offset STREQUAL 0 )
         # Same behavior as in section_to_string
       elseif(sort)
-        # Treated by labels in the icf.
+        # Treated by labels in the icf or image symbols.
       elseif(DEFINED symbols AND ${length} EQUAL 1 AND noinput)
       endif()
     endforeach()
