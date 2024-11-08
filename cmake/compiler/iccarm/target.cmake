@@ -45,6 +45,7 @@ include(${ICC_BASE}/iccarm-fpu.cmake)
 
 # Minimal C compiler flags
 list(APPEND TOOLCHAIN_C_FLAGS
+  --do_explicit_init_in_named_sections
   --endian=little
   --macro_positions_in_diagnostics
   --no_wrap_diagnostics
