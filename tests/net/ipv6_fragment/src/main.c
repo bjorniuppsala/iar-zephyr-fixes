@@ -1505,7 +1505,7 @@ static enum net_verdict udp_data_received(struct net_conn *conn,
 		      "IPv6 header vtc mismatch");
 	zassert_equal(hdr->tcflow, ipv6_udp[offsetof(struct net_ipv6_hdr, tcflow)],
 		      "IPv6 header tcflow mismatch");
-	zassert_mem_equal(&hdr->flow, &ipv6_udp[offsetof(struct net_ipv6_hdr, flow)],
+	zassert_mem_equal(&hdr->flow_parts[0], &ipv6_udp[offsetof(struct net_ipv6_hdr, flow)],
 			  sizeof(hdr->flow), "IPv6 header flow mismatch");
 	zassert_equal(hdr->len, expected_udp_length, "IPv6 header len mismatch");
 	zassert_equal(hdr->nexthdr, ipv6_udp[offsetof(struct net_ipv6_hdr, nexthdr)],
@@ -2244,7 +2244,8 @@ static int handle_ipv6_echo_reply(struct net_icmp_ctx *ctx,
 		      "IPv6 header vtc mismatch");
 	zassert_equal(hdr->tcflow, ipv6_reass_frag1[offsetof(struct net_ipv6_hdr, tcflow)],
 		      "IPv6 header tcflow mismatch");
-	zassert_mem_equal(&hdr->flow, &ipv6_reass_frag1[offsetof(struct net_ipv6_hdr, flow)],
+	zassert_mem_equal(&hdr->flow_parts[0],
+			  &ipv6_reass_frag1[offsetof(struct net_ipv6_hdr, flow)],
 			  sizeof(hdr->flow), "IPv6 header flow mismatch");
 	zassert_equal(hdr->len, expected_icmpv6_length, "IPv6 header len mismatch");
 	zassert_equal(hdr->nexthdr, IPPROTO_ICMPV6, "IPv6 header nexthdr mismatch");

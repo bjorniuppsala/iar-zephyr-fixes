@@ -526,7 +526,10 @@ enum net_addr_type {
 struct net_ipv6_hdr {
 	uint8_t vtc;
 	uint8_t tcflow;
-	uint16_t flow;
+	union {
+		uint16_t flow;
+		uint8_t flow_parts[2];
+	};
 	uint16_t len;
 	uint8_t nexthdr;
 	uint8_t hop_limit;
