@@ -22,6 +22,8 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
   if(CONFIG_CMAKE_LINKER_GENERATOR)
     add_custom_command(
       OUTPUT ${linker_script_gen}
+      DEPENDS
+      ${extra_dependencies}
       COMMAND ${CMAKE_COMMAND}
         -DPASS="${linker_pass_define}"
         -DFORMAT="$<TARGET_PROPERTY:linker,FORMAT>"
