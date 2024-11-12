@@ -59,6 +59,9 @@ list(APPEND TOOLCHAIN_C_FLAGS
   -egcc_escape_character
   --zephyr
   --vla
+
+  -DRTT_USE_ASM=0       #WA for VAAK-232
+
   # Suppress diags
   --diag_suppress=Pe257  # xxx requires an initializer
   --diag_suppress=Pe054  # too few arguments in invocation of macro
@@ -124,6 +127,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
 list(APPEND TOOLCHAIN_ASM_FLAGS
   -mcpu=${GCC_M_CPU}
   -mabi=aapcs
+  -DRTT_USE_ASM=0       #WA for VAAK-232
   )
 
 if(CONFIG_DEBUG)
