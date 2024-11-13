@@ -14,6 +14,7 @@ toolchain:
   - zephyr
   - gnuarmemb
   - xtools
+  - iccarm
 supported:
   - can
   - dma
