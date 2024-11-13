@@ -786,9 +786,16 @@ function(symbol_to_string)
       endif()
     endif()
   else()
-    set(${STRING_STRING}
-      "${${STRING_STRING}}define exported symbol ${symbol} = ${expr};\n"
-      )
+    if(${expr} STREQUAL "ADDR(.ramfunc)")
+      string(REPLACE "ADDR(.ramfunc)" "(ramfunc$$Base)" expr "${expr}")
+      set(${STRING_STRING}
+        "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
+        )
+    else()
+      set(${STRING_STRING}
+        "${${STRING_STRING}}define exported symbol ${symbol} = ${expr};\n"
+        )
+    endif()
   endif()
 
   set(${STRING_STRING} ${${STRING_STRING}} PARENT_SCOPE)
