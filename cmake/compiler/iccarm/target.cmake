@@ -100,6 +100,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --diag_suppress=Pe191  # type qualifier is meaningless on cast type
   --diag_suppress=Pe177  # function "xxx" was declared but never referenced
   --diag_suppress=Pa182  # bit mask appears to contain significant bits that do not affect the result
+  --diag_suppress=Pa039  # use of address of unaligned structure member
 )
 
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
