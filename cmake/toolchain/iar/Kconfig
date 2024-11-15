@@ -18,7 +18,7 @@ menu "IAR library options"
 
 config IAR_SEMIHOSTING
 	bool "Use the IAR semihosting implementation."
-	depends on ICCARM_LIBC
+	depends on IAR_LIBC
 	default n
 	help
 	  Use the semihosting implementation in the IAR library

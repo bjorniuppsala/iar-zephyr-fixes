@@ -72,7 +72,7 @@ choice LIBC_IMPLEMENTATION
 	default PICOLIBC
 	default NEWLIB_LIBC if REQUIRES_FULL_LIBC
 	default MINIMAL_LIBC
-	default ICCARM_LIBC
+	default IAR_LIBC
 
 config MINIMAL_LIBC
 	bool "Minimal C library"
@@ -130,16 +130,16 @@ config EXTERNAL_LIBC
 	help
 	  Build with external/user provided C library.
 
-config ICCARM_LIBC
-	bool "IAR C Runtime Library for Arm"
+config IAR_LIBC
+	bool "IAR C Runtime Library"
 	depends on IAR_LIBC_SUPPORTED
-	depends on "$(ZEPHYR_TOOLCHAIN_VARIANT)" = "iccarm"
+	depends on "$(ZEPHYR_TOOLCHAIN_VARIANT)" = "iar"
 	select COMMON_LIBC_STRNLEN
 	select COMMON_LIBC_TIME if POSIX_TIMERS
 	help
-	  Use the full Arm Compiler runtime libraries.
+	  Use the full IAR Compiler runtime libraries.
 	  A reduced Zephyr minimal libc will be used for library functionality
-	  not provided by the IAR C Runtime Library for Arm.
+	  not provided by the IAR C Runtime Library.
 
 endchoice # LIBC_IMPLEMENTATION
 

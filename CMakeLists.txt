@@ -173,7 +173,7 @@ endif()
 
 # @Intent: Set compiler flags to detect general stack overflows across all functions
 if(CONFIG_STACK_CANARIES)
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
   zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,security_canaries>>")
   zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:CXX>:$<TARGET_PROPERTY:compiler,security_canaries>>")
 else()
@@ -225,7 +225,7 @@ SOC_* symbol.")
 endif()
 
 # Apply the final optimization flag(s)
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
   zephyr_compile_options($<$<COMPILE_LANGUAGE:C>:${OPTIMIZATION_FLAG}>)
   zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:${OPTIMIZATION_FLAG}>)
   if (${OPTIMIZATION_FLAG} STREQUAL "-Ohz")
@@ -327,7 +327,7 @@ if(CONFIG_CODING_GUIDELINE_CHECK)
 endif()
 
 # @Intent: Set compiler specific macro inclusion of AUTOCONF_H
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
   zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,imacros> ${AUTOCONF_H}>")
   zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:CXX>:$<TARGET_PROPERTY:compiler,imacros> ${AUTOCONF_H}>")
   zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,imacros> ${AUTOCONF_H}>")
@@ -368,7 +368,7 @@ zephyr_compile_options($<TARGET_PROPERTY:compiler,diagnostic>)
 endif()
 
 
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
 
   if(TOOLCHAIN_C_FLAGS)
     foreach(F ${TOOLCHAIN_C_FLAGS})
@@ -394,7 +394,7 @@ zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,required>
 # @Intent: Enforce standard integer type correspondence to match Zephyr usage.
 # (must be after compiler specific flags)
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
-  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
     #zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,iar_do_not_use>>")
     #zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,imacros>> ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h")
   else()
