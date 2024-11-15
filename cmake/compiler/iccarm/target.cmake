@@ -52,11 +52,8 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --cpu=${ICCARM_CPU}
   "SHELL: --preinclude"
   "${ZEPHYR_BASE}/include/zephyr/toolchain/iccarm_missing_defs.h"
-  -e
-  -eptrarith
-  -ereturn_void_expression
-  -egcc_inline_asm_breaks
-  -egcc_escape_character
+  # Enable both IAR and GNU extensions
+  --language extended,gnu
   --zephyr
   --vla
 
