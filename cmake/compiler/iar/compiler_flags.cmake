@@ -123,3 +123,5 @@ set_compiler_property(PROPERTY warning_no_pointer_arithmetic)
 set_compiler_property(PROPERTY no_position_independent)
 
 set_property(TARGET compiler PROPERTY iar_do_not_use --love)
+
+set_compiler_property(PROPERTY include_file --preinclude)
