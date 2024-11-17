@@ -53,7 +53,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --no_wrap_diagnostics
   --cpu=${ICCARM_CPU}
   "SHELL: --preinclude"
-  "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iccarm_missing_defs.h"
+  "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
   -e
   -eptrarith
   -ereturn_void_expression
