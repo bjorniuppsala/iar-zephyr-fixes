@@ -56,6 +56,8 @@ list(APPEND TOOLCHAIN_C_FLAGS
   "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
   # Enable both IAR and GNU extensions
   --language extended,gnu
+  --no_var_align
+  --no_const_align
   --zephyr
   --vla
 
