@@ -8,7 +8,7 @@ toolchain:
   - zephyr
   - gnuarmemb
   - xtools
-  - iccarm
+  - iar
 supported:
   - adc
   - arduino_gpio
