@@ -105,6 +105,16 @@ struct fp_non_volatile_register_set {
 	/* No non-volatile floating point registers */
 };
 
+#else
+
+struct fp_volatile_register_set {
+	/* No volatile floating point registers */
+};
+
+struct fp_non_volatile_register_set {
+	/* No non-volatile floating point registers */
+};
+
 #endif
 
 #define SIZEOF_FP_VOLATILE_REGISTER_SET	\
