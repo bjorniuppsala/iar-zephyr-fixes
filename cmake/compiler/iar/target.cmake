@@ -103,6 +103,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --diag_suppress=Pa182  # bit mask appears to contain significant bits that do not affect the result
   --diag_suppress=Pa039  # use of address of unaligned structure member
   --diag_suppress=Pe185  # dynamic initialization in unreachable code
+  --diag_suppress=Pe1901 # use of a const variable in a constant expression is nonstandard in C
 )
 
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
