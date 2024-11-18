@@ -17,7 +17,7 @@ zephyr_library_sources(
 # headers for different SoCs.
 set(dt_binding_includes ${DTS_INCLUDE_FILES})
 list(FILTER dt_binding_includes INCLUDE REGEX "/dt-bindings/.*\.h$")
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
   list(TRANSFORM dt_binding_includes PREPEND "--preinclude;")
 else()
   list(TRANSFORM dt_binding_includes PREPEND "-include;")

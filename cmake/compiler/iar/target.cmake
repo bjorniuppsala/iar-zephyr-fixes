@@ -8,14 +8,16 @@ set(NO_BUILD_TYPE_WARNING 1)
 set(CMAKE_NOT_USING_CONFIG_FLAGS 1)
 
 find_program(CMAKE_C_COMPILER
-  NAMES iccarm
+  NAMES ${IAR_COMPILER}
   PATHS ${TOOLCHAIN_HOME}
   PATH_SUFFIXES bin
   NO_DEFAULT_PATH
   REQUIRED )
 
+message(STATUS "Found C Compiler ${CMAKE_C_COMPILER}")
+
 find_program(CMAKE_CXX_COMPILER
-  NAMES iccarm
+  NAMES ${IAR_COMPILER}
   PATHS ${TOOLCHAIN_HOME}
   PATH_SUFFIXES bin
   NO_DEFAULT_PATH
@@ -33,7 +35,7 @@ find_program(CMAKE_ASM_COMPILER
   PATHS ${ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/bin
   NO_DEFAULT_PATH )
 
-set(ICC_BASE ${ZEPHYR_BASE}/cmake/compiler/iccarm)
+set(ICC_BASE ${ZEPHYR_BASE}/cmake/compiler/iar)
 
 # Used for settings correct cpu/fpu option for gnu assembler
 include(${ZEPHYR_BASE}/cmake/gcc-m-cpu.cmake)
@@ -51,7 +53,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --no_wrap_diagnostics
   --cpu=${ICCARM_CPU}
   "SHELL: --preinclude"
-  "${ZEPHYR_BASE}/include/zephyr/toolchain/iccarm_missing_defs.h"
+  "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
   # Enable both IAR and GNU extensions
   --language extended,gnu
   --zephyr

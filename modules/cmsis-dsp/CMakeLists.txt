@@ -8,7 +8,7 @@ if(CONFIG_CMSIS_DSP)
 
   zephyr_library()
 
-  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
     # ICCARM does not support -Ofast
   else()
     zephyr_library_compile_options(-Ofast)
@@ -51,7 +51,7 @@ if(CONFIG_CMSIS_DSP)
     endif()
   endif()
 
-  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iccarm")
+  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
     # ICCARM does not support -Ofast
   else()
     zephyr_library_compile_options(-Ofast)

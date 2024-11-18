@@ -2,7 +2,7 @@
 #set(CMAKE_REQUIRED_QUIET 0)
 set_property(TARGET linker PROPERTY devices_start_symbol "_device_list_start")
 find_program(CMAKE_LINKER
-  NAMES ${CROSS_COMPILE}ilinkarm
+  NAMES ${CROSS_COMPILE}${IAR_LINKER}
   PATHS ${TOOLCHAIN_HOME}
   PATH_SUFFIXES bin
   NO_DEFAULT_PATH
@@ -38,7 +38,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -DCONFIG_LINKER_LAST_SECTION_ID=${CONFIG_LINKER_LAST_SECTION_ID}
       -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
       -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
-      -P ${ZEPHYR_BASE}/cmake/linker/ilinkarm/config_file_script.cmake
+      -P ${ZEPHYR_BASE}/cmake/linker/iar/config_file_script.cmake
   )
 
 endmacro()
