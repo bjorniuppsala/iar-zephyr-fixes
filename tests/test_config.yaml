@@ -20,3 +20,13 @@ levels:
       - smoke
     adds:
       - kernel.*
+  - name: samples
+    description: >
+      Samples
+    adds:
+      - samples.*
+  - name: samples_basic
+    description: >
+      Samples basic
+    adds:
+      - samples.basic.*
