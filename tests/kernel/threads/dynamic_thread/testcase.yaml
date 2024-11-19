@@ -5,7 +5,7 @@ tests:
       - threads
       - userspace
     ignore_faults: true
-    filter: CONFIG_ARCH_HAS_USERSPACE
+    filter: CONFIG_USERSPACE
     arch_exclude:
       - posix
     integration_platforms:
