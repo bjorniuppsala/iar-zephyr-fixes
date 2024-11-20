@@ -11,6 +11,17 @@
 #include <sys/types.h>
 #endif
 
+#ifdef __IAR_SYSTEMS_ICC__
+/*
+ * The IAR header file time.h does not set _CLOCK_T_DECLARED.
+ * Check for macros that are set if time.h has been included.
+ * */
+#if defined(_TIME) && defined(_DLIB_TIME_USES_64)
+#define _CLOCK_T_DECLARED
+#define __clock_t_defined
+#endif
+#endif
+
 #if !defined(_CLOCK_T_DECLARED) && !defined(__clock_t_defined)
 typedef unsigned long clock_t;
 #define _CLOCK_T_DECLARED
