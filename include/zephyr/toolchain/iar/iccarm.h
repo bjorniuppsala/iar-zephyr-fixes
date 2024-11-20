@@ -149,8 +149,10 @@ do {                                                                    \
 #if !defined(CONFIG_XIP)
 #define __ramfunc
 #elif defined(CONFIG_ARCH_HAS_RAMFUNC_SUPPORT)
-//#define __ramfunc	__attribute__((noinline))			\
-//			__attribute__((long_call, section(".ramfunc")))
+/* Use this instead of the IAR keyword __ramfunc to make sure it
+ * ends up in the correct section.
+ */
+#define __ramfunc __attribute__((noinline, long_call, section(".ramfunc")))
 #endif /* !CONFIG_XIP */
 
 // TG-WG: ICCARM does not support __fallthrough
@@ -168,7 +170,7 @@ do {                                                                    \
 
 #define __may_alias     __attribute__((__may_alias__))
 
-//#ifndef __printf_like
+#ifndef __printf_like
 //#ifdef CONFIG_ENFORCE_ZEPHYR_STDINT
 //#define __printf_like(f, a)   __attribute__((format (printf, f, a)))
 //#else
@@ -183,11 +185,11 @@ do {                                                                    \
  */
 #define __printf_like(f, a)
 //#endif
-//#endif
+#endif
 
 #define __used		__attribute__((__used__))
 #define __unused	__attribute__((__unused__))
-#define __maybe_unused
+#define __maybe_unused  __attribute__((__unused__))
 
 #ifndef __deprecated
 #define __deprecated	__attribute__((deprecated))
@@ -200,10 +202,10 @@ do {                                                                    \
  * them to be 1 since iccarm does not support 0 size arrays.
  */
 #ifndef CONFIG_SHELL_CMD_BUFF_SIZE
-#define CONFIG_SHELL_CMD_BUFF_SIZE 1
+//#define CONFIG_SHELL_CMD_BUFF_SIZE 1
 #endif
 #ifndef CONFIG_SHELL_PRINTF_BUFF_SIZE
-#define CONFIG_SHELL_PRINTF_BUFF_SIZE 1
+//#define CONFIG_SHELL_PRINTF_BUFF_SIZE 1
 #endif
 
 #ifndef __attribute_const__
