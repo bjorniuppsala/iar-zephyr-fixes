@@ -106,6 +106,7 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --diag_suppress=Pe1901 # use of a const variable in a constant expression is nonstandard in C
   --diag_suppress=Pa093  # implicit conversion from floating point to integer
   --diag_suppress=Pa134  # left and right operands are identical
+  --diag_suppress=Pe231  # declaration is not visible outside of function
 )
 
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
