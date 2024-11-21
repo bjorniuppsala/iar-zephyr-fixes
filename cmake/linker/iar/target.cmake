@@ -24,7 +24,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
 
   add_custom_command(
     OUTPUT ${linker_script_gen}
-	   ${STEERING_FILE}
+           ${STEERING_FILE}
     DEPENDS
            ${extra_dependencies}
     COMMAND ${CMAKE_COMMAND}
@@ -68,6 +68,11 @@ function(toolchain_ld_link_elf)
 
   set(ILINK_XCL "-f ${TOOLCHAIN_LD_LINK_ELF_LINKER_SCRIPT}.xcl")
 
+  set(ILINK_TLS_LIBRARY)
+  if(${CONFIG_CURRENT_THREAD_USE_TLS})
+    set(ILINK_TLS_LIBRARY "--threaded_lib=manual")
+  endif()
+
   target_link_libraries(
     ${TOOLCHAIN_LD_LINK_ELF_TARGET_ELF}
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_PRE_SCRIPT}
@@ -83,6 +88,7 @@ function(toolchain_ld_link_elf)
 
     ${ILINK_SEMIHOSTING}
     ${ILINK_BUFFERED_WRITE}
+    ${ILINK_TLS_LIBRARY}
     # Do not remove symbols
     #--no_remove
     ${ILINK_XCL}
