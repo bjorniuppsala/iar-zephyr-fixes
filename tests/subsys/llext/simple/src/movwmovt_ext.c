@@ -27,8 +27,12 @@ void test_entry(void)
 	test_var = 0;
 
 	printk("test movwmovt\n");
+#ifdef __ICCARM__
+	__asm volatile("mov32 r0, #test_func");
+#else
 	__asm volatile ("movw r0, #:lower16:test_func");
 	__asm volatile ("movt r0, #:upper16:test_func");
+#endif
 	__asm volatile ("blx r0");
 	zassert_equal(test_var, 1, "mov.w and mov.t test failed");
 }
