@@ -376,6 +376,12 @@ if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
     endforeach()
   endif()
 
+  if(TOOLCHAIN_CXX_FLAGS)
+    foreach(F ${TOOLCHAIN_CXX_FLAGS})
+      zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:${F}>)
+    endforeach()
+  endif()
+
   if(TOOLCHAIN_ASM_FLAGS)
     foreach(F ${TOOLCHAIN_ASM_FLAGS})
       zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:${F}>)

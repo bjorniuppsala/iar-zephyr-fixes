@@ -45,8 +45,13 @@ include(${ZEPHYR_BASE}/cmake/gcc-m-fpu.cmake)
 include(${ICC_BASE}/iccarm-cpu.cmake)
 include(${ICC_BASE}/iccarm-fpu.cmake)
 
+set(IAR_COMMON_FLAGS)
 # Minimal C compiler flags
+
 list(APPEND TOOLCHAIN_C_FLAGS
+  --vla
+)
+list(APPEND IAR_COMMON_FLAGS
   --do_explicit_init_in_named_sections
   --endian=little
   --macro_positions_in_diagnostics
@@ -59,7 +64,6 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --no_var_align
   --no_const_align
   --zephyr
-  --vla
 
   -DRTT_USE_ASM=0       #WA for VAAK-232
 
@@ -110,13 +114,13 @@ list(APPEND TOOLCHAIN_C_FLAGS
 )
 
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
-  list(APPEND TOOLCHAIN_C_FLAGS
+  list(APPEND IAR_COMMON_FLAGS
     "SHELL: --preinclude ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h"
   )
 endif()
 
 # Place test command line options here so not to pollute the necessary
-list(APPEND TOOLCHAIN_C_FLAGS
+list(APPEND IAR_COMMON_FLAGS
   #--enable_gnu_compatibility
 
   # Note that cmake de-duplication removes a second '.' argument, so for
@@ -143,24 +147,24 @@ if(CONFIG_DEBUG)
 endif()
 
 if (DEFINED CONFIG_ARM_SECURE_FIRMWARE)
-  list(APPEND TOOLCHAIN_C_FLAGS --cmse)
+  list(APPEND IAR_COMMON_FLAGS --cmse)
   list(APPEND TOOLCHAIN_ASM_FLAGS -mcmse)
 endif()
 
 # 64-bit
 if(CONFIG_ARM64)
-  list(APPEND TOOLCHAIN_C_FLAGS --abi=lp64)
+  list(APPEND IAR_COMMON_FLAGS --abi=lp64)
   list(APPEND TOOLCHAIN_LD_FLAGS --abi=lp64)
 # 32-bit
 else()
-  list(APPEND TOOLCHAIN_C_FLAGS --aeabi)
+  list(APPEND IAR_COMMON_FLAGS --aeabi)
   if(CONFIG_COMPILER_ISA_THUMB2)
     list(APPEND TOOLCHAIN_C_FLAGS --thumb)
     list(APPEND TOOLCHAIN_ASM_FLAGS -mthumb)
   endif()
 
   if(CONFIG_FPU)
-    list(APPEND TOOLCHAIN_C_FLAGS --fpu=${ICCARM_FPU})
+    list(APPEND IAR_COMMON_FLAGS --fpu=${ICCARM_FPU})
     list(APPEND TOOLCHAIN_ASM_FLAGS -mfpu=${GCC_M_FPU})
   endif()
 endif()
@@ -168,12 +172,15 @@ endif()
 if(CONFIG_IAR_LIBC)
   # Zephyr requires AEABI portability to ensure correct functioning of the C
   # library, for example error numbers, errno.h.
-  list(APPEND TOOLCHAIN_C_FLAGS -D__AEABI_PORTABILITY_LEVEL=1)
+  list(APPEND IAR_COMMON_FLAGS -D__AEABI_PORTABILITY_LEVEL=1)
 endif()
 
 if(CONFIG_REQUIRES_FULL_LIBC)
-  list(APPEND TOOLCHAIN_C_FLAGS --dlib_config full)
+  list(APPEND IAR_COMMON_FLAGS --dlib_config full)
 endif()
+
+list(APPEND TOOLCHAIN_C_FLAGS ${IAR_COMMON_FLAGS})
+list(APPEND TOOLCHAIN_CXX_FLAGS ${IAR_COMMON_FLAGS})
 
 set(CONFIG_COMPILER_FREESTANDING 1)
 set(CONFIG_CBPRINTF_LIBC_SUBSTS 1)

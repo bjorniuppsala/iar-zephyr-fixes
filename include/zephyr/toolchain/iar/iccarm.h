@@ -64,9 +64,7 @@
 
 #if defined(__cplusplus) && (__cplusplus >= 201103L)
 #define BUILD_ASSERT(EXPR, MSG...)  static_assert(EXPR, "" MSG)
-#endif /*__cplusplus */
-
-#if defined(__ICCARM__)
+#elif defined(__ICCARM__)
 #define BUILD_ASSERT(EXPR, MSG...) _Static_assert(EXPR, "" MSG)
 #endif
 
