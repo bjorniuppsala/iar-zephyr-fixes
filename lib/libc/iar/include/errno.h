@@ -9,8 +9,8 @@
  * @brief Defines additional error numbers based on POSIX
  */
 
-#ifndef ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_ERRNO_H_
-#define ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_ERRNO_H_
+#ifndef ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_
+#define ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_
 
 #include_next <errno.h>
 
@@ -92,4 +92,4 @@
 #define ECANCELED       140 /**< Operation canceled */
 #define EWOULDBLOCK  EAGAIN /**< Operation would block */
 
-#endif /* ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_ERRNO_H_ */
+#endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_ */

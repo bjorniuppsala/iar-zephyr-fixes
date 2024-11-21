@@ -9,8 +9,8 @@
  * @brief Declares additional time related functions based on POSIX
  */
 
-#ifndef ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_TIME_H_
-#define ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_TIME_H_
+#ifndef ZEPHYR_LIB_LIBC_IAR_INCLUDE_TIME_H_
+#define ZEPHYR_LIB_LIBC_IAR_INCLUDE_TIME_H_
 
 #include <zephyr/toolchain.h>
 #include_next <time.h>
@@ -28,4 +28,4 @@ struct tm *localtime_r(const time_t *ZRESTRICT timer, struct tm *ZRESTRICT resul
 }
 #endif
 
-#endif /* ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_TIME_H_ */
+#endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_TIME_H_ */

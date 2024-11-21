@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_LIMITS_H_
-#define ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_LIMITS_H_
+#ifndef ZEPHYR_LIB_LIBC_IAR_INCLUDE_LIMITS_H_
+#define ZEPHYR_LIB_LIBC_IAR_INCLUDE_LIMITS_H_
 
 #include_next <limits.h>
 
@@ -19,4 +19,4 @@ extern "C" {
 }
 #endif
 
-#endif /* ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_LIMITS_H_ */
+#endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_LIMITS_H_ */

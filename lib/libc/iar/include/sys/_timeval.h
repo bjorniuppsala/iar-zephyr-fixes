@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_SYS__TIMEVAL_H_
-#define ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_SYS__TIMEVAL_H_
+#ifndef ZEPHYR_LIB_LIBC_IAR_INCLUDE_SYS__TIMEVAL_H_
+#define ZEPHYR_LIB_LIBC_IAR_INCLUDE_SYS__TIMEVAL_H_
 
 #include <stdint.h>
 
@@ -24,4 +24,4 @@ struct timeval {
     suseconds_t tv_usec;
 };
 
-#endif /* ZEPHYR_LIB_LIBC_ICCARM_INCLUDE_SYS__TIMEVAL_H_ */
+#endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_SYS__TIMEVAL_H_ */
