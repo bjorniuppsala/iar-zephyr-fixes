@@ -69,7 +69,7 @@ function(toolchain_ld_link_elf)
   set(ILINK_XCL "-f ${TOOLCHAIN_LD_LINK_ELF_LINKER_SCRIPT}.xcl")
 
   set(ILINK_TLS_LIBRARY)
-  if(${CONFIG_CURRENT_THREAD_USE_TLS})
+  if(${CONFIG_THREAD_LOCAL_STORAGE})
     set(ILINK_TLS_LIBRARY "--threaded_lib=manual")
   endif()
 
