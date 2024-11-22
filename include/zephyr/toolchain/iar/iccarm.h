@@ -78,10 +78,6 @@
 #define __ATOMIC_SEQ_CST __MEMORY_ORDER_SEQ_CST__
 #endif
 
-#ifndef __asm__
-#define __asm__ __asm
-#endif
-
 /* By default, restrict is recognized in Standard C
  * __restrict is always recognized */
 #define ZRESTRICT __restrict
