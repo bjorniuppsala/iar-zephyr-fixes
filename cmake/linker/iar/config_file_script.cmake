@@ -786,8 +786,9 @@ function(symbol_to_string)
       endif()
     endif()
   else()
-    if(${expr} STREQUAL "ADDR(.ramfunc)")
-      string(REPLACE "ADDR(.ramfunc)" "(ramfunc$$Base)" expr "${expr}")
+    # Handle things like ADDR(.ramfunc)
+    if(${expr} MATCHES "^[A-Za-z]?ADDR\\(.+\\)")
+      string(REGEX REPLACE "^[A-Za-z]?ADDR\\((.+)\\)" "(\\1$$Base)" expr ${expr})
       set(${STRING_STRING}
         "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
         )
