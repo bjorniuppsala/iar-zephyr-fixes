@@ -700,6 +700,11 @@ function(section_to_string)
 
   get_property(current_sections GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
 
+  if(${name} STREQUAL .noinit)
+    # No init on .noinit
+    set(current_sections)
+  endif()
+
   if(DEFINED group_parent_vma AND DEFINED group_parent_lma)
     if(DEFINED current_sections)
       set(TEMP "${TEMP}\ninitialize by address_translation\n")
