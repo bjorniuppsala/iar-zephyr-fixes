@@ -51,5 +51,9 @@ size_t arch_tls_stack_setup(struct k_thread *new_thread, char *stack_ptr)
 	 */
 	new_thread->tls = POINTER_TO_UINT(stack_ptr);
 
+#ifdef __IAR_SYSTEMS_ICC__
+	return z_tls_data_size();
+#else
 	return (z_tls_data_size() + (sizeof(uintptr_t) * 2));
+#endif
 }
