@@ -14,11 +14,6 @@ config STACK_CANARIES
 	default n
 
 
-config TOOLCHAIN_IAR_SUPPORTS_THREAD_LOCAL_STORAGE
-	def_bool y
-	select TOOLCHAIN_SUPPORTS_THREAD_LOCAL_STORAGE
-
-
 menu "IAR library options"
 
 config IAR_SEMIHOSTING
