@@ -434,8 +434,13 @@ function(section_to_string)
   endforeach()
 
   if(NOT nosymbols)
-    set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_start = (${name_clean}$$Base)")
-    set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_end = (${name_clean}$$Limit)")
+    if ("${name_clean}" STREQUAL "tdata")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_start = (__iar_tls$$INIT_DATA$$Base)")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_end = (__iar_tls$$INIT_DATA$$Limit)")
+    else()
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_start = (${name_clean}$$Base)")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_end = (${name_clean}$$Limit)")
+    endif()
   endif()
 
   # Add keep to the sections that have 'KEEP:TRUE'
@@ -738,9 +743,22 @@ function(symbol_to_string)
     else()
       if(expr MATCHES "Base|Limit|Length")
         # Anything like $$Base/$$Limit/$$Length should be an image symbol
-        set(${STRING_STRING}
-          "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
-          )
+        if( "${symbol}" STREQUAL "__tdata_size")
+          # This will handle the alignment of the TBSS block
+          set(${STRING_STRING}
+            "${${STRING_STRING}}define image symbol ${symbol}=(__iar_tls$$INIT_DATA$$Limit-__iar_tls$$INIT_DATA$$Base);\n"
+            )
+        elseif( "${symbol}" STREQUAL "__tbss_size")
+          # This will handle the alignment of the TBSS block by
+          # pre-padding bytes
+          set(${STRING_STRING}
+            "${${STRING_STRING}}define image symbol ${symbol}=((__iar_tls$$DATA$$Limit-__iar_tls$$DATA$$Base)-(__iar_tls$$INIT_DATA$$Limit-__iar_tls$$INIT_DATA$$Base));\n" 
+            )
+        else()
+          set(${STRING_STRING}
+            "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
+            )
+        endif()
       else()
         list(GET match_res 0 match)
         string(REPLACE "@" "" match ${match})
