@@ -702,7 +702,16 @@ function(section_to_string)
 
   if(${name} STREQUAL .noinit)
     # No init on .noinit
-    set(current_sections)
+    if(DEFINED current_sections)
+      set(TEMP "${TEMP}\ndo not initialize\n")
+      set(TEMP "${TEMP}{\n")
+      foreach(section ${current_sections})
+        set(TEMP "${TEMP}  ${section},\n")
+      endforeach()
+      set(TEMP "${TEMP}  section *.noinit\n")
+      set(TEMP "${TEMP}};")
+      set(current_sections)
+    endif()
   endif()
 
   if(DEFINED group_parent_vma AND DEFINED group_parent_lma)
