@@ -29,6 +29,12 @@
 extern "C" {
 #endif
 
+ #ifdef __IAR_SYSTEMS_ICC__
+#define _IAR_NOINIT __no_init
+#else
+#define _IAR_NOINIT
+#endif
+
 /* Using typedef deliberately here, this is quite intended to be an opaque
  * type.
  *
@@ -173,7 +179,7 @@ static inline char *z_stack_ptr_align(char *ptr)
  * @param lsect Linker section for this stack
  */
 #define Z_KERNEL_STACK_DEFINE_IN(sym, size, lsect) \
-	struct z_thread_stack_element lsect \
+	_IAR_NOINIT struct z_thread_stack_element lsect \
 		__aligned(Z_KERNEL_STACK_OBJ_ALIGN) \
 		sym[K_KERNEL_STACK_LEN(size)]
 
@@ -186,7 +192,7 @@ static inline char *z_stack_ptr_align(char *ptr)
  * @param lsect Linker section for this array of stacks
  */
 #define Z_KERNEL_STACK_ARRAY_DEFINE_IN(sym, nmemb, size, lsect) \
-	struct z_thread_stack_element lsect \
+	_IAR_NOINIT struct z_thread_stack_element lsect \
 		__aligned(Z_KERNEL_STACK_OBJ_ALIGN) \
 		sym[nmemb][K_KERNEL_STACK_LEN(size)]
 
@@ -464,7 +470,7 @@ static inline char *K_KERNEL_STACK_BUFFER(k_thread_stack_t *sym)
  * @param lsect Linker section for this stack
  */
 #define Z_THREAD_STACK_DEFINE_IN(sym, size, lsect) \
-	struct z_thread_stack_element lsect \
+	_IAR_NOINIT struct z_thread_stack_element lsect \
 		__aligned(Z_THREAD_STACK_OBJ_ALIGN(size)) \
 		sym[K_THREAD_STACK_LEN(size)]
 
@@ -483,7 +489,7 @@ static inline char *K_KERNEL_STACK_BUFFER(k_thread_stack_t *sym)
  * @param lsect Linker section for this stack
  */
 #define Z_THREAD_STACK_ARRAY_DEFINE_IN(sym, nmemb, size, lsect) \
-	struct z_thread_stack_element lsect \
+	_IAR_NOINIT struct z_thread_stack_element lsect \
 		__aligned(Z_THREAD_STACK_OBJ_ALIGN(size)) \
 		sym[nmemb][K_THREAD_STACK_LEN(size)]
 
