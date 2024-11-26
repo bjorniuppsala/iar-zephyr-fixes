@@ -757,7 +757,7 @@ function(symbol_to_string)
           # This will handle the alignment of the TBSS block by
           # pre-padding bytes
           set(${STRING_STRING}
-            "${${STRING_STRING}}define image symbol ${symbol}=((__iar_tls$$DATA$$Limit-__iar_tls$$DATA$$Base)-(__iar_tls$$INIT_DATA$$Limit-__iar_tls$$INIT_DATA$$Base));\n" 
+            "${${STRING_STRING}}define image symbol ${symbol}=((tbss$$Limit-__iar_tls$$DATA$$Base)-(__iar_tls$$INIT_DATA$$Limit-__iar_tls$$INIT_DATA$$Base));\n" 
             )
         else()
           set(${STRING_STRING}
