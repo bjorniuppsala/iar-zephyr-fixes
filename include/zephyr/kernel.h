@@ -5522,18 +5522,6 @@ void k_heap_free(struct k_heap *h, void *mem) __attribute_nonnull(1);
  * @param bytes Size of memory region, in bytes
  * @param in_section __attribute__((section(name))
  */
- #ifdef __IAR_SYSTEMS_ICC__
-#define Z_HEAP_DEFINE_IN_SECT(name, bytes, in_section)                                             \
-	__no_init char in_section __aligned(8) /* CHUNK_UNIT */                                              \
-		kheap_##name[MAX(bytes, Z_HEAP_MIN_SIZE)];                                         \
-	STRUCT_SECTION_ITERABLE(k_heap, name) = {                                                  \
-		.heap =                                                                            \
-			{                                                                          \
-				.init_mem = kheap_##name,                                          \
-				.init_bytes = MAX(bytes, Z_HEAP_MIN_SIZE),                         \
-			},                                                                         \
-	}
-#else
 #define Z_HEAP_DEFINE_IN_SECT(name, bytes, in_section)		\
 	char in_section						\
 	     __aligned(8) /* CHUNK_UNIT */			\
@@ -5544,7 +5532,6 @@ void k_heap_free(struct k_heap *h, void *mem) __attribute_nonnull(1);
 			.init_bytes = MAX(bytes, Z_HEAP_MIN_SIZE), \
 		 },						\
 	}
-#endif
 
 /**
  * @brief Define a static k_heap
