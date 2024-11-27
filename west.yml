@@ -121,7 +121,7 @@ manifest:
       groups:
         - hal
     - name: cmsis-dsp
-      revision: 6489e771e9c405f1763b52d64a3f17a1ec488ace
+      revision: d80a49b2bb186317dc1db4ac88da49c0ab77e6e7
       path: modules/lib/cmsis-dsp
     - name: cmsis-nn
       revision: ea987c1ca661be723de83bd159aed815d6cbd430
@@ -157,7 +157,7 @@ manifest:
       groups:
         - hal
     - name: hal_espressif
-      revision: 07ff57e8d197765652b7819b297415d859ed7815
+      revision: 6605f649d151f255011c7dfdd35cd568caa871a4
       path: modules/hal/espressif
       west-commands: west/west-commands.yml
       groups:
@@ -188,7 +188,7 @@ manifest:
       groups:
         - hal
     - name: hal_nordic
-      revision: 5c8d109371ebb740fbef1f440a3b59e488a36717
+      revision: ce87268bb5610b7e90acce3efa5c511e95aeeeae
       path: modules/hal/nordic
       groups:
         - hal
@@ -198,7 +198,7 @@ manifest:
       groups:
         - hal
     - name: hal_nxp
-      revision: 3c64cd63125c86870802a561ce79dc33697b005c
+      revision: cae40020064894f67b00215dad2baf7c743e1dfb
       path: modules/hal/nxp
       groups:
         - hal
@@ -233,7 +233,7 @@ manifest:
       groups:
         - hal
     - name: hal_stm32
-      revision: 019d8255333f96bdd47d26b44049bd3e7af8ef55
+      revision: d5fb525486544f7fcec365a89c2ca5ea936618f5
       path: modules/hal/stm32
       groups:
         - hal
@@ -245,6 +245,11 @@ manifest:
     - name: hal_ti
       revision: 2e7b95ad079e9f636884eedc6853e6ad98b85f65
       path: modules/hal/ti
+      groups:
+        - hal
+    - name: hal_wch
+      revision: 1de9d3e406726702ce7cfc504509a02ecc463554
+      path: modules/hal/wch
       groups:
         - hal
     - name: hal_wurthelektronik
@@ -259,7 +264,7 @@ manifest:
         - hal
     - name: hostap
       path: modules/lib/hostap
-      revision: 0f7b166487b1ac08e1c6c492383f5c103320b2be
+      revision: 14f350c2ad022529720cbf04432a825c28b469ec
     - name: libmetal
       revision: a6851ba6dba8c9e87d00c42f171a822f7a29639b
       path: modules/hal/libmetal
@@ -280,12 +285,12 @@ manifest:
       revision: 2b498e6f36d6b82ae1da12c8b7742e318624ecf5
       path: modules/lib/gui/lvgl
     - name: mbedtls
-      revision: a78176c6ff0733ba08018cba4447bd3f20de7978
+      revision: 4952e1328529ee549d412b498ea71c54f30aa3b1
       path: modules/crypto/mbedtls
       groups:
         - crypto
     - name: mcuboot
-      revision: f74b77cf7808919837c0ed14c2ead3918c546349
+      revision: eb942067989569f9cf319b087d0bb16b16effd86
       path: bootloader/mcuboot
       groups:
         - bootloader
@@ -300,8 +305,11 @@ manifest:
       groups:
         - tools
     - name: nrf_hw_models
-      revision: aeef3db9fa9e4b9d12b3bbec44f9cedc8fcb7d9c
+      revision: 3cfca0192ff84da919e9bc7978bcc2239cd6a395
       path: modules/bsim_hw_models/nrf_hw_models
+    - name: nrf_wifi
+      revision: f9e2abdb70761003912b1b929a37b536f68a91da
+      path: modules/lib/nrf_wifi
     - name: open-amp
       revision: b735edbc739ad59156eb55bb8ce2583d74537719
       path: modules/lib/open-amp
@@ -317,7 +325,7 @@ manifest:
       path: modules/lib/picolibc
       revision: d492d5fa7c96918e37653f303028346bb0dd51a2
     - name: segger
-      revision: 798f95ea9304e5ed8165a661081443051f210733
+      revision: 1a607e8718171cfbc1ee6b2a5ec00f619d1cc7fc
       path: modules/debug/segger
       groups:
         - debug

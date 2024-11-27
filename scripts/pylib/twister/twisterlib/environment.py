@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # vim: set syntax=python ts=4 :
 #
-# Copyright (c) 2018 Intel Corporation
+# Copyright (c) 2018-2024 Intel Corporation
 # Copyright 2022 NXP
 # Copyright (c) 2024 Arm Limited (or its affiliates). All rights reserved.
 #
@@ -20,6 +20,7 @@ from importlib import metadata
 from pathlib import Path
 from typing import Generator, List
 
+from twisterlib.constants import SUPPORTED_SIMS
 from twisterlib.coverage import supported_coverage_formats
 
 logger = logging.getLogger('twister')
@@ -71,7 +72,7 @@ def norm_path(astring):
     return newstring
 
 
-def add_parse_arguments(parser = None):
+def add_parse_arguments(parser = None) -> argparse.ArgumentParser:
     if parser is None:
         parser = argparse.ArgumentParser(
             description=__doc__,
@@ -149,7 +150,8 @@ Artificially long but functional example:
     test_plan_report_xor.add_argument("--list-tests", action="store_true",
                              help="""List of all sub-test functions recursively found in
         all --testsuite-root arguments. Note different sub-tests can share
-        the same section name and come from different directories.
+        the same test scenario identifier (section.subsection)
+        and come from different directories.
         The output is flattened and reports --sub-test names only,
         not their directories. For instance net.socket.getaddrinfo_ok
         and net.socket.fd_set belong to different directories.
@@ -178,6 +180,13 @@ Artificially long but functional example:
                         and create a hardware map file to be used with
                         --device-testing
                         """)
+
+    run_group_option.add_argument(
+        "--simulation", dest="sim_name", choices=SUPPORTED_SIMS,
+        help="Selects which simulation to use. Must match one of the names defined in the board's "
+             "manifest. If multiple simulator are specified in the selected board and this "
+             "argument is not passed, then the first simulator is selected.")
+
 
     device.add_argument("--device-serial",
                         help="""Serial device for accessing the board
@@ -239,17 +248,22 @@ Artificially long but functional example:
 
     test_xor_subtest.add_argument(
         "-s", "--test", "--scenario", action="append", type = norm_path,
-        help="Run only the specified testsuite scenario. These are named by "
-             "<path/relative/to/Zephyr/base/section.name.in.testcase.yaml>")
+        help="""Run only the specified test suite scenario. These are named by
+        'path/relative/to/Zephyr/base/section.subsection_in_testcase_yaml',
+        or just 'section.subsection' identifier. With '--testsuite-root' option
+        the scenario will be found faster.
+        """)
 
     test_xor_subtest.add_argument(
         "--sub-test", action="append",
-        help="""Recursively find sub-test functions and run the entire
-        test section where they were found, including all sibling test
+        help="""Recursively find sub-test functions (test cases) and run the entire
+        test scenario (section.subsection) where they were found, including all sibling test
         functions. Sub-tests are named by:
-        section.name.in.testcase.yaml.function_name_without_test_prefix
-        Example: In kernel.fifo.fifo_loop: 'kernel.fifo' is a section name
-        and 'fifo_loop' is a name of a function found in main.c without test prefix.
+        'section.subsection_in_testcase_yaml.ztest_suite.ztest_without_test_prefix'.
+        Example_1: 'kernel.fifo.fifo_api_1cpu.fifo_loop' where 'kernel.fifo' is a test scenario
+        name (section.subsection) and 'fifo_api_1cpu.fifo_loop' is
+        a Ztest suite_name.test_name identificator.
+        Example_2: 'debug.coredump.logging_backend' is a standalone test scenario name.
         """)
 
     parser.add_argument(
@@ -805,7 +819,7 @@ structure in the main Zephyr tree: boards/<vendor>/<board_name>/""")
     return parser
 
 
-def parse_arguments(parser, args, options = None, on_init=True):
+def parse_arguments(parser: argparse.ArgumentParser, args, options = None, on_init=True) -> argparse.Namespace:
     if options is None:
         options = parser.parse_args(args)
 
@@ -952,7 +966,7 @@ def strip_ansi_sequences(s: str) -> str:
 
 class TwisterEnv:
 
-    def __init__(self, options, default_options=None) -> None:
+    def __init__(self, options : argparse.Namespace, default_options=None) -> None:
         self.version = "Unknown"
         self.toolchain = None
         self.commit_date = "Unknown"
