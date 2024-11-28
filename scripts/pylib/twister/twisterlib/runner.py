@@ -1,6 +1,6 @@
 # vim: set syntax=python ts=4 :
 #
-# Copyright (c) 2018-2024 Intel Corporation
+# Copyright (c) 20180-2022 Intel Corporation
 # Copyright 2022 NXP
 # SPDX-License-Identifier: Apache-2.0
 
@@ -575,11 +575,21 @@ class CMake:
 
             if log_msg:
                 overflow_found = re.findall("region `(FLASH|ROM|RAM|ICCM|DCCM|SRAM|dram\\d_\\d_seg)' overflowed by", log_msg)
+
+                # IAR ilink has different log messages
+                ilink = False
+                if not overflow_found:
+                    ilink = True
+                    overflow_found = re.findall("Error\[Lp011\]: section placement failed", log_msg)
+
                 imgtool_overflow_found = re.findall(r"Error: Image size \(.*\) \+ trailer \(.*\) exceeds requested size", log_msg)
                 if overflow_found and not self.options.overflow_as_errors:
                     logger.debug("Test skipped due to {} Overflow".format(overflow_found[0]))
                     self.instance.status = TwisterStatus.SKIP
-                    self.instance.reason = "{} overflow".format(overflow_found[0])
+                    if ilink:
+                        self.instance.reason = overflow_found[0]
+                    else:
+                        self.instance.reason = "{} overflow".format(overflow_found[0])
                     change_skip_to_error_if_integration(self.options, self.instance)
                 elif imgtool_overflow_found and not self.options.overflow_as_errors:
                     self.instance.status = TwisterStatus.SKIP
@@ -813,10 +823,6 @@ class ProjectBuilder(FilterBuilder):
         self.options = env.options
         self.env = env
         self.duts = None
-
-    @property
-    def trace(self) -> bool:
-        return self.options.verbose > 2
 
     def log_info(self, filename, inline_logs, log_testcases=False):
         filename = os.path.abspath(os.path.realpath(filename))
@@ -1091,18 +1097,6 @@ class ProjectBuilder(FilterBuilder):
                 self.instance.reason = reason
                 self.instance.add_missing_case_status(TwisterStatus.BLOCK, reason)
 
-    def demangle(self, symbol_name):
-        if symbol_name[:2] == '_Z':
-            try:
-                cpp_filt = subprocess.run('c++filt', input=symbol_name, text=True, check=True,
-                                          stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                if self.trace:
-                    logger.debug(f"Demangle: '{symbol_name}'==>'{cpp_filt.stdout}'")
-                return cpp_filt.stdout.strip()
-            except Exception as e:
-                logger.error(f"Failed to demangle '{symbol_name}': {e}")
-        return symbol_name
-
     def determine_testcases(self, results):
         yaml_testsuite_name = self.instance.testsuite.id
         logger.debug(f"Determine test cases for test suite: {yaml_testsuite_name}")
@@ -1118,25 +1112,19 @@ class ProjectBuilder(FilterBuilder):
                 for sym in section.iter_symbols():
                     # It is only meant for new ztest fx because only new ztest fx exposes test functions
                     # precisely.
-                    m_ = new_ztest_unit_test_regex.search(sym.name)
-                    if not m_:
-                        continue
-                    # Demangle C++ symbols
-                    m_ = new_ztest_unit_test_regex.search(self.demangle(sym.name))
-                    if not m_:
-                        continue
+
                     # The 1st capture group is new ztest suite name.
                     # The 2nd capture group is new ztest unit test name.
-                    new_ztest_suite = m_[1]
-                    if new_ztest_suite not in self.instance.testsuite.ztest_suite_names:
-                        logger.warning(f"Unexpected Ztest suite '{new_ztest_suite}' "
-                                       f"not present in: {self.instance.testsuite.ztest_suite_names}")
-                    test_func_name = m_[2].replace("test_", "", 1)
-                    testcase_id = f"{yaml_testsuite_name}.{new_ztest_suite}.{test_func_name}"
-                    detected_cases.append(testcase_id)
+                    matches = new_ztest_unit_test_regex.findall(sym.name)
+                    if matches:
+                        for m in matches:
+                            # new_ztest_suite = m[0] # not used for now
+                            test_func_name = m[1].replace("test_", "", 1)
+                            testcase_id = f"{yaml_testsuite_name}.{test_func_name}"
+                            detected_cases.append(testcase_id)
 
         if detected_cases:
-            logger.debug(f"Detected Ztest cases: [{', '.join(detected_cases)}] in {elf_file}")
+            logger.debug(f"{', '.join(detected_cases)} in {elf_file}")
             tc_keeper = {tc.name: {'status': tc.status, 'reason': tc.reason} for tc in self.instance.testcases}
             self.instance.testcases.clear()
             self.instance.testsuite.testcases.clear()
