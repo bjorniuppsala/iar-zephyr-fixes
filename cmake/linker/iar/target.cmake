@@ -21,19 +21,30 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
   set(extra_dependencies ${ARGN})
   set(STEERING_FILE "${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.xcl")
   set(STEERING_FILE_ARG "-DSTEERING_FILE=${STEERING_FILE}")
+  set(cmake_linker_script_settings
+      ${PROJECT_BINARY_DIR}/include/generated/ld_script_settings_${linker_pass_define}.cmake
+  )
 
+  file(GENERATE OUTPUT ${cmake_linker_script_settings} CONTENT
+       "set(FORMAT \"$<TARGET_PROPERTY:linker,FORMAT>\" CACHE INTERNAL \"\")\n
+        set(ENTRY \"$<TARGET_PROPERTY:linker,ENTRY>\" CACHE INTERNAL \"\")\n
+        set(MEMORY_REGIONS \"$<TARGET_PROPERTY:linker,MEMORY_REGIONS>\" CACHE INTERNAL \"\")\n
+        set(GROUPS \"$<TARGET_PROPERTY:linker,GROUPS>\" CACHE INTERNAL \"\")\n
+        set(SECTIONS \"$<TARGET_PROPERTY:linker,SECTIONS>\" CACHE INTERNAL \"\")\n
+        set(SECTION_SETTINGS \"$<TARGET_PROPERTY:linker,SECTION_SETTINGS>\" CACHE INTERNAL \"\")\n
+        set(SYMBOLS \"$<TARGET_PROPERTY:linker,SYMBOLS>\" CACHE INTERNAL \"\")\n
+       "
+    )
   add_custom_command(
     OUTPUT ${linker_script_gen}
            ${STEERING_FILE}
     DEPENDS
            ${extra_dependencies}
+           ${DEVICE_API_LD_TARGET}
     COMMAND ${CMAKE_COMMAND}
+      -C ${DEVICE_API_LINKER_SECTIONS_CMAKE}
+      -C ${cmake_linker_script_settings}
       -DPASS="${linker_pass_define}"
-      -DMEMORY_REGIONS="$<TARGET_PROPERTY:linker,MEMORY_REGIONS>"
-      -DGROUPS="$<TARGET_PROPERTY:linker,GROUPS>"
-      -DSECTIONS="$<TARGET_PROPERTY:linker,SECTIONS>"
-      -DSECTION_SETTINGS="$<TARGET_PROPERTY:linker,SECTION_SETTINGS>"
-      -DSYMBOLS="$<TARGET_PROPERTY:linker,SYMBOLS>"
       ${STEERING_FILE_ARG}
       -DCONFIG_LINKER_LAST_SECTION_ID=${CONFIG_LINKER_LAST_SECTION_ID}
       -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
