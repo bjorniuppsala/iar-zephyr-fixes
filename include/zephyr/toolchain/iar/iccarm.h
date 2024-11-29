@@ -160,6 +160,10 @@ do {                                                                    \
 #define __aligned(x)	__attribute__((__aligned__(x)))
 #endif
 
+#ifndef __noinit
+#define __noinit        __attribute__((noinit))
+#endif
+
 #define __alignof(x) _Alignof(x)
 
 #define __may_alias     __attribute__((__may_alias__))
