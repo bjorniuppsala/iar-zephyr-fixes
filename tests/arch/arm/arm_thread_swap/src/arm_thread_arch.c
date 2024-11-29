@@ -12,8 +12,8 @@
 #include <offsets_short_arch.h>
 #include <ksched.h>
 
-#if !defined(__GNUC__)
-#error __FILE__ goes only with Cortex-M GCC
+#if !defined(__GNUC__) && !defined(__ICCARM__)
+#error __FILE__ goes only with Cortex-M GCC/IAR
 #endif
 
 #if !defined(CONFIG_ARMV6_M_ARMV8_M_BASELINE) && \
@@ -85,7 +85,7 @@ static void load_callee_saved_regs(const _callee_saved_t *regs)
 #elif defined(CONFIG_ARMV7_M_ARMV8_M_MAINLINE)
 	__asm__ volatile (
 		"mov r1, r7;\n\t"
-		"ldmia %0, {v1-v8};\n\t"
+		"ldmia %0, {r4-r11};\n\t"
 		"mov r7, r1;\n\t"
 		: /* no output */
 		: "r" (regs)
@@ -382,10 +382,10 @@ static void alt_thread_entry(void *p1, void *p2, void *p3)
 	);
 #elif defined(CONFIG_ARMV7_M_ARMV8_M_MAINLINE)
 	__asm__ volatile (
-		"push {v1-v8};\n\t"
+		"push {r4-r11};\n\t"
 		"push {r0, r1};\n\t"
 		"mov r0, r7;\n\t"
-		"ldmia %0, {v1-v8};\n\t"
+		"ldmia %0, {r4-r11};\n\t"
 		"mov r7, r0;\n\t"
 		"pop {r0, r1};\n\t"
 		: /* no output */
@@ -414,7 +414,7 @@ static void alt_thread_entry(void *p1, void *p2, void *p3)
 	);
 #elif defined(CONFIG_ARMV7_M_ARMV8_M_MAINLINE)
 	__asm__ volatile (
-		"pop {v1-v8};\n\t"
+		"pop {r4-r11};\n\t"
 		: : :
 	);
 #endif
@@ -588,7 +588,7 @@ ZTEST(arm_thread_swap, test_arm_thread_swap)
 	);
  #elif defined(CONFIG_ARMV7_M_ARMV8_M_MAINLINE)
 	__asm__ volatile (
-		"stmia %0, {v1-v8};\n\t"
+		"stmia %0, {r4-r11};\n\t"
 		:
 		: "r" (&ztest_thread_callee_saved_regs_container)
 		: "memory"
@@ -633,7 +633,7 @@ ZTEST(arm_thread_swap, test_arm_thread_swap)
 	);
  #elif defined(CONFIG_ARMV7_M_ARMV8_M_MAINLINE)
 	__asm__ volatile (
-		"stmia %0, {v1-v8};\n\t"
+		"stmia %0, {r4-r11};\n\t"
 		:
 		: "r" (&ztest_thread_callee_saved_regs_container)
 		: "memory"

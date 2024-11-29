@@ -12,8 +12,8 @@
 #include <offsets_short_arch.h>
 #include <ksched.h>
 
-#if !defined(__GNUC__)
-#error __FILE__ goes only with Cortex-M GCC
+#if !defined(__GNUC__) && !defined(__ICCARM__)
+#error __FILE__ goes only with Cortex-M GCC/IAR
 #endif
 
 #if !defined(CONFIG_ARMV6_M_ARMV8_M_BASELINE) && \
