@@ -462,5 +462,19 @@ do {                                                                    \
 #define UINT64_C(x)	__UINT64_C(x)
 #endif
 
+/* Convenience macros */
+#undef _GLUE_B
+#undef _GLUE
+#define _GLUE_B(x, y) x##y
+#define _GLUE(x, y)   _GLUE_B(x, y)
+
+#ifndef INTMAX_C
+#define INTMAX_C(x)  _GLUE(x, __INTMAX_C_SUFFIX__)
+#endif
+
+#ifndef UINTMAX_C
+#define UINTMAX_C(x) _GLUE(x, __UINTMAX_C_SUFFIX__)
+#endif
+
 #endif /* !_LINKER */
 #endif /* ZEPHYR_INCLUDE_TOOLCHAIN_ICCARM_H_ */
