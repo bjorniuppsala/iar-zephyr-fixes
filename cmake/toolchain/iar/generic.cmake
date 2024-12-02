@@ -26,8 +26,9 @@ elseif(EXISTS ${IAR_TOOLCHAIN_PATH}/bin/iccriscv.exe)
   set(IAR_LINKER ilinkriscv)
 endif()
 
+set(IAR_TOOLCHAIN_VARIANT ${IAR_COMPILER})
 
-# iccarm relies on Zephyr SDK for the use of C preprocessor (devicetree) and objcopy
+# iar relies on Zephyr SDK for the use of C preprocessor (devicetree) and objcopy
 find_package(Zephyr-sdk 0.16 REQUIRED)
 message(STATUS "Found Zephyr SDK at ${ZEPHYR_SDK_INSTALL_DIR}")
 
@@ -41,13 +42,16 @@ set(COMPILER iar)
 set(LINKER iar)
 set(BINTOOLS iar)
 
-set(SYSROOT_TARGET arm)
-
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  set(SYSROOT_TARGET arm)
+else()
+  set(SYSROOT_TARGET riscv)
+endif()
 set(CROSS_COMPILE ${TOOLCHAIN_HOME}/bin/)
 
 set(TOOLCHAIN_HAS_NEWLIB OFF CACHE BOOL "True if toolchain supports NewLib")
 
-if(IAR_TOOLCHAIN_VARIANT EQUAL iccarm)
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CONFIG_SEMIHOST y CACHE BOOL "Enable semihosting")
     set(CONFIG_SEMIHOST_CONSOLE y CACHE BOOL "Enable semihosting console")

@@ -37,13 +37,24 @@ find_program(CMAKE_ASM_COMPILER
 
 set(ICC_BASE ${ZEPHYR_BASE}/cmake/compiler/iar)
 
-# Used for settings correct cpu/fpu option for gnu assembler
-include(${ZEPHYR_BASE}/cmake/gcc-m-cpu.cmake)
-include(${ZEPHYR_BASE}/cmake/gcc-m-fpu.cmake)
 
-# Map KConfig option to icc cpu/fpu
-include(${ICC_BASE}/iccarm-cpu.cmake)
-include(${ICC_BASE}/iccarm-fpu.cmake)
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  # Used for settings correct cpu/fpu option for gnu assembler
+  include(${ZEPHYR_BASE}/cmake/gcc-m-cpu.cmake)
+  include(${ZEPHYR_BASE}/cmake/gcc-m-fpu.cmake)
+
+  # Map KConfig option to icc cpu/fpu
+  include(${ICC_BASE}/iccarm-cpu.cmake)
+  include(${ICC_BASE}/iccarm-fpu.cmake)
+endif()
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccriscv")
+  # Used for settings correct cpu/fpu option for gnu assembler
+  include(${ZEPHYR_BASE}/cmake/gcc-m-cpu.cmake)
+  include(${ZEPHYR_BASE}/cmake/gcc-m-fpu.cmake)
+
+  # Map KConfig option to icc cpu/fpu
+  include(${ICC_BASE}/iccriscv-cpu.cmake)
+endif()
 
 set(IAR_COMMON_FLAGS)
 # Minimal C compiler flags
@@ -52,20 +63,10 @@ list(APPEND TOOLCHAIN_C_FLAGS
   --vla
 )
 list(APPEND IAR_COMMON_FLAGS
-  --do_explicit_init_in_named_sections
-  --endian=little
-  --macro_positions_in_diagnostics
-  --no_wrap_diagnostics
-  --cpu=${ICCARM_CPU}
   "SHELL: --preinclude"
   "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
   # Enable both IAR and GNU extensions
   --language extended,gnu
-  --no_var_align
-  --no_const_align
-  --zephyr
-
-  -DRTT_USE_ASM=0       #WA for VAAK-232
 
   # Suppress diags
   --diag_suppress=Pe257  # xxx requires an initializer
@@ -99,7 +100,6 @@ list(APPEND IAR_COMMON_FLAGS
   --diag_suppress=Pe042  # operand types are incompatible ("void *" and "void (*)(void *, void *, void *)")
   --diag_suppress=Pe1143 # arithmetic on pointer to void or function type
   --diag_suppress=Be006  # possible conflict for segment/section "xxx"
-  --diag_suppress=Ta184  # Using zero sized arrays except for as last member of a struct is discouraged and dereferencing elements in such an array has undefined behavior
   #--diag_suppress=Pa181  # incompatible redefinition of macro
   --diag_suppress=Pe1153  # declaration does not match its alias variable "xxx"
   --diag_suppress=Pe191  # type qualifier is meaningless on cast type
@@ -114,6 +114,30 @@ list(APPEND IAR_COMMON_FLAGS
   --diag_suppress=Pa131  # this is a function pointer constant. Did you intend a function call?
 )
 
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  list(APPEND IAR_COMMON_FLAGS
+    --do_explicit_init_in_named_sections
+    --endian=little
+    --macro_positions_in_diagnostics
+    --no_wrap_diagnostics
+    --cpu=${ICCARM_CPU}
+    --no_var_align
+    --no_const_align
+    --zephyr
+
+    -DRTT_USE_ASM=0       #WA for VAAK-232
+
+    --diag_suppress=Ta184  # Using zero sized arrays except for as last member of a struct is discouraged and dereferencing elements in such an array has undefined behavior
+  )
+else()
+  list(APPEND IAR_COMMON_FLAGS
+    --do_explicit_init_in_named_sections
+    --macro_positions_in_diagnostics
+    --no_wrap_diagnostics
+
+  )
+endif()
+
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
   list(APPEND IAR_COMMON_FLAGS
     "SHELL: --preinclude ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h"
@@ -127,7 +151,7 @@ list(APPEND IAR_COMMON_FLAGS
   # Note that cmake de-duplication removes a second '.' argument, so for
   # options that uses '.' as destination we must wrap them with "SHELL:<command line option>"
   #"SHELL:-lCH  ."
-  #"SHELL:--preprocess=c ."
+  "SHELL:--preprocess=c ."
 
 #  -r
 #  --separate_cluster_for_initialized_variables
@@ -136,11 +160,13 @@ list(APPEND IAR_COMMON_FLAGS
 )
 
 # Minimal ASM compiler flags
-list(APPEND TOOLCHAIN_ASM_FLAGS
-  -mcpu=${GCC_M_CPU}
-  -mabi=aapcs
-  -DRTT_USE_ASM=0       #WA for VAAK-232
-  )
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  list(APPEND TOOLCHAIN_ASM_FLAGS
+    -mcpu=${GCC_M_CPU}
+    -mabi=aapcs
+    -DRTT_USE_ASM=0       #WA for VAAK-232
+    )
+endif()
 
 if(CONFIG_DEBUG)
   # GCC defaults to Dwarf 5 output
@@ -153,27 +179,31 @@ if (DEFINED CONFIG_ARM_SECURE_FIRMWARE)
 endif()
 
 # 64-bit
-if(CONFIG_ARM64)
-  list(APPEND IAR_COMMON_FLAGS --abi=lp64)
-  list(APPEND TOOLCHAIN_LD_FLAGS --abi=lp64)
-# 32-bit
-else()
-  list(APPEND IAR_COMMON_FLAGS --aeabi)
-  if(CONFIG_COMPILER_ISA_THUMB2)
-    list(APPEND TOOLCHAIN_C_FLAGS --thumb)
-    list(APPEND TOOLCHAIN_ASM_FLAGS -mthumb)
-  endif()
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  if(CONFIG_ARM64)
+    list(APPEND IAR_COMMON_FLAGS --abi=lp64)
+    list(APPEND TOOLCHAIN_LD_FLAGS --abi=lp64)
+  # 32-bit
+  else()
+    list(APPEND IAR_COMMON_FLAGS --aeabi)
+    if(CONFIG_COMPILER_ISA_THUMB2)
+      list(APPEND TOOLCHAIN_C_FLAGS --thumb)
+      list(APPEND TOOLCHAIN_ASM_FLAGS -mthumb)
+    endif()
 
-  if(CONFIG_FPU)
-    list(APPEND IAR_COMMON_FLAGS --fpu=${ICCARM_FPU})
-    list(APPEND TOOLCHAIN_ASM_FLAGS -mfpu=${GCC_M_FPU})
+    if(CONFIG_FPU)
+      list(APPEND IAR_COMMON_FLAGS --fpu=${ICCARM_FPU})
+      list(APPEND TOOLCHAIN_ASM_FLAGS -mfpu=${GCC_M_FPU})
+    endif()
   endif()
 endif()
 
-if(CONFIG_IAR_LIBC)
-  # Zephyr requires AEABI portability to ensure correct functioning of the C
-  # library, for example error numbers, errno.h.
-  list(APPEND IAR_COMMON_FLAGS -D__AEABI_PORTABILITY_LEVEL=1)
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  if(CONFIG_IAR_LIBC)
+    # Zephyr requires AEABI portability to ensure correct functioning of the C
+    # library, for example error numbers, errno.h.
+    list(APPEND IAR_COMMON_FLAGS -D__AEABI_PORTABILITY_LEVEL=1)
+  endif()
 endif()
 
 if(CONFIG_REQUIRES_FULL_LIBC)
