@@ -8,3 +8,6 @@ FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE ${app_sources})
 
 zephyr_linker_sources(DATA_SECTIONS sections-ram.ld)
+zephyr_iterable_section(NAME coap_resource_service_A GROUP DATA_REGION ${XIP_ALIGN_WITH_INPUT} SUBALIGN ${CONFIG_LINKER_ITERABLE_SUBALIGN})
+zephyr_iterable_section(NAME coap_resource_service_B GROUP DATA_REGION ${XIP_ALIGN_WITH_INPUT} SUBALIGN ${CONFIG_LINKER_ITERABLE_SUBALIGN})
+zephyr_iterable_section(NAME coap_resource_service_C GROUP DATA_REGION ${XIP_ALIGN_WITH_INPUT} SUBALIGN ${CONFIG_LINKER_ITERABLE_SUBALIGN})
