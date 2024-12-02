@@ -160,8 +160,8 @@ do {                                                                    \
 #define __aligned(x)	__attribute__((__aligned__(x)))
 #endif
 
-#ifndef __noinit
-#define __noinit        __attribute__((noinit))
+#ifndef __noinline
+#define __noinline        __attribute__((noinline))
 #endif
 
 #define __alignof(x) _Alignof(x)
