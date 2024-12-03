@@ -6,8 +6,13 @@ include(extensions)
 #Specifically choose arm-zephyr-eabi from the zephyr sdk for objcopy & objcopy
 
 
-set(IAR_ZEPHYR_HOME ${ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/bin)
-set(IAR_GNU_PREFIX arm-zephyr-eabi-)
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  set(IAR_ZEPHYR_HOME ${ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/bin)
+  set(IAR_GNU_PREFIX arm-zephyr-eabi-)
+else()
+  set(IAR_ZEPHYR_HOME ${ZEPHYR_SDK_INSTALL_DIR}/riscv64-zephyr-elf/bin)
+  set(IAR_GNU_PREFIX riscv64-zephyr-elf-)
+endif()
 find_program(CMAKE_OBJCOPY ${IAR_GNU_PREFIX}objcopy PATHS ${IAR_ZEPHYR_HOME} NO_DEFAULT_PATH)
 find_program(CMAKE_OBJDUMP ${IAR_GNU_PREFIX}objdump PATHS ${IAR_ZEPHYR_HOME} NO_DEFAULT_PATH)
 find_program(CMAKE_AS      ${IAR_GNU_PREFIX}as      PATHS ${IAR_ZEPHYR_HOME} NO_DEFAULT_PATH)

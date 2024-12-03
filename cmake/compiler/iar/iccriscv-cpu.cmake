@@ -78,7 +78,7 @@ list(APPEND TOOLCHAIN_C_FLAGS --core=${riscv_march})
 list(APPEND TOOLCHAIN_ASM_FLAGS -march=${riscv_march})
 list(APPEND TOOLCHAIN_LD_FLAGS NO_SPLIT -mabi=${riscv_mabi} -march=${riscv_march})
 
-message(WARNING "${riscv_march}")
+message(STATUS "RISC-V core: ${riscv_march}")
 # Flags not supported by llext linker
 # (regexps are supported and match whole word)
 #set(LLEXT_REMOVE_FLAGS

@@ -13,7 +13,7 @@
  * Include arch/cpu.h instead
  */
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__IAR_SYSTEMS_ICC__)
 #include <zephyr/arch/riscv/riscv-privileged/asm_inline_gcc.h>
 #else
 #error "Supports only GNU C compiler"
