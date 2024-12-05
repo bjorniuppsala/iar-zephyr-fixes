@@ -130,6 +130,12 @@ Drivers and Sensors
 
 * Flash
 
+* FPGA
+
+  * Extracted from :dtcompatible:`lattice,ice40-fpga` the compatible and driver for
+    :dtcompatible:`lattice,ice40-fpga-bitbang`. This replaces the original ``load_mode`` property from
+    the binding, which selected either the SPI or GPIO bitbang load mode.
+
 * GNSS
 
 * GPIO
@@ -168,6 +174,8 @@ Drivers and Sensors
 * MSPI
 
 * Pin control
+
+  * Added new driver for Silabs Series 2 (:dtcompatible:`silabs,dbus-pinctrl`).
 
 * PWM
 
@@ -254,6 +262,8 @@ USB
 
 Devicetree
 **********
+
+* Added :c:macro:`DT_ANY_INST_HAS_BOOL_STATUS_OKAY`.
 
 Kconfig
 *******

@@ -1113,7 +1113,9 @@ static int cmd_wifi_status(const struct shell *sh, size_t argc, char *argv[])
 		PR("DTIM: %d\n", status.dtim_period);
 		PR("TWT: %s\n",
 		   status.twt_capable ? "Supported" : "Not supported");
-		PR("Current PHY rate : %d\n", status.current_phy_rate);
+		PR("Current PHY TX rate (Mbps) : %d.%03d\n",
+		   status.current_phy_tx_rate / 1000,
+		   status.current_phy_tx_rate % 1000);
 	}
 
 	return 0;
@@ -3433,7 +3435,8 @@ SHELL_SUBCMD_ADD((wifi), reg_domain, &wifi_commands,
 		 "Set or Get Wi-Fi regulatory domain\n"
 		 "[ISO/IEC 3166-1 alpha2]: Regulatory domain\n"
 		 "[-f]: Force to use this regulatory hint over any other regulatory hints\n"
-		 "Note: This may cause regulatory compliance issues, use it at your own risk.\n",
+		 "Note1: The behavior of this command is dependent on the Wi-Fi driver/chipset implementation\n"
+		 "Note2: This may cause regulatory compliance issues, use it at your own risk.\n",
 		 cmd_wifi_reg_domain,
 		 1, 2);
 
