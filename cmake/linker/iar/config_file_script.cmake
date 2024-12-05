@@ -421,10 +421,34 @@ function(section_to_string)
 
   set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
 
-  get_property(indicies GLOBAL PROPERTY ${STRING_SECTION}_SETTINGS_INDICIES)
-
   string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
   string(REPLACE "." "_" name_clean "${name_clean}")
+
+  get_property(indicies GLOBAL PROPERTY ${STRING_SECTION}_SETTINGS_INDICIES)
+  # ZIP_LISTS partner
+  get_property(next_indicies GLOBAL PROPERTY ${STRING_SECTION}_SETTINGS_INDICIES)
+  list(POP_FRONT next_indicies first_index)
+
+  set(first_index_section)
+  set(first_index_section_name)
+  if(DEFINED first_index)
+    # Handle case where the first section has an offset
+    get_property(first_index_offset
+      GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${first_index}_OFFSET)
+    get_property(keep   GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${first_index}_KEEP)
+    if(DEFINED keep)
+      set(root "root ")
+    else()
+      set(root)
+    endif()
+    if(DEFINED first_index_offset AND NOT first_index_offset EQUAL 0 )
+      set(first_index_section_name "${name_clean}_${first_index}_offset")
+      set(first_index_section
+        "define ${root}section ${first_index_section_name} {};")
+    else()
+      set(first_index)
+    endif()
+  endif()
 
   foreach(start_symbol ${start_syms})
     set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${start_symbol} = (${name_clean}$$Base)")
@@ -455,6 +479,10 @@ function(section_to_string)
     endforeach()
   endforeach()
 
+  if(DEFINED first_index_section)
+    set(TEMP "${TEMP}${first_index_section}\n")
+  endif()
+
   set(TEMP "${TEMP}define block ${name_clean} with fixed order")
   if (align)
     set(TEMP "${TEMP}, alignment=${align}")
@@ -476,6 +504,9 @@ function(section_to_string)
   #   set(TEMP "${TEMP}\n  section __${name_clean}_start,")
   #   set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section __${name_clean}_start")
   # endif()
+
+  list(GET indicies -1 last_index)
+  list(LENGTH indicies length)
 
   if(NOT noinput)
 
@@ -500,19 +531,12 @@ function(section_to_string)
     set(TEMP "${TEMP}\n   section ${name},")
     set(TEMP "${TEMP}\n   section ${name}.*")
     set(TEMP "${TEMP}\n  }")
-    list(LENGTH indicies length)
     if (${length} GREATER 0)
       set(TEMP "${TEMP},")
     endif()
     set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${name}")
     set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${name}.*")
   endif()
-
-  list(GET indicies -1 last_index)
-  list(LENGTH indicies length)
-
-  get_property(next_indicies GLOBAL PROPERTY ${STRING_SECTION}_SETTINGS_INDICIES)
-  list(POP_FRONT next_indicies)
 
   foreach(idx idx_next IN ZIP_LISTS indicies next_indicies)
     get_property(align    GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_ALIGN)
@@ -540,6 +564,34 @@ function(section_to_string)
       # set(TEMP "${TEMP}\n  section ${symbol_start},")
       # set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${symbol_start}")
       set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_start} = (${name_clean}_${idx}$$Base)")
+    endif()
+
+    if(DEFINED first_index AND first_index EQUAL ${idx})
+      # Create the offset
+      set(TEMP "${TEMP}\n  block ${first_index_section_name}")
+      list(APPEND block_attr "size = ${first_index_offset}")
+      if(sort)
+        if(${sort} STREQUAL NAME)
+          list(APPEND block_attr "alphabetical order")
+        endif()
+      endif()
+      if(align)
+        list(APPEND block_attr "alignment = ${align}")
+      else()
+        if(subalign)
+          list(APPEND block_attr "alignment = ${subalign}")
+        endif()
+      endif()
+      list(APPEND block_attr "fixed order")
+
+      list(JOIN block_attr ", " block_attr_str)
+      if(block_attr_str)
+        set(TEMP "${TEMP} with ${block_attr_str}")
+      endif()
+      set(block_attr)
+      set(block_attr_str)
+
+      set(TEMP "${TEMP} { section ${first_index_section_name} },\n")
     endif()
 
     # block init_100 with alphabetical order { section .z_init_EARLY?_}
@@ -752,7 +804,7 @@ function(symbol_to_string)
           # This will handle the alignment of the TBSS block by
           # pre-padding bytes
           set(${STRING_STRING}
-            "${${STRING_STRING}}define image symbol ${symbol}=((tbss$$Limit-__iar_tls$$DATA$$Base)-(__iar_tls$$INIT_DATA$$Limit-__iar_tls$$INIT_DATA$$Base));\n" 
+            "${${STRING_STRING}}define image symbol ${symbol}=((tbss$$Limit-__iar_tls$$DATA$$Base)-(__iar_tls$$INIT_DATA$$Limit-__iar_tls$$INIT_DATA$$Base));\n"
             )
         else()
           set(${STRING_STRING}
