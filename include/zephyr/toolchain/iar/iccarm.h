@@ -164,7 +164,11 @@ do {                                                                    \
 #define __noinline        __attribute__((noinline))
 #endif
 
+#if defined(__cplusplus)
+#define __alignof(x) alignof(x)
+#else
 #define __alignof(x) _Alignof(x)
+#endif
 
 #define __may_alias     __attribute__((__may_alias__))
 
