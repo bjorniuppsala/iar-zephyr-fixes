@@ -28,7 +28,8 @@ void test_entry(void)
 
 	printk("test movwmovt\n");
 #ifdef __ICCARM__
-	__asm volatile("mov32 r0, #test_func");
+	__asm volatile("movw r0, #LWRD(test_func)");
+	__asm volatile("movt r0, #HWRD(test_func)");
 #else
 	__asm volatile ("movw r0, #:lower16:test_func");
 	__asm volatile ("movt r0, #:upper16:test_func");
