@@ -69,7 +69,7 @@ endif()
 set(IAR_COMMON_FLAGS)
 # Minimal C compiler flags
 
-list(APPEND TOOLCHAIN_C_FLAGS
+list(APPEND IAR_COMMON_FLAGS
   --vla
 )
 list(APPEND IAR_COMMON_FLAGS
@@ -77,6 +77,9 @@ list(APPEND IAR_COMMON_FLAGS
   "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
   # Enable both IAR and GNU extensions
   --language extended,gnu
+  --do_explicit_init_in_named_sections
+  --macro_positions_in_diagnostics
+  --no_wrap_diagnostics
 
   # Suppress diags
   --diag_suppress=Pe257  # xxx requires an initializer
@@ -122,14 +125,12 @@ list(APPEND IAR_COMMON_FLAGS
   --diag_suppress=Pa134  # left and right operands are identical
   --diag_suppress=Pe231  # declaration is not visible outside of function
   --diag_suppress=Pa131  # this is a function pointer constant. Did you intend a function call?
+  --diag_suppress=Pe2949 # function "main" cannot be declared in a linkage-specification
 )
 
 if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   list(APPEND IAR_COMMON_FLAGS
-    --do_explicit_init_in_named_sections
     --endian=little
-    --macro_positions_in_diagnostics
-    --no_wrap_diagnostics
     --cpu=${ICCARM_CPU}
     --no_var_align
     --no_const_align
@@ -141,9 +142,6 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   )
 else()
   list(APPEND IAR_COMMON_FLAGS
-    --do_explicit_init_in_named_sections
-    --macro_positions_in_diagnostics
-    --no_wrap_diagnostics
 
   )
 endif()
@@ -161,7 +159,8 @@ list(APPEND IAR_COMMON_FLAGS
   # Note that cmake de-duplication removes a second '.' argument, so for
   # options that uses '.' as destination we must wrap them with "SHELL:<command line option>"
   #"SHELL:-lCH  ."
-  "SHELL:--preprocess=c ."
+  #"SHELL:--preprocess=c ."
+  #--no_cross_jump
 
 #  -r
 #  --separate_cluster_for_initialized_variables
@@ -197,7 +196,7 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   else()
     list(APPEND IAR_COMMON_FLAGS --aeabi)
     if(CONFIG_COMPILER_ISA_THUMB2)
-      list(APPEND TOOLCHAIN_C_FLAGS --thumb)
+      list(APPEND IAR_COMMON_FLAGS --thumb)
       list(APPEND TOOLCHAIN_ASM_FLAGS -mthumb)
     endif()
 
