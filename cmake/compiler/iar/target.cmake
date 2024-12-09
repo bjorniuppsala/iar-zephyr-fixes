@@ -216,7 +216,7 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
 endif()
 
 if(CONFIG_REQUIRES_FULL_LIBC)
-  list(APPEND IAR_COMMON_FLAGS --dlib_config full)
+  list(APPEND TOOLCHAIN_C_FLAGS --dlib_config full)
 endif()
 
 list(APPEND TOOLCHAIN_C_FLAGS ${IAR_COMMON_FLAGS})

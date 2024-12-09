@@ -14,6 +14,7 @@
 
 #include_next <errno.h>
 
+#ifndef __cplusplus
 #define EPERM            1  /**< Not owner */
 #define ENOENT           2  /**< No such file or directory */
 #define ESRCH            3  /**< No such context */
@@ -91,5 +92,5 @@
 #define EOVERFLOW       139 /**< Value overflow */
 #define ECANCELED       140 /**< Operation canceled */
 #define EWOULDBLOCK  EAGAIN /**< Operation would block */
-
+#endif /* __cplusplus */
 #endif /* ZEPHYR_LIB_LIBC_IAR_INCLUDE_ERRNO_H_ */
