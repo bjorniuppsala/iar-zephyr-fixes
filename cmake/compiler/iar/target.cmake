@@ -69,7 +69,7 @@ endif()
 set(IAR_COMMON_FLAGS)
 # Minimal C compiler flags
 
-list(APPEND IAR_COMMON_FLAGS
+list(APPEND TOOLCHAIN_C_FLAGS
   --vla
 )
 list(APPEND IAR_COMMON_FLAGS
