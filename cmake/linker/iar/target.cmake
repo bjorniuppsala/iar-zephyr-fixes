@@ -84,6 +84,11 @@ function(toolchain_ld_link_elf)
     set(ILINK_TLS_LIBRARY "--threaded_lib=manual")
   endif()
 
+  set(ILINK_TZONE_LIBRARY)
+  # if(${CONFIG_IAR_LIBC})
+  #   set(ILINK_TZONE_LIBRARY "--timezone_lib")
+  # endif()
+
   target_link_libraries(
     ${TOOLCHAIN_LD_LINK_ELF_TARGET_ELF}
     ${TOOLCHAIN_LD_LINK_ELF_LIBRARIES_PRE_SCRIPT}
@@ -100,6 +105,7 @@ function(toolchain_ld_link_elf)
     ${ILINK_SEMIHOSTING}
     ${ILINK_BUFFERED_WRITE}
     ${ILINK_TLS_LIBRARY}
+    ${ILINK_TZONE_LIBRARY}
     # Do not remove symbols
     #--no_remove
     ${ILINK_XCL}
