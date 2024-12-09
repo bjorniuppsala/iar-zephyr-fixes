@@ -53,3 +53,36 @@ size_t __write(int handle,
   }
   return nChars;
 }
+
+#include <time.h>
+/**
+ * @file
+ * @brief Defines additional time related functions based on POSIX
+ */
+
+char *asctime_r(const struct tm *ZRESTRICT tp,
+                char *ZRESTRICT buf)
+{
+  asctime_s(buf, sizeof buf, tp);
+  return buf;
+}
+
+char *ctime_r(const time_t *clock,
+              char *buf)
+{
+  ctime_s(buf, sizeof buf, clock);
+  return buf;
+}
+
+struct tm *gmtime_r(const time_t *ZRESTRICT timep,
+                    struct tm *ZRESTRICT result)
+{
+  *result = *gmtime(timep);
+  return result;
+}
+
+struct tm *localtime_r(const time_t *ZRESTRICT timer, struct tm *ZRESTRICT result)
+{
+  *result = *localtime(timer);
+  return result;
+}
