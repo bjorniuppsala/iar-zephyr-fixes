@@ -8,7 +8,7 @@ find_program(CMAKE_LINKER
   NO_DEFAULT_PATH
 )
 
-add_custom_target(ilinkarm)
+add_custom_target(${IAR_LINKER})
 
 function(toolchain_ld_force_undefined_symbols)
 #  foreach(symbol ${ARGN})
