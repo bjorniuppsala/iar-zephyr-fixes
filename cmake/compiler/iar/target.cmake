@@ -215,7 +215,10 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   endif()
 endif()
 
-if(CONFIG_REQUIRES_FULL_LIBC)
+if(CONFIG_IAR_LIBC)
+  # Zephyr uses the type FILE for normal LIBC while IAR
+  # only has it for full LIBC support, so always choose
+  # full libc when using IAR C libraries.
   list(APPEND TOOLCHAIN_C_FLAGS --dlib_config full)
 endif()
 
