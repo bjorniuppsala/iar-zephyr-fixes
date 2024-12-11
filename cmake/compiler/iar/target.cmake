@@ -95,7 +95,7 @@ list(APPEND IAR_COMMON_FLAGS
   --diag_suppress=Pe167  # argument of type "onoff_notify_fn" is incompatible with...
   --diag_suppress=Pe186  # pointless comparison of unsigned integer with zero
   --diag_suppress=Pe188  # enumerated type mixed with another type
-  --diag_suppress=Pe223  # function "xxx" declared implicitly
+#  --diag_suppress=Pe223  # function "xxx" declared implicitly
   --diag_suppress=Pe381  # extra ";" ignored
   --diag_suppress=Pe546  # transfer of control bypasses initialization
   --diag_suppress=Pe550  # variable "res" was set but never used
