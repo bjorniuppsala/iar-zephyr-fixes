@@ -333,7 +333,9 @@ static void do_test_using(void (*sample_collection_fn)(void), const char *mechan
 		     "Standard deviation (in microseconds) outside expected bound");
 
 	/* Validate the timer drift (accuracy over time) is within a configurable bound */
-	zassert_true(fabs(time_diff_us) < CONFIG_TIMER_TEST_MAX_DRIFT,
+	if(time_diff_us < 0.0f)
+    		time_diff_us = -time_diff_us;	
+	zassert_true(time_diff_us < CONFIG_TIMER_TEST_MAX_DRIFT,
 		     "Drift (in microseconds) outside expected bound");
 }
 
