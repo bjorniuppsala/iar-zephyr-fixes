@@ -55,3 +55,6 @@ config CODING_GUIDELINE_CHECK
 	help
           Not applicable to ICCARM
 
+config TC_PROVIDES_POSIX_C_LANG_SUPPORT_R
+	bool
+	default n

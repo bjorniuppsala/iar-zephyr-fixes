@@ -54,6 +54,7 @@ size_t __write(int handle,
   return nChars;
 }
 
+#if 0
 #include <time.h>
 /**
  * @file
@@ -90,4 +91,4 @@ struct tm *localtime_r(const time_t *ZRESTRICT timer, struct tm *ZRESTRICT resul
   return result;
 }
 #endif
-
+#endif

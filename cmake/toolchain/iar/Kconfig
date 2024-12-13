@@ -21,6 +21,21 @@ config TOOLCHAIN_IAR_SUPPORTS_THREAD_LOCAL_STORAGE
 	def_bool y
 	select TOOLCHAIN_SUPPORTS_THREAD_LOCAL_STORAGE
 
+config COMMON_LIBC_ASCTIME_R
+       bool
+       default y
+
+config COMMON_LIBC_CTIME_R
+       bool
+       default y
+
+config COMMON_LIBC_GMTIME_R
+       bool
+       default y
+
+config COMMON_LIBC_LOCALTIME_R_UTC
+       bool
+       default y
 
 menu "IAR library options"
 
