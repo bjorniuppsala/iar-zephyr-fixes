@@ -8,6 +8,7 @@ toolchain:
   - zephyr
   - gnuarmemb
   - xtools
+  - iar
 supported:
   - netif:serial-net
   - gpio
