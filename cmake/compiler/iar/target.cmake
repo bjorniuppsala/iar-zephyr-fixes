@@ -95,11 +95,11 @@ list(APPEND IAR_COMMON_FLAGS
   --diag_suppress=Pe167  # argument of type "onoff_notify_fn" is incompatible with...
   --diag_suppress=Pe186  # pointless comparison of unsigned integer with zero
   --diag_suppress=Pe188  # enumerated type mixed with another type
-#  --diag_suppress=Pe223  # function "xxx" declared implicitly
+  #--diag_error=Pe223     # function "xxx" declared implicitly
   --diag_suppress=Pe381  # extra ";" ignored
   --diag_suppress=Pe546  # transfer of control bypasses initialization
   --diag_suppress=Pe550  # variable "res" was set but never used
-  --diag_suppress=Pe606  # this pragma must immediately precede a declaration
+  #--diag_suppress=Pe606  # this pragma must immediately precede a declaration
   --diag_suppress=Pe767  # conversion from pointer to smaller integer
   #--diag_suppress=Pe1305 # function declared with "noreturn" does return
   --diag_suppress=Pe1675 # unrecognized GCC pragma
@@ -215,7 +215,12 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   endif()
 endif()
 
+if(CONFIG_IAR_LIBCPP)
+  message(STATUS "IAR C++ library used")
+endif()
+
 if(CONFIG_IAR_LIBC)
+  message(STATUS "IAR C library used")
   # Zephyr uses the type FILE for normal LIBC while IAR
   # only has it for full LIBC support, so always choose
   # full libc when using IAR C libraries.
