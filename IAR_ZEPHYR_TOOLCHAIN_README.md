@@ -35,7 +35,11 @@ To run the tools, a *Bearer Token* is required for authentication and authorizat
 
 ## Current status of zephyr/tests (Göran)
 
-* TBD
+Common causes for test fails:
+* CONFIG_USERSPACE
+* Placement problems
+* Initialization problems with noinit
+* Address translation problems leading to flash errors
 
 ## How to feedback and report problems
 
