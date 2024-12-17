@@ -7,9 +7,6 @@
 
 IAR is dependent on the zephyr-sdk. The easiest way of using them together is to use the [zephyrproject-rtos/docker-image](https://github.com/zephyrproject-rtos/docker-image).
 
-* The scripts used here requires that docker is installed.
-* A preview build of iccarm is required for use with Zephyr.
-
 ## Supported platforms/boards (Göran)
 
 The following platfoms/boards are used for testing in CI and can be expected to pass twister tests `--level acceptance` using the IAR Toolchain:
@@ -22,12 +19,13 @@ The following platfoms/boards are used for testing in CI and can be expected to 
 Additionally, the following plaforms/boards have passed twister tests `--level acceptance` using IAR Toolchain:
 
 * frdm_mcxn947/mcxn947/cpu0
-* ek_ra4e2
-* 
+* ek_ra4e2 
 
 ## Limitations (Robin/Love)
 
-* TBD
+* USERSPACE is currently not supported
+* C Libraries other than minimallibc are currently not supported
+* 
 
 ## Obtaining an IAR Toolchain (Robin/Daniel)
 
