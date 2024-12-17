@@ -50,7 +50,6 @@ $DOCKER exec -u 0 "$DOCKER_CONTAINER_NAME" bash -c "sed -i s/user:x:1000:1000/us
 $DOCKER exec -u 0 "$DOCKER_CONTAINER_NAME" sudo chown -R user /home/user
 $DOCKER exec -u 0 "$DOCKER_CONTAINER_NAME" sudo chown -R user /workdir
 $DOCKER	exec "$DOCKER_CONTAINER_NAME" git config --global --add safe.directory /workdir/zephyr
-# west init -l zephyr seems to already have been done in the the docker container
 $DOCKER exec "$DOCKER_CONTAINER_NAME" west init -l zephyr
 $DOCKER exec "$DOCKER_CONTAINER_NAME" west update
 

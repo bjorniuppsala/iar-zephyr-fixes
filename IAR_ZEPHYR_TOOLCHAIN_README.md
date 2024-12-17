@@ -36,9 +36,20 @@ $ zephyr/iar_init_zephyr.sh
 * `[<iar-toolchain-path>]` (optional) is the path to an IAR toolchain
 * `[device]` (optional) requires HW attached via usb that uses /dev/ttyACM0 as serial
 
+The folling will look for a toolchain in the standard IAR install directory:
+
+```
+$ cd iar-zephyrproject
+$ zephyr/iar_run_zephyr.sh spiffy-container
+```
+
 ## Known problems and limitations
 
 * `CONFIG_USERSPACE=y` is not supported by toolchain
 
 ## How to report problems
 
+Please report any issues found using [GitHub Issues](https://github.com/iarsystems/zephyr/issues).
+
+* Do we want to configure what issue types there?
+* Do we want to configure labels?
