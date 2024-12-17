@@ -154,13 +154,6 @@
 #define __UINT_LEAST64_MAX__  __UINT_LEAST64_T_MAX__
 #define __UINT_LEAST64_TYPE__ __UINT_LEAST64_T_TYPE__
 
-#if !defined(CONFIG_IAR_LIBCPP) && !defined(CONFIG_IAR_LIBC)
-/* Zephyr libraries have their own implementation of
- * FD_TYPE that is signed int while IAR's are signed char */
-
-#define _FD_TYPE signed int
-#endif /* !defined(CONFIG_IAR_LIBCPP) && !defined(CONFIG_IAR_LIBC) */
-
 #endif /* __IAR_SYSTEMS_ICC__ */
 
 #endif
