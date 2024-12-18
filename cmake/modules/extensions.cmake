@@ -5060,8 +5060,8 @@ endfunction()
 #                       For example, `PASS NOT TEST` means the call is effective
 #                       on all but the `TEST` linker pass iteration.
 #                       You can have mulitple PASS <name> (in which the section will
-#                       be active in all of the phases) or you can have multiple 
-#                       PASS NOT <name> in which case the section will be active in 
+#                       be active in all of the phases) or you can have multiple
+#                       PASS NOT <name> in which case the section will be active in
 #                       passes other than any of the <name>.
 #
 # Note: VMA and LMA are mutual exclusive with GROUP
@@ -5277,7 +5277,7 @@ endfunction()
 #   zephyr_linker_section_configure(SECTION <section> [ALIGN <alignment>]
 #                                   [PASS [NOT] <name>] [PRIO <no>] [SORT <sort>]
 #                                   [MIN_SIZE <minimum size>] [MAX_SIZE <maximum size>]
-#                                   [ANY] [FIRST] [KEEP] [INPUT <input>]
+#                                   [ANY] [FIRST] [KEEP] [INPUT <input>] [SYMBOLS [<start>[<end>]]]
 #   )
 #
 # Configure an output section with additional input sections.
@@ -5317,7 +5317,7 @@ endfunction()
 # ANY                 : ANY section flag in scatter file.
 #                       The FLAGS and ANY arguments only has effect for scatter files.
 # INPUT <input>       : Input section name or list of input section names.
-#                       
+#
 function(zephyr_linker_section_configure)
   set(options     "ANY;FIRST;KEEP")
   set(single_args "ALIGN;OFFSET;PRIO;SECTION;SORT;MIN_SIZE;MAX_SIZE")
@@ -5387,10 +5387,92 @@ function(zephyr_linker_symbol)
   )
 endfunction()
 
+
+# Usage:
+#   zephyr_linker_include_generated(FILE <name> [PASS <pass>])
+#
+# Add file that is generated at build-time to be included when running the 
+# linker script generator.
+#
+# FILE <name>      : File to be included. *.h are grepped for #defines for
+#                    £variables£ and *.cmake are passed to include()
+# PASS [NOT] <pass>: Rule for which PASSES to include file. 
+#                    see zephyr_linker_section PASS
+#
+function(zephyr_linker_include_generated)
+  set(single_args "FILE")
+  set(multi_args "PASS")
+  cmake_parse_arguments(INCLUDE "" "${single_args}" "${multi_args}" ${ARGN})
+  if(DEFINED INCLUDE_PASS)
+    zephyr_linker_check_pass_param("zephyr_linker_include_generated" "${INCLUDE_PASS}")
+  endif()
+  set(INCLUDE)
+  zephyr_linker_arg_val_list(INCLUDE "${single_args}")
+  zephyr_linker_arg_val_list(INCLUDE "${multi_args}")
+  string(REPLACE ";" "\;" INCLUDE "${INCLUDE}")
+  set_property(TARGET linker
+               APPEND PROPERTY INCLUDES "{${INCLUDE}}")
+endfunction()
+
+
+# Usage:
+#   zephyr_linker_include_generated(FILE <name> [PASS <pass>])
+#
+# Add file that is generated at build-time to be included when running the
+# linker script generator.
+#
+# FILE <name>      : File to be included. *.h are grepped for #defines for
+#                    @variables@ and *.cmake are passed to include()
+# PASS [NOT] <pass>: Rule for which PASSES to include file.
+#                    see zephyr_linker_section PASS
+#
+function(zephyr_linker_include_generated)
+  set(single_args "FILE")
+  set(multi_args "PASS")
+  cmake_parse_arguments(INCLUDE "" "${single_args}" "${multi_args}" ${ARGN})
+  if(DEFINED INCLUDE_PASS)
+    zephyr_linker_check_pass_param("zephyr_linker_include_generated" "${INCLUDE_PASS}")
+  endif()
+  set(INCLUDE)
+  zephyr_linker_arg_val_list(INCLUDE "${single_args}")
+  zephyr_linker_arg_val_list(INCLUDE "${multi_args}")
+  string(REPLACE ";" "\;" INCLUDE "${INCLUDE}")
+  set_property(TARGET linker
+               APPEND PROPERTY INCLUDES "{${INCLUDE}}")
+endfunction()
+
+# Usage:
+#   zephyr_linker_include_var(VAR <name> [VALUE <value>])
+#
+# Save the value of <name> for when the generator is running at build-time.
+# If VALUE isnt set, the current value of the variable is used
+#
+# VAR <name>       : Variable to be set
+# VALUE <value>    : The value
+#
+function(zephyr_linker_include_var)
+  set(single_args "VAR;VALUE")
+  cmake_parse_arguments(VAR "" "${single_args}" "" ${ARGN})
+  if(NOT DEFINED VAR_VAR)
+    message(FATAL_ERROR "zephyr_linker_include_var(${ARGV0} ...) must have VAR <variable> ")
+  endif()
+  if(NOT DEFINED VAR_VALUE)
+    if(DEFINED ${VAR_VAR})
+      set(VAR_VALUE ${${VAR_VAR}})
+    else()
+      message(FATAL_ERROR "zephyr_linker_include_var(${ARGV0} ...) value not set ")
+    endif()
+  endif()
+
+  set_property(TARGET linker
+               APPEND PROPERTY VARIABLES "set(${VAR_VAR} \"${VAR_VALUE}\" CACHE INTERNAL \"\")")
+endfunction()
+
+
 # Usage:
 #   zephyr_linker_generate_linker_settings_file([FILE <name>] [STRING <string>])
-# 
-# Add the content generated so far by the zephyr_linker_* functions to a file 
+#
+# Add the content generated so far by the zephyr_linker_* functions to a file
 # or string variable.
 #
 # FILE <name>  : File to be created
@@ -5399,6 +5481,9 @@ endfunction()
 function(zephyr_linker_generate_linker_settings_file)
   set(single_args "FILE;STRING")
   cmake_parse_arguments(GEN "" "${single_args}" "" ${ARGN})
+  get_property(list_of_variables TARGET linker PROPERTY VARIABLES)
+  list(JOIN list_of_variables "\n" VARS)
+
   set(CONTENT
          "set(FORMAT \"$<TARGET_PROPERTY:linker,FORMAT>\" CACHE INTERNAL \"\")\n
           set(ENTRY \"$<TARGET_PROPERTY:linker,ENTRY>\" CACHE INTERNAL \"\")\n
@@ -5408,8 +5493,9 @@ function(zephyr_linker_generate_linker_settings_file)
           set(SECTION_SETTINGS \"$<TARGET_PROPERTY:linker,SECTION_SETTINGS>\" CACHE INTERNAL \"\")\n
           set(SYMBOLS \"$<TARGET_PROPERTY:linker,SYMBOLS>\" CACHE INTERNAL \"\")\n
           set(INCLUDES \"$<TARGET_PROPERTY:linker,INCLUDES>\" CACHE INTERNAL \"\")\n
+          ${VARS}
          ")
-  if(DEFINED GEN_FILE) 
+  if(DEFINED GEN_FILE)
     file(GENERATE OUTPUT ${GEN_FILE} CONTENT "${CONTENT}")
   endif()
   if(DEFINED GEN_STRING)
@@ -5439,7 +5525,7 @@ endmacro()
 
 
 #internal helper that checks if we have consistant PASS arguments
-#if the first element is NOT, check that all even elements are NOT. 
+#if the first element is NOT, check that all even elements are NOT.
 macro(zephyr_linker_check_pass_param function_name SECTION_PASS)
   list(GET SECTION_PASS 0 FIRST_ELEMENT)
   if("${FIRST_ELEMENT}" STREQUAL "NOT")

@@ -29,17 +29,17 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
     add_custom_command(
       OUTPUT ${linker_script_gen}
       DEPENDS
-      ${extra_dependencies}
-      ${cmake_linker_script_settings}
+        ${extra_dependencies}
+        ${cmake_linker_script_settings}
+        ${DEVICE_API_LD_TARGET}
       COMMAND ${CMAKE_COMMAND}
-        -C ${DEVICE_API_LINKER_SECTIONS_CMAKE}
         -C ${cmake_linker_script_settings}
         -DPASS="${linker_pass_define}"
         -DCONFIG_LINKER_LAST_SECTION_ID=${CONFIG_LINKER_LAST_SECTION_ID}
         -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
         -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
         -P ${ZEPHYR_BASE}/cmake/linker/ld/ld_script.cmake
-      DEPENDS ${DEVICE_API_LD_TARGET}
+        --trace-expand --trace-redirect=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.cmaketrace
     )
   else()
     set(template_script_defines ${linker_pass_define})

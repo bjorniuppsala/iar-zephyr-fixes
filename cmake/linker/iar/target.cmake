@@ -46,7 +46,6 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
            ${DEVICE_API_LD_TARGET}
            ${cmake_linker_script_settings}
     COMMAND ${CMAKE_COMMAND}
-      -C ${DEVICE_API_LINKER_SECTIONS_CMAKE}
       -C ${cmake_linker_script_settings}
       -DPASS="${linker_pass_define}"
       ${STEERING_FILE_ARG}
@@ -55,6 +54,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
       ${IAR_LIB_USED}
       -P ${ZEPHYR_BASE}/cmake/linker/iar/config_file_script.cmake
+      --trace-expand --trace-redirect=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.cmaketrace
   )
 
 endmacro()

@@ -35,15 +35,15 @@ if(CONFIG_USERSPACE)
 	# * during the final stages of linking (LINKER_ZEPHYR_FINAL).
 	# */
 
-  set(KOBJECT_DATA_ALIGN 4)
-  set(KOBJECT_DATA_SZ    0x398)
-
-
   if(CONFIG_DYNAMIC_OBJECTS)
+    # in LINKER_ZEPHYR_PREBUILT there is no object file defining _thread_idx_map
+    # so we must have a synthetic one. Note that the size is not set here, 
+    # since the space is provided in the section below:
     zephyr_linker_section_configure(
       SECTION kobject_data
       SYMBOLS _thread_idx_map
-      PASS LINKER_ZEPHYR_PREBUILT # no size ? This is what kobject-data.ld does.
+      #MIN_SIZE @KOBJECT_DATA_SZ@ # 
+      PASS LINKER_ZEPHYR_PREBUILT
       )
   endif()
     
@@ -52,11 +52,11 @@ if(CONFIG_USERSPACE)
     INPUT
     ".kobject_data.data*"
     ".kobject_data.sdata*"
-    PASS LINKER_ZEPHYR_FINAL
     PASS LINKER_ZEPHYR_PREBUILT
-    ALIGN KOBJECT_DATA_ALIGN
-    MIN_SIZE KOBJECT_DATA_SZ
-    MAX_SIZE KOBJECT_DATA_SZ
+    PASS LINKER_ZEPHYR_FINAL
+    ALIGN @KOBJECT_DATA_ALIGN,undef:4@
+    MIN_SIZE @KOBJECT_DATA_SZ@
+    MAX_SIZE @KOBJECT_DATA_SZ@
     SYMBOLS _kobject_data_area_start _kobject_data_area_end
     )
 

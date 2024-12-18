@@ -20,7 +20,7 @@ if(CONFIG_USERSPACE)
     EXPR
     "(@_kobject_text_area_end@ - @_kobject_text_area_start@)"
     )
-
+  
   if(CONFIG_DYNAMIC_OBJECTS)
     zephyr_linker_section_configure(
       SECTION
