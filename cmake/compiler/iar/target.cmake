@@ -62,8 +62,7 @@ set(IAR_COMMON_FLAGS)
 # Minimal C compiler flags
 
 list(APPEND IAR_COMMON_FLAGS
-  "SHELL: --preinclude"
-  "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
+  "SHELL: --preinclude ${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
   # Enable both IAR and GNU extensions
   -e
   --language gnu
