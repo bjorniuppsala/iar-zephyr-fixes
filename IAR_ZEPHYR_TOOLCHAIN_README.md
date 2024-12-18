@@ -1,6 +1,11 @@
-* introduction text (Robin)
- 
- Maybe something about the dependency on CMAKE_LINKER_GENERATOR ...
+This is a IAR internal fork of zephyr for internal and partner use.
+It contains the required cmake/toolchain files necessary to compile, build and run zephyr projects using IAR compiler and linker.
+It also contains patches improving zephyrs compatibility with non-GNU compilers. But we are working on upstreaming these patches.
+these are being upstreamed.
+
+Currently we are supporting select ARM Cortex-M targets.
+Since we are using the `CMAKE_LINKER_GENERATOR` mechanism to integrate ilink, means that configurations and modules not supported by `CMAKE_LINKER_GENERATOR` is not supported. 
+(e.g. `CONFIG_USERSPACE`)
 
 
 # Using Zephyr with IAR Toolchain
@@ -11,21 +16,22 @@ IAR is dependent on the zephyr-sdk. The easiest way of using them together is to
 
 The following platfoms/boards are used for testing in CI and can be expected to pass twister tests `--level acceptance` using the IAR Toolchain:
 
-* nrf52840dk/nrf52840
-* mimxrt1060_evk
-* qemu_cortex_m0
-* qemu_cortex_m3
+* `nrf52840dk/nrf52840`
+* `mimxrt1060_evk`
+* `qemu_cortex_m0`
+* `emu_cortex_m3`
 
 Additionally, the following plaforms/boards have passed twister tests `--level acceptance` using IAR Toolchain:
 
-* frdm_mcxn947/mcxn947/cpu0
-* ek_ra4e2 
+* `frdm_mcxn947/mcxn947/cpu0`
+* `ek_ra4e2`
 
 ## Limitations (Robin/Love)
 
-* USERSPACE is currently not supported
-* C Libraries other than minimallibc are currently not supported
-* 
+* Currently `CONFIG_USERSPACE` is not working. It is disabled by default on platforms without MPU (`qemu_cortex_m0` and `qemu_cortex_m3`) and disabled by use of our own `CONFIG_TOOLCHAIN_SUPPORTS_USERSPACE` variable for other targets. Support for `CONFIG_USERSPACE` is coming.
+* Currently TrustZone is not working. 
+* Currently only minimallibc is supported, this means Picolibc and Newlib is not supported. There is experimental support for IARs DLib.
+* Currently using the GNU Assembler for .S files
 
 ## Obtaining an IAR Toolchain (Robin/Daniel)
 
@@ -36,10 +42,9 @@ To run the tools, a *Bearer Token* is required for authentication and authorizat
 ## Current status of zephyr/tests (Göran)
 
 Common causes for test fails:
-* CONFIG_USERSPACE
-* Placement problems
-* Initialization problems with noinit
-* Address translation problems leading to flash errors
+* `CONFIG_USERSPACE` disabled makes some tests unable to build (usually filtered out by twister)
+* Constants placed in RAM causes pbits placed in RAM which causes flash errors.
+* .noinit sections are currently being initialized. This is harmless but takes space in ROM.
 
 ## How to feedback and report problems
 
