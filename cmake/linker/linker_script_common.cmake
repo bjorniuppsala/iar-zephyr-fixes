@@ -616,6 +616,16 @@ if(NOT COMMAND symbol_to_string)
   endfunction()
 endif()
 
+if(NOT COMMAND include_preprocessor_file)
+  function(include_preprocessor_file)
+    message(WARNING "No linker defined function found. Please implement a "
+                    "include_preprocessor_file() function for this linker."
+    )
+  endfunction()
+endif()
+
+#Produce the text output of the OBJECT O into STRING OUT
+#This is essentially a type-switch to either of the X_to_string() functons.
 function(to_string)
   cmake_parse_arguments(STRING "" "OBJECT;STRING" "" ${ARGN})
 

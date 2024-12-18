@@ -82,6 +82,46 @@ zephyr_linker_section(NAME .text         GROUP TEXT_REGION)
 zephyr_linker_section_configure(SECTION .rel.plt  INPUT ".rel.iplt")
 zephyr_linker_section_configure(SECTION .rela.plt INPUT ".rela.iplt")
 
+if(CONFIG_USERSPACE)
+  zephyr_linker_section_configure(
+    SECTION
+    .text
+    INPUT
+    ".kobject_data.literal*"
+    ".kobject_data.text*"
+    SYMBOLS
+    _kobject_text_area_start
+    _kobject_text_area_end
+    )
+  zephyr_linker_symbol(
+    SYMBOL
+    _kobject_text_area_used
+    EXPR
+    "(@_kobject_text_area_end@ - @_kobject_text_area_start@)"
+    )
+
+  if(CONFIG_DYNAMIC_OBJECTS)
+    zephyr_linker_section_configure(
+      SECTION
+      .text
+      SYMBOLS
+      z_object_gperf_find
+      z_object_gperf_wordlist_foreach
+      PASS NOT LINKER_ZEPHYR_FINAL
+      )
+  else()
+    zephyr_linker_section_configure(
+      SECTION
+      .text
+      SYMBOLS
+      k_object_find
+      k_object_wordlist_foreach
+      PASS NOT LINKER_ZEPHYR_FINAL
+      )
+  endif()
+
+endif()
+
 zephyr_linker_section_configure(SECTION .text INPUT ".TEXT.*")
 zephyr_linker_section_configure(SECTION .text INPUT ".gnu.linkonce.t.*")
 
@@ -122,24 +162,237 @@ zephyr_linker_section(NAME .ramfunc GROUP RAM_REGION SUBALIGN 8)
 # ToDo - handle if(CONFIG_USERSPACE)
 if(CONFIG_USERSPACE)
   # ToDo - handle app_smem
+  zephyr_linker_section(NAME _APP_SMEM_SECTION_NAME GROUP DATA_REGION NOINPUT)
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    SYMBOLS
+    _app_smem_start
+    )
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    INPUT
+    "data_smem_ztest_mem_partition_data*"
+    KEEP
+    SYMBOLS
+    z_data_smem_ztest_mem_partition_part_start
+    )
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    INPUT
+    "data_smem_ztest_mem_partition_bss*"
+    KEEP
+    SYMBOLS
+    z_data_smem_ztest_mem_partition_bss_start
+    z_data_smem_ztest_mem_partition_bss_end
+    )
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    SYMBOLS
+    z_data_smem_ztest_mem_partition_part_end
+    )
+
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    INPUT
+    "data_smem_z_libc_partition_data*"
+    KEEP
+    SYMBOLS
+    z_data_smem_z_libc_partition_part_start
+    )
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    INPUT
+    "data_smem_z_libc_partition_bss*"
+    KEEP
+    SYMBOLS
+    z_data_smem_z_libc_partition_bss_start
+    z_data_smem_z_libc_partition_bss_end
+    )
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    SYMBOLS
+    z_data_smem_z_libc_partition_part_end
+    )
+  zephyr_linker_section_configure(
+    SECTION
+    _APP_SMEM_SECTION_NAME
+    SYMBOLS
+    _app_smem_end
+    )
+  zephyr_linker_symbol(
+    SYMBOL
+    z_data_smem_ztest_mem_partition_part_size
+    EXPR
+    "(@z_data_smem_ztest_mem_partition_part_end@ - @z_data_smem_ztest_mem_partition_part_start@)"
+    )
+  zephyr_linker_symbol(
+    SYMBOL
+    z_data_smem_ztest_mem_partition_bss_size
+    EXPR
+    "(@z_data_smem_ztest_mem_partition_bss_end@ - @z_data_smem_ztest_mem_partition_bss_start@)"
+    )
+
+  zephyr_linker_symbol(
+    SYMBOL
+    z_data_smem_z_libc_partition_part_size
+    EXPR
+    "(@z_data_smem_z_libc_partition_part_end@ - @z_data_smem_z_libc_partition_part_start@)"
+    )
+  zephyr_linker_symbol(
+    SYMBOL
+    z_data_smem_z_libc_partition_bss_size
+    EXPR
+    "(@z_data_smem_z_libc_partition_bss_end@ - @z_data_smem_z_libc_partition_bss_start@)"
+    )
+  zephyr_linker_symbol(
+    SYMBOL
+    _app_smem_size
+    EXPR
+    "(@_app_smem_end@ - @_app_smem_start@)"
+    )
+
+  zephyr_linker_symbol(
+    SYMBOL
+    _app_smem_rom_start
+    EXPR
+    "(@___APP_SMEM_SECTION_NAME_load_start@)"
+    )
+
   zephyr_linker_section(NAME .bss VMA RAM LMA FLASH TYPE BSS)
   zephyr_linker_section_configure(SECTION .bss INPUT COMMON)
   zephyr_linker_section_configure(SECTION .bss INPUT ".kernel_bss.*")
+  
+  #ifdef CONFIG_CODE_DATA_RELOCATION
+  #include <linker_sram_bss_relocate.ld>
+  #endif
+  
   # As memory is cleared in words only, it is simpler to ensure the BSS
   # section ends on a 4 byte boundary. This wastes a maximum of 3 bytes.
   zephyr_linker_section_configure(SECTION .bss ALIGN 4)
 
   zephyr_linker_section(NAME .noinit GROUP RAM_REGION TYPE NOLOAD NOINIT)
-  # This section is used for non-initialized objects that
-  # will not be cleared during the boot process.
-  zephyr_linker_section_configure(SECTION .noinit INPUT ".kernel_noinit.*")
+
+  zephyr_linker_section_configure(
+    SECTION .noinit
+    INPUT ".user_stacks*"
+    SYMBOLS z_user_stacks_start z_user_stacks_end)
+  if(CONFIG_GEN_PRIV_STACKS)
+    zephyr_linker_section(NAME .priv_stacks_noinit GROUP DATA_REGION NOINPUT)
+    zephyr_linker_section_configure(
+      SECTION .priv_stacks_noinit
+      SYMBOLS z_priv_stacks_ram_start
+      )
+    zephyr_linker_section_configure(
+      SECTION .priv_stacks_noinit
+      INPUT ".priv_stacks.noinit"
+      PASS LINKER_ZEPHYR_FINAL
+      )
+    zephyr_linker_section_configure(
+      SECTION .priv_stacks_noinit
+      SYMBOLS z_priv_stacks_ram_end
+      )
+    if(KOBJECT_PRIV_STACKS_ALIGN)
+      zephyr_linker_symbol(
+        SYMBOL z_priv_stacks_ram_used
+        EXPR "(@z_priv_stacks_ram_end@ - @z_priv_stacks_ram_start@)"
+        PASS LINKER_ZEPHYR_FINAL
+        )
+    endif()
+
+  endif()
 endif()
 
 zephyr_linker_section(NAME .data GROUP DATA_REGION)
 zephyr_linker_section_configure(SECTION .data INPUT ".kernel.*")
 
 include(${COMMON_ZEPHYR_LINKER_DIR}/common-ram.cmake)
-#include(kobject.ld)
+#include(kobject-data.ld
+if(CONFIG_USERSPACE)
+  zephyr_linker_section(NAME kobject_data GROUP DATA_REGION NOINPUT)
+  zephyr_linker_section_configure(
+    SECTION kobject_data
+    SYMBOLS z_kobject_data_begin
+    )
+
+  #if !defined(LINKER_ZEPHYR_PREBUILT) && \
+  # !defined(LINKER_ZEPHYR_FINAL)
+  #ifdef CONFIG_DYNAMIC_OBJECTS
+  #    PROVIDE(_thread_idx_map = .);
+  #    . = . + CONFIG_MAX_THREAD_BYTES;
+  #endif
+  #endif /* !LINKER_ZEPHYR_PREBUILT && !LINKER_ZEPHYR_FINAL */
+  if(CONFIG_DYNAMIC_OBJECTS)
+    zephyr_linker_section_configure(
+      SECTION kobject_data
+      SYMBOLS _thread_idx_map
+      PASS NOT LINKER_ZEPHYR_PREBUILT
+      )
+    zephyr_linker_section_configure(
+      SECTION kobject_data
+      OFFSET ${CONFIG_MAX_THREAD_BYTES}
+      PASS NOT LINKER_ZEPHYR_PREBUILT
+      )
+  endif()
+
+
+  set(KOBJECT_DATA_ALIGN 4)
+  set(KOBJECT_DATA_SZ    1580)
+
+
+  if(CONFIG_DYNAMIC_OBJECTS)
+    zephyr_linker_section_configure(
+      SECTION kobject_data
+      SYMBOLS _thread_idx_map
+      PASS LINKER_ZEPHYR_PREBUILT
+      )
+  endif()
+  if(KOBJECT_DATA_ALIGN)
+    zephyr_linker_section_configure(
+      SECTION kobject_data
+      ALIGN ${KOBJECT_DATA_ALIGN}
+      OFFSET ${KOBJECT_DATA_SZ}
+      PASS LINKER_ZEPHYR_PREBUILT
+      )
+  endif()
+
+  if(KOBJECT_DATA_ALIGN)
+    zephyr_linker_section_configure(
+      SECTION kobject_data
+      SYMBOLS _kobject_data_area_start
+      ALIGN ${KOBJECT_DATA_ALIGN}
+      #  PASS LINKER_ZEPHYR_FINAL
+      )
+  endif()
+  zephyr_linker_section_configure(
+    SECTION kobject_data
+    INPUT
+    ".kobject_data.data*"
+    ".kobject_data.sdata*"
+    PASS LINKER_ZEPHYR_FINAL
+    )
+  if(KOBJECT_DATA_ALIGN)
+    zephyr_linker_section_configure(
+      SECTION kobject_data
+      SYMBOLS _kobject_data_area_end
+      # PASS LINKER_ZEPHYR_FINAL
+      )
+    zephyr_linker_symbol(
+      SYMBOL
+      _kobject_data_area_used
+      EXPR
+      "(@_kobject_data_area_end@ - @_kobject_data_area_start@)"
+      )
+  endif()
+
+endif()
+
 
 if(NOT CONFIG_USERSPACE)
   zephyr_linker_section(NAME .bss VMA RAM LMA FLASH TYPE BSS)

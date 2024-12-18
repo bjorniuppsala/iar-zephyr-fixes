@@ -43,7 +43,8 @@ function(process_region)
           )
       else()
         create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_load_start
-          EXPR "@LOADADDR(${name_clean})@"
+          #EXPR "/*process_region*/(@Load$$${name_clean}$$Base@)"
+          EXPR "/*process_region*/(@${name_clean}_init$$Base@)"
           )
       endif()
     endif()
@@ -88,7 +89,8 @@ function(process_region)
       # A trick to add the symbol for the nxp devices
       # _flash_used = LOADADDR(.last_section) + SIZEOF(.last_section) - __rom_region_start;
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL _flash_used
-        EXPR "(@LOADADDR(last_section)@ + @SIZE(last_section)@ - @__rom_region_start@)"
+        #EXPR "(@Load$$last_section$$Base@ + @last_section$$Length@ - @__rom_region_start@)"
+        EXPR "(@Load$$last_section$$Base@ + @last_section$$Length@ - @__rom_region_start@)"
         )
     endif()
 
@@ -117,17 +119,18 @@ function(process_region)
     get_property(last_section_name GLOBAL PROPERTY ${section}_NAME_CLEAN)
 
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_load_start
-      EXPR "@LOADADDR(${first_section_name})@"
+      #EXPR "(@Load$$${first_section_name}$$Base@)"
+      EXPR "/*process_region*/(@${first_section_name}_init$$Base@)"
       )
 
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_start
       EXPR "@ADDR(${first_section_name})@"
       )
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_end
-      EXPR "@END(${last_section_name})@"
+      EXPR "(@${last_section_name}$$Limit@)"
       )
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_size
-      EXPR "(@(__${name}_end)@ - @(__${name}_start)@)"
+      EXPR "(@${last_section_name}$$Limit@ - @${first_section_name}$$Base@)"
       )
 
   endforeach()
@@ -327,7 +330,12 @@ function(group_to_string)
       get_property(lma GLOBAL PROPERTY ${parent}_LMA)
     endif()
 
-    if(DEFINED vma)
+    set(INIT_SECTIONS_BLOCK)
+    if(DEFINED vma AND DEFINED lma)
+      set(ILINK_CURRENT_NAME ${vma})
+      get_property(INIT_SECTIONS_BLOCK GLOBAL PROPERTY ILINK_CURRENT_SECTIONS_INIT_BLOCKS)
+      set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS_INIT_BLOCKS "")
+    elseif(DEFINED vma)
       set(ILINK_CURRENT_NAME ${vma})
     elseif(DEFINED lma)
       set(ILINK_CURRENT_NAME ${lma})
@@ -335,7 +343,8 @@ function(group_to_string)
       # message(FATAL_ERROR "Need either vma or lma")
     endif()
 
-    set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
+    set(${STRING_STRING} "${${STRING_STRING}}${INIT_SECTIONS_BLOCK}\n\"${name}\": place in ${ILINK_CURRENT_NAME} { /*Hej*/ block ${name_clean} };\n")
+
   endforeach()
 
   get_parent(OBJECT ${STRING_OBJECT} PARENT parent TYPE SYSTEM)
@@ -405,7 +414,13 @@ function(group_to_string)
   set(${STRING_STRING} ${${STRING_STRING}} PARENT_SCOPE)
 endfunction()
 
-
+#Convert SECTION >NAME> into a STRING out
+#Also fills global property ILINK_CURRENT_SECTIONS with the "section <pattern>"
+# elements of the patterns that are included in SECTION <name>
+# ILIINK_CURRENT_SECTIONS_INIT_BLOCKS is filled in with all generated sections
+#for ??_init blocks. The idea is to allow build the recursive structure of blocks
+# within blocks for the GROUP
+#
 function(section_to_string)
   cmake_parse_arguments(STRING "" "SECTION;STRING" "" ${ARGN})
 
@@ -439,6 +454,7 @@ function(section_to_string)
   endif()
 
   set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
+  set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS_INIT_BLOCKS)
 
   string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
   string(REPLACE "." "_" name_clean "${name_clean}")
@@ -486,34 +502,46 @@ function(section_to_string)
     endif()
   endif()
 
-  # Add keep to the sections that have 'KEEP:TRUE'
+  #Somewhere we have to output a keep { <whatever>} block. This is entries
+  #(block foo" for blocks and bar.* for sections)
+  set(BLOCKS_TO_KEEP "")
+  #if(DEFINED keep)
+  #  list(APPEND BLOCKS_TO_KEEP "block ${name_clean}")
+  #  if(NOT DEFINED noinit OR NOT ${noinit})
+  #    list(APPEND BLOCKS_TO_KEEP "block ${name_clean}_init")
+  #  endif()
+  #endif()
+  # Add keep to the sections settings that have 'KEEP:TRUE'
   foreach(idx ${indicies})
     get_property(keep     GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_KEEP)
-    get_property(input    GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_INPUT)
-    foreach(setting ${input})
-      if(keep)
-        # keep { section .abc* };
-        set(TEMP "${TEMP}keep { section ${setting} };\n")
-      endif()
-    endforeach()
+    if(keep)
+      get_property(input    GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_INPUT)
+      foreach(setting ${input})
+        list(APPEND BLOCKS_TO_KEEP "section ${setting}")
+      endforeach()
+    endif()
   endforeach()
 
   if(DEFINED first_index_section)
     set(TEMP "${TEMP}${first_index_section}\n")
   endif()
 
+  #with initialize manually we need a block for all the _init sections we generate. So define a block for them:
+  #since this will be memcpy source, we need to ensure the same layout, so duplicate the alignment
+  set(INIT_SECTIONS_BLOCK "define block ${name_clean}_init with fixed order")
   set(TEMP "${TEMP}define block ${name_clean} with fixed order")
-
-  if(align)
-    set(TEMP "${TEMP}, alignment=${align}")
+  set(A "")
+  if (align)
+    set(A "${A}, alignment=${align}")
   else()
-    set(TEMP "${TEMP}, alignment=4")
+    set(A "${A}, alignment=4")
   endif()
-  if(endalign)
-    set(TEMP "${TEMP}, end alignment=${endalign}")
+  if (endalign)
+    set(A "${A}, end alignment=${endalign}")
   endif()
 
-  set(TEMP "${TEMP}\n{")
+  set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}${A}\n{")
+  set(TEMP "${TEMP}${A}\n{")
 
   # foreach(start_symbol ${start_syms})
   #   set(TEMP "${TEMP}\n  section ${start_symbol},")
@@ -529,7 +557,7 @@ function(section_to_string)
   list(LENGTH indicies length)
 
   if(NOT noinput)
-
+    set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n  block ${name_clean}_winput_init")
     set(TEMP "${TEMP}\n  block ${name_clean}_winput")
     if(align)
       list(APPEND block_attr "alignment = ${align}")
@@ -542,19 +570,27 @@ function(section_to_string)
 
     list(JOIN block_attr ", " block_attr_str)
     if(block_attr_str)
+      set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK} with ${block_attr_str}")
       set(TEMP "${TEMP} with ${block_attr_str}")
     endif()
     set(block_attr)
     set(block_attr_str)
 
+    set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n  {")
+    set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n   section ${name}_init,")
+    set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n   section ${name}.*_init")
+    set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n  }")
+
     set(TEMP "${TEMP} { ${part}section ${name}, ${part}section ${name}.* }")
-    if(${length} GREATER 0)
+    if (${length} GREATER 0)
+      set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK},")
       set(TEMP "${TEMP},")
     endif()
     set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${name}")
     set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${name}.*")
   endif()
 
+  set(init_blocks_for_indicies "")
   foreach(idx idx_next IN ZIP_LISTS indicies next_indicies)
     get_property(align    GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_ALIGN)
     get_property(any      GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_ANY)
@@ -566,7 +602,13 @@ function(section_to_string)
     get_property(symbols  GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx}_SYMBOLS)
     # Get the next offset and use that as this ones size!
     get_property(offset   GLOBAL PROPERTY ${STRING_SECTION}_SETTING_${idx_next}_OFFSET)
-
+    set(idx_block_name "${name_clean}_${idx}")
+    if(DEFINED keep)
+      list(APPEND BLOCKS_TO_KEEP "block ${idx_block_name}")
+    endif()
+    #if(NOT DEFINED noinit OR NOT ${noinit})
+    #  list(APPEND BLOCKS_TO_KEEP "block ${idx_block_name}_init")
+    #endif()
     if(DEFINED symbols)
       list(LENGTH symbols symbols_count)
       if(${symbols_count} GREATER 0)
@@ -578,9 +620,7 @@ function(section_to_string)
     endif()
 
     if(DEFINED symbol_start)
-      # set(TEMP "${TEMP}\n  section ${symbol_start},")
-      # set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${symbol_start}")
-      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_start} = ADDR(${name_clean}_${idx})")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_start} = (${idx_block_name}$$Base)")
     endif()
 
     if(DEFINED first_index AND first_index EQUAL ${idx})
@@ -612,7 +652,9 @@ function(section_to_string)
     endif()
 
     # block init_100 with alphabetical order { section .z_init_EARLY?_}
-    set(TEMP "${TEMP}\n  block ${name_clean}_${idx}")
+    list(APPEND init_blocks_for_indicies "block ${idx_block_name}_init")
+    set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n  block ${idx_block_name}_init")
+    set(TEMP "${TEMP}\n  block ${idx_block_name}")
     if(DEFINED offset AND NOT offset EQUAL 0 )
       list(APPEND block_attr "size = ${offset}")
     elseif(DEFINED offset AND offset STREQUAL 0 )
@@ -653,29 +695,41 @@ function(section_to_string)
     if(block_attr_str)
       set(TEMP "${TEMP} with ${block_attr_str}")
     endif()
+    #no sorting for the init bytes... (according to ilink)
+
+    list(REMOVE_ITEM block_attr "alphabetical order")
+    list(JOIN block_attr ", " block_attr_str)
+    if(block_attr_str)
+      set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK} with ${block_attr_str}")
+    endif()
     set(block_attr)
     set(block_attr_str)
 
     if(empty)
+      set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n  {")
       set(TEMP "${TEMP}\n  {")
       set(empty FALSE)
     endif()
 
     list(GET input -1 last_input)
 
+    set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK} {")
     set(TEMP "${TEMP} {")
     if(NOT DEFINED input AND NOT any)
+      set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK} }")
       set(TEMP "${TEMP} }")
     endif()
 
     foreach(setting ${input})
       if(first)
+        set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK} first")
         set(TEMP "${TEMP} first")
         set(first "")
       endif()
 
       if(${setting} STREQUAL .ramfunc)
-#        set(TEMP "${TEMP} section .textrw,")
+        #Nothing for INIT_SECTIONS_BLOCK, since ISB is for the SOURCE to "copy" from.
+        #set(TEMP "${TEMP} section .textrw,")
       endif()
 
       set(section_type "")
@@ -695,18 +749,21 @@ function(section_to_string)
       #		message(FATAL_ERROR "How to handle this? lma=${lma} vma=${vma}")
       # endif()
 
+      set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}${section_type} section ${setting}_init")
       set(TEMP "${TEMP}${section_type} section ${setting}")
       set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${setting}")
       set(section_type "")
 
       if("${setting}" STREQUAL "${last_input}")
+        set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK} }")
         set(TEMP "${TEMP} }")
       else()
+        set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}, ")
         set(TEMP "${TEMP}, ")
       endif()
 
       # set(TEMP "${TEMP}\n    *.o(${setting})")
-    endforeach()
+    endforeach() # input loop
 
     if(any)
       if(NOT flags)
@@ -723,16 +780,19 @@ function(section_to_string)
           set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "${ANY_FLAG}")
         endif()
       endforeach()
+      #INIT_SECTIONS_BLOCK does not need any flags.
+      set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK} /*${ANY_FLAG}*/ }")
       set(TEMP "${TEMP} ${ANY_FLAG} }")
     endif()
 
     if(DEFINED symbol_end)
       # set(TEMP "${TEMP},\n  section ${symbol_end}")
       # set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${symbol_end}")
-      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_end} = END(${name_clean}_${idx})")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_end} = (${idx_block_name}$$Limit)")
     endif()
     if(${length} GREATER 0)
       if(NOT "${idx}" STREQUAL "${last_index}")
+        set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK},")
         set(TEMP "${TEMP},")
       elseif()
       endif()
@@ -740,7 +800,7 @@ function(section_to_string)
 
     set(symbol_start)
     set(symbol_end)
-  endforeach()
+  endforeach() #idx / indicies loop
   set(next_indicies)
 
   set(last_index)
@@ -757,6 +817,7 @@ function(section_to_string)
   #   set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${end_symbol}")
   # endforeach()
 
+  set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK}\n};")
   set(TEMP "${TEMP}\n};")
 
   get_property(type GLOBAL PROPERTY ${parent}_OBJ_TYPE)
@@ -771,22 +832,27 @@ function(section_to_string)
 
   if(DEFINED group_parent_vma AND DEFINED group_parent_lma)
     if(DEFINED current_sections)
-      set(TEMP2 "\ninitialize by address_translation\n")
-      set(TEMP2 "${TEMP2}{\n")
-      foreach(section ${current_sections})
-        if("${section}" STREQUAL "section .ramfunc")
-          set(TEMP2 "\ninitialize manually\n")
-          set(TEMP2 "${TEMP2}{\n")
-        endif()
-        set(TEMP2 "${TEMP2}  ${section},\n")
-      endforeach()
-      set(TEMP2 "${TEMP2}};")
+      #the body for a initialize manually or other block
+      list(JOIN current_sections ", " SELECTORS)
+
+      if(${noinit})
+        set(TEMP "${TEMP}\ndo not initialize {\n${SELECTORS}\n};")
+      else()
+        #set(TEMP "${TEMP}\ninitialize by address_translation\n")
+        set(TEMP "${TEMP}\ninitialize manually {\n${SELECTORS}\n };\n")
+        list(JOIN init_blocks_for_indicies ", " keep_init_blocks)
+        set(INIT_SECTIONS_BLOCK "${INIT_SECTIONS_BLOCK};\n\"${name_clean}_init\": place in FLASH { block ${name_clean}_init };\n keep { block ${name_clean}_init, ${keep_init_blocks} };\n")
+        set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS_INIT_BLOCKS "${INIT_SECTIONS_BLOCK}")
+      endif()
+
       set(current_sections)
-      set(TEMP "${TEMP}${TEMP2}")
+      #"${INIT_SECTIONS_BLOCK};\n\"${name_clean}_init\": place in FLASH { block ${name_clean}_init };\n"
     endif()
   endif()
 
-  set(${STRING_STRING} "${${STRING_STRING}}\n${TEMP}\n" PARENT_SCOPE)
+  list(JOIN BLOCKS_TO_KEEP ",\n" KEEP_STR)
+  set(KEEP_STR "keep { ${KEEP_STR} };\n")
+  set(${STRING_STRING} "${${STRING_STRING}}\n${TEMP}\n${KEEP_STR}" PARENT_SCOPE)
 endfunction()
 
 function(symbol_to_string)
