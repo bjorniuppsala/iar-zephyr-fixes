@@ -31,8 +31,9 @@ set_property(TARGET bintools PROPERTY elfconvert_command ${CMAKE_OBJCOPY})
 set_property(TARGET bintools PROPERTY elfconvert_formats ihex srec binary)
 
 set_property(TARGET bintools PROPERTY elfconvert_flag "")
+#This tweaks the section-flags of .noinit and privstacks-noinit to avoid them taking space in .bin and hex files.
+set_property(TARGET bintools PROPERTY elfconvert_flag_noinit_hack "--remove-section=.*noinit*") #--set-section-flags .*noinit*=alloc,data")
 set_property(TARGET bintools PROPERTY elfconvert_flag_final "")
-
 set_property(TARGET bintools PROPERTY elfconvert_flag_strip_all "-S")
 set_property(TARGET bintools PROPERTY elfconvert_flag_strip_debug "-g")
 
