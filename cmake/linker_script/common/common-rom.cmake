@@ -69,24 +69,7 @@ endif()
 if(CONFIG_USERSPACE)
   # Build-time assignment of permissions to kernel objects to
   # threads declared with K_THREAD_DEFINE()
-  zephyr_linker_section(
-    NAME k_object_assignment_area
-    VMA FLASH NOINPUT
-    SUBALIGN 4
-  )
-  zephyr_linker_section_configure(
-    SECTION k_object_assignment_area
-    SYMBOLS _k_object_assignment_list_start
-  )
-  zephyr_linker_section_configure(
-    SECTION k_object_assignment
-    INPUT ".k_object_assignment.static.*"
-    KEEP SORT NAME
-  )
-  zephyr_linker_section_configure(
-    SECTION k_object_assignment_area
-    SYMBOLS _k_object_assignment_list_end
-  )
+  zephyr_iterable_section(NAME k_object_assignment VMA FLASH SUBALIGN ${CONFIG_LINKER_ITERABLE_SUBALIGN})
 endif()
 
 zephyr_linker_section(
