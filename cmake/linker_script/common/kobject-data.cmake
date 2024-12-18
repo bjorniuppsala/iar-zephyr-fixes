@@ -60,10 +60,11 @@ if(CONFIG_USERSPACE)
     SYMBOLS _kobject_data_area_start _kobject_data_area_end
     )
 
-  zephyr_linker_symbol(
-    SYMBOL
-    _kobject_data_area_used
-    EXPR
-    "(@_kobject_data_area_end@ - @_kobject_data_area_start@)"
-    )
+    #This seems to be used only for a size-check, which is already don in MAX_SIZE.
+  #zephyr_linker_symbol(
+  #  SYMBOL
+  #  _kobject_data_area_used
+  #  EXPR
+  #  "(@_kobject_data_area_end@ - @_kobject_data_area_start@)"
+  #  )
 endif()
