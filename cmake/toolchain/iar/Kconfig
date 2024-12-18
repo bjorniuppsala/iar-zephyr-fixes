@@ -9,6 +9,10 @@ choice LINKER_SCRIPT
 	default CMAKE_LINKER_GENERATOR
 endchoice
 
+config TOOLCHAIN_IAR_SUPPORTS_USERSPACE
+	def_bool y
+	select TOOLCHAIN_SUPPORTS_USERSPACE
+
 menu "IAR library options"
 
 config IAR_SEMIHOSTING
