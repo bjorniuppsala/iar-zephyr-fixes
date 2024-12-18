@@ -1,10 +1,9 @@
 This is a IAR internal fork of zephyr for internal and partner use.
 It contains the required cmake/toolchain files necessary to compile, build and run zephyr projects using IAR compiler and linker.
 It also contains patches improving zephyrs compatibility with non-GNU compilers. But we are working on upstreaming these patches.
-these are being upstreamed.
 
-Currently we are supporting select ARM Cortex-M targets.
-Since we are using the `CMAKE_LINKER_GENERATOR` mechanism to integrate ilink, means that configurations and modules not supported by `CMAKE_LINKER_GENERATOR` is not supported. 
+Currently we are supporting selected ARM Cortex-M targets.
+Since we are using the `CMAKE_LINKER_GENERATOR` mechanism to integrate ilink this means that configurations and modules not supported by `CMAKE_LINKER_GENERATOR` is not supported.
 (e.g. `CONFIG_USERSPACE`)
 
 
