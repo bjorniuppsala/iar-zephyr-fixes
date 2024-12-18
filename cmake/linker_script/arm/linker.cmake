@@ -125,7 +125,7 @@ zephyr_linker_section(NAME .ramfunc GROUP RAM_REGION SUBALIGN 8)
 # ToDo - handle if(CONFIG_USERSPACE)
 if(CONFIG_USERSPACE)
   # ToDo - handle app_smem
-  zephyr_linker_section(NAME _APP_SMEM_SECTION_NAME GROUP DATA_REGION NOINPUT)
+  zephyr_linker_section(NAME _APP_SMEM_SECTION_NAME GROUP DATA_REGION NOINPUT ALIGN_WITH_INPUT)
   zephyr_linker_section_configure(
     SECTION
     _APP_SMEM_SECTION_NAME
@@ -243,7 +243,7 @@ if(CONFIG_USERSPACE)
   include(${COMMON_ZEPHYR_LINKER_DIR}/common-noinit.cmake)
 endif()
 
-zephyr_linker_section(NAME .data GROUP DATA_REGION)
+zephyr_linker_section(NAME .data GROUP DATA_REGION ALIGN_WITH_INPUT)
 zephyr_linker_section_configure(SECTION .data INPUT ".kernel.*")
 
 include(${COMMON_ZEPHYR_LINKER_DIR}/common-ram.cmake)

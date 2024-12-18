@@ -1,6 +1,6 @@
 if(CONFIG_USERSPACE)
 
-  zephyr_linker_section(NAME kobject_data GROUP ${K_OBJECTS_GROUP} NOINPUT)
+  zephyr_linker_section(NAME kobject_data GROUP ${K_OBJECTS_GROUP} ALIGN_WITH_INPUT NOINPUT)
   
   zephyr_linker_section_configure(
     SECTION kobject_data
