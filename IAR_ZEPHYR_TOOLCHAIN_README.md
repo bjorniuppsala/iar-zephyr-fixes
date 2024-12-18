@@ -12,7 +12,7 @@ Since we are using the `CMAKE_LINKER_GENERATOR` mechanism to integrate ilink, me
 
 IAR is dependent on the zephyr-sdk. The easiest way of using them together is to use the [zephyrproject-rtos/docker-image](https://github.com/zephyrproject-rtos/docker-image).
 
-## Supported platforms/boards (Göran)
+## Supported platforms/boards
 
 The following platfoms/boards are used for testing in CI and can be expected to pass twister tests `--level acceptance` using the IAR Toolchain:
 
@@ -26,20 +26,20 @@ Additionally, the following plaforms/boards have passed twister tests `--level a
 * `frdm_mcxn947/mcxn947/cpu0`
 * `ek_ra4e2`
 
-## Limitations (Robin/Love)
+## Limitations
 
 * Currently `CONFIG_USERSPACE` is not working. It is disabled by default on platforms without MPU (`qemu_cortex_m0` and `qemu_cortex_m3`) and disabled by use of our own `CONFIG_TOOLCHAIN_SUPPORTS_USERSPACE` variable for other targets. Support for `CONFIG_USERSPACE` is coming.
 * Currently TrustZone is not working. 
 * Currently only minimallibc is supported, this means Picolibc and Newlib is not supported. There is experimental support for IARs DLib.
 * Currently using the GNU Assembler for .S files
 
-## Obtaining an IAR Toolchain (Robin/Daniel)
+## Obtaining an IAR Toolchain
 
 A Development version of the IAR build tools for Arm is required to work with this fork. It will be continuously updated, and you find it in the [GitHub Releases](https://github.com/iarsystems/zephyr/releases) section.
 
 To run the tools, a *Bearer Token* is required for authentication and authorization. It will be distributed to partners together with installation instructions. If there are any issues with this, please contact our FAE team at fae.emea@iar.com and they will assist.
 
-## Current status of zephyr/tests (Göran)
+## Current status of zephyr/tests
 
 Common causes for test fails:
 * `CONFIG_USERSPACE` disabled makes some tests unable to build (usually filtered out by twister)
@@ -79,6 +79,6 @@ The folling will look for a toolchain in the standard IAR install directory:
 
 ```
 $ cd iar-zephyrproject
-$ zephyr/iar_run_zephyr.sh spiffy-container
+$ zephyr/iar_run_zephyr.sh spiffy-container-name
 ```
 
