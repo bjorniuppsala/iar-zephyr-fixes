@@ -423,7 +423,7 @@ void ps8xxx_tcpc_alert_handler_cb(const struct device *dev, void *data, enum tcp
 }
 
 int ps8xxx_tcpc_get_status_register(const struct device *dev, enum tcpc_status_reg reg,
-				    int32_t *status)
+				    uint32_t *status)
 {
 	return -ENOSYS;
 }
@@ -543,7 +543,7 @@ int ps8xxx_tcpc_set_alert_handler_cb(const struct device *dev, tcpc_alert_handle
 
 /* Functions not assigned to the driver API but used by device */
 
-static const struct tcpc_driver_api ps8xxx_driver_api = {
+static DEVICE_API(tcpc, ps8xxx_driver_api) = {
 	.init = ps8xxx_tcpc_init,
 	.get_cc = ps8xxx_tcpc_get_cc,
 	.select_rp_value = ps8xxx_tcpc_select_rp_value,

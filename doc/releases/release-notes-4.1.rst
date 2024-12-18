@@ -29,6 +29,12 @@ Removed APIs in this release
 
  * The deprecated Bluetooth HCI driver API has been removed. It has been replaced by a
    :c:group:`new API<bt_hci_api>` that follows the normal Zephyr driver model.
+ * The deprecated ``CAN_MAX_STD_ID`` (replaced by :c:macro:`CAN_STD_ID_MASK`) and ``CAN_MAX_EXT_ID``
+   (replaced by :c:macro:`CAN_EXT_ID_MASK`) CAN API macros have been removed.
+ * The deprecated ``can_get_min_bitrate()`` (replaced by :c:func:`can_get_bitrate_min`) and
+   ``can_get_max_bitrate()`` (replaced by :c:func:`can_get_bitrate_max`) CAN API functions have been
+   removed.
+ * The deprecated ``can_calc_prescaler()`` CAN API function has been removed.
 
 Deprecated in this release
 ==========================
@@ -36,6 +42,12 @@ Deprecated in this release
 * Deprecated the :c:func:`bt_le_set_auto_conn` API function. Application developers can achieve
   the same functionality in their application code by reconnecting to the peer when the
   :c:member:`bt_conn_cb.disconnected` callback is invoked.
+
+* Deprecated TinyCrypt library. The reasons for this are (:github:`43712`):
+
+  * The upstream version of this library is no longer maintained.
+  * Reducing the number of cryptographic libraries in Zephyr to reduce maintenance overhead.
+  * The PSA Crypto API is the recommended cryptographic library for Zephyr.
 
 Architectures
 *************
@@ -93,10 +105,29 @@ Boards & SoC Support
 
 * Made these board changes:
 
+  * All HWMv1 board name aliases which were added as deprecated in v3.7 are now removed
+    (:github:`82247`).
+
 * Added support for the following shields:
 
 Build system and Infrastructure
 *******************************
+
+* Space-separated lists support has been removed from Twister configuration
+  files. This feature was deprecated a long time ago. Projects that do still use
+  them can use the :zephyr_file:`scripts/utils/twister_to_list.py` script to
+  automatically migrate Twister configuration files.
+
+* Twister
+
+  * Test Case names for Ztest now include Ztest suite name, so the resulting identifier has
+    three sections and looks like: ``<test_scenario_name>.<ztest_suite_name>.<ztest_name>``.
+    These extended identifiers are used in log output, twister.json and testplan.json,
+    as well as for ``--sub-test`` command line parameters (:github:`80088`).
+  * The ``--no-detailed-test-id`` command line option also shortens Ztest Test Case names excluding
+    its Test Scenario name prefix which is the same as the parent Test Suite id (:github:`82302`).
+    Twister XML reports have full testsuite name as ``testcase.classname property`` resolving
+    possible duplicate testcase elements in ``twister_report.xml`` testsuite container.
 
 Drivers and Sensors
 *******************
@@ -129,6 +160,8 @@ Drivers and Sensors
 * Ethernet
 
 * Flash
+
+  * NXP MCUX FlexSPI: Add support for 4-byte addressing mode of Micron MT25Q flash family (:github:`82532`)
 
 * FPGA
 
@@ -195,6 +228,11 @@ Drivers and Sensors
 
 * SPI
 
+* Stepper
+
+  * Added driver for ADI TMC2209. :dtcompatible:`adi,tmc2209`
+  * Added :kconfig:option:`CONFIG_STEP_DIR_STEPPER` to enable common functions for step/dir steppers.
+
 * USB
 
 * Video
@@ -239,13 +277,22 @@ Networking
 
 * Network Interface:
 
-* OpenThread
+* OpenThread:
+
+  * Removed the implicit enabling of the :kconfig:option:`CONFIG_NVS` Kconfig option by the :kconfig:option:`CONFIG_NET_L2_OPENTHREAD` symbol.
 
 * PPP
 
 * Shell:
 
 * Sockets:
+
+  * The deprecated :kconfig:option:`CONFIG_NET_SOCKETS_POSIX_NAMES` option has been removed.
+    It was a legacy option and was used to allow user to call BSD socket API while not enabling POSIX API.
+    This removal means that in order to use POSIX API socket calls, one needs to enable the
+    :kconfig:option:`CONFIG_POSIX_API` option.
+    If the application does not want or is not able to enable that option, then the socket API
+    calls need to be prefixed by a ``zsock_`` string.
 
 * Syslog:
 
@@ -254,6 +301,8 @@ Networking
 * Websocket:
 
 * Wi-Fi:
+
+  * hostap: Removed the unused default Crypto module :kconfig:option:`CONFIG_WIFI_NM_WPA_SUPPLICANT_CRYPTO` Kconfig option.
 
 * zperf:
 

@@ -276,6 +276,7 @@ static int uart_esp32_configure(const struct device *dev, const struct uart_conf
 	uart_hal_set_rxfifo_full_thr(&data->hal, UART_RX_FIFO_THRESH);
 	uart_hal_set_txfifo_empty_thr(&data->hal, UART_TX_FIFO_THRESH);
 	uart_hal_rxfifo_rst(&data->hal);
+	uart_hal_txfifo_rst(&data->hal);
 
 	switch (cfg->parity) {
 	case UART_CFG_PARITY_NONE:
@@ -963,7 +964,7 @@ static int uart_esp32_init(const struct device *dev)
 	return 0;
 }
 
-static const DRAM_ATTR struct uart_driver_api uart_esp32_api = {
+static DEVICE_API(uart, uart_esp32_api) = {
 	.poll_in = uart_esp32_poll_in,
 	.poll_out = uart_esp32_poll_out,
 	.err_check = uart_esp32_err_check,

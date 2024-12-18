@@ -21,6 +21,9 @@ struct dev_data_hfxo {
 	onoff_notify_fn notify;
 	struct k_timer timer;
 	sys_snode_t hfxo_node;
+#if defined(CONFIG_ZERO_LATENCY_IRQS)
+	uint16_t request_count;
+#endif /* CONFIG_ZERO_LATENCY_IRQS */
 };
 
 struct dev_config_hfxo {
@@ -28,6 +31,23 @@ struct dev_config_hfxo {
 	uint16_t fixed_accuracy;
 	k_timeout_t start_up_time;
 };
+
+#if defined(CONFIG_ZERO_LATENCY_IRQS)
+static uint32_t full_irq_lock(void)
+{
+	uint32_t mcu_critical_state;
+
+	mcu_critical_state = __get_PRIMASK();
+	__disable_irq();
+
+	return mcu_critical_state;
+}
+
+static void full_irq_unlock(uint32_t mcu_critical_state)
+{
+	__set_PRIMASK(mcu_critical_state);
+}
+#endif /* CONFIG_ZERO_LATENCY_IRQS */
 
 static void hfxo_start_up_timer_handler(struct k_timer *timer)
 {
@@ -48,6 +68,40 @@ static void hfxo_start_up_timer_handler(struct k_timer *timer)
 	}
 }
 
+static void start_hfxo(struct dev_data_hfxo *dev_data)
+{
+	nrf_lrcconf_event_clear(NRF_LRCCONF010, NRF_LRCCONF_EVENT_HFXOSTARTED);
+	soc_lrcconf_poweron_request(&dev_data->hfxo_node, NRF_LRCCONF_POWER_MAIN);
+	nrf_lrcconf_task_trigger(NRF_LRCCONF010, NRF_LRCCONF_TASK_REQHFXO);
+}
+
+static void request_hfxo(struct dev_data_hfxo *dev_data)
+{
+#if defined(CONFIG_ZERO_LATENCY_IRQS)
+	unsigned int key;
+
+	key = full_irq_lock();
+	if (dev_data->request_count == 0) {
+		start_hfxo(dev_data);
+	}
+
+	dev_data->request_count++;
+	full_irq_unlock(key);
+#else
+	start_hfxo(dev_data);
+#endif /* CONFIG_ZERO_LATENCY_IRQS */
+}
+
+#if IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS)
+void nrf_clock_control_hfxo_request(void)
+{
+	const struct device *dev = DEVICE_DT_INST_GET(0);
+	struct dev_data_hfxo *dev_data = dev->data;
+
+	request_hfxo(dev_data);
+}
+#endif /* CONFIG_ZERO_LATENCY_IRQS */
+
 static void onoff_start_hfxo(struct onoff_manager *mgr, onoff_notify_fn notify)
 {
 	struct dev_data_hfxo *dev_data =
@@ -56,10 +110,7 @@ static void onoff_start_hfxo(struct onoff_manager *mgr, onoff_notify_fn notify)
 	const struct dev_config_hfxo *dev_config = dev->config;
 
 	dev_data->notify = notify;
-
-	nrf_lrcconf_event_clear(NRF_LRCCONF010, NRF_LRCCONF_EVENT_HFXOSTARTED);
-	soc_lrcconf_poweron_request(&dev_data->hfxo_node, NRF_LRCCONF_POWER_MAIN);
-	nrf_lrcconf_task_trigger(NRF_LRCCONF010, NRF_LRCCONF_TASK_REQHFXO);
+	request_hfxo(dev_data);
 
 	/* Due to a hardware issue, the HFXOSTARTED event is currently
 	 * unreliable. Hence the timer is used to simply wait the expected
@@ -68,13 +119,53 @@ static void onoff_start_hfxo(struct onoff_manager *mgr, onoff_notify_fn notify)
 	k_timer_start(&dev_data->timer, dev_config->start_up_time, K_NO_WAIT);
 }
 
+static void stop_hfxo(struct dev_data_hfxo *dev_data)
+{
+	nrf_lrcconf_task_trigger(NRF_LRCCONF010, NRF_LRCCONF_TASK_STOPREQHFXO);
+	soc_lrcconf_poweron_release(&dev_data->hfxo_node, NRF_LRCCONF_POWER_MAIN);
+}
+
+static void release_hfxo(struct dev_data_hfxo *dev_data)
+{
+#if IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS)
+	unsigned int key;
+
+	key = full_irq_lock();
+	if (dev_data->request_count < 1) {
+		full_irq_unlock(key);
+		/* Misuse of the API, release without request? */
+		__ASSERT_NO_MSG(false);
+		/* In case asserts are disabled early return due to no requests pending */
+		return;
+	}
+
+	dev_data->request_count--;
+	if (dev_data->request_count < 1) {
+		stop_hfxo(dev_data);
+	}
+
+	full_irq_unlock(key);
+#else
+	stop_hfxo(dev_data);
+#endif /* CONFIG_ZERO_LATENCY_IRQS */
+}
+
+#if IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS)
+void nrf_clock_control_hfxo_release(void)
+{
+	const struct device *dev = DEVICE_DT_INST_GET(0);
+	struct dev_data_hfxo *dev_data = dev->data;
+
+	release_hfxo(dev_data);
+}
+#endif /* IS_ENABLED(CONFIG_ZERO_LATENCY_IRQS) */
+
 static void onoff_stop_hfxo(struct onoff_manager *mgr, onoff_notify_fn notify)
 {
 	struct dev_data_hfxo *dev_data =
 		CONTAINER_OF(mgr, struct dev_data_hfxo, mgr);
 
-	nrf_lrcconf_task_trigger(NRF_LRCCONF010, NRF_LRCCONF_TASK_STOPREQHFXO);
-	soc_lrcconf_poweron_release(&dev_data->hfxo_node, NRF_LRCCONF_POWER_MAIN);
+	release_hfxo(dev_data);
 	notify(mgr, 0);
 }
 
@@ -171,7 +262,7 @@ static int init_hfxo(const struct device *dev)
 	return 0;
 }
 
-static struct nrf_clock_control_driver_api drv_api_hfxo = {
+static DEVICE_API(nrf_clock_control, drv_api_hfxo) = {
 	.std_api = {
 		.on = api_nosys_on_off,
 		.off = api_nosys_on_off,

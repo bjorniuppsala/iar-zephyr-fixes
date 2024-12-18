@@ -18,8 +18,7 @@ zephyr_library_sources(
 set(dt_binding_includes ${DTS_INCLUDE_FILES})
 list(FILTER dt_binding_includes INCLUDE REGEX "/dt-bindings/.*\.h$")
 
-get_target_property(include_flag compiler include_file)
-set(include_flag ${include_flag}$<SEMICOLON>)
+set(include_flag $<TARGET_PROPERTY:compiler,include_file>$<SEMICOLON>)
 
 set_source_files_properties(
   validate_binding_headers.c

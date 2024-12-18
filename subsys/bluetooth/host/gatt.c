@@ -1260,9 +1260,11 @@ static int gatt_register(struct bt_gatt_service *svc)
 populate:
 	/* Populate the handles and append them to the list */
 	for (; attrs && count; attrs++, count--) {
+		attrs->_auto_assigned_handle = 0;
 		if (!attrs->handle) {
 			/* Allocate handle if not set already */
 			attrs->handle = ++handle;
+			attrs->_auto_assigned_handle = 1;
 		} else if (attrs->handle > handle) {
 			/* Use existing handle if valid */
 			handle = attrs->handle;
@@ -1679,6 +1681,12 @@ static int gatt_unregister(struct bt_gatt_service *svc)
 
 		if (is_host_managed_ccc(attr)) {
 			gatt_unregister_ccc(attr->user_data);
+		}
+
+		/* The stack should not clear any handles set by the user. */
+		if (attr->_auto_assigned_handle) {
+			attr->handle = 0;
+			attr->_auto_assigned_handle = 0;
 		}
 	}
 
@@ -2409,11 +2417,9 @@ static void gatt_add_nfy_to_buf(struct net_buf *buf,
 {
 	struct bt_att_notify_mult *nfy;
 
-	nfy = net_buf_add(buf, sizeof(*nfy));
+	nfy = net_buf_add(buf, sizeof(*nfy) + params->len);
 	nfy->handle = sys_cpu_to_le16(handle);
 	nfy->len = sys_cpu_to_le16(params->len);
-
-	net_buf_add(buf, params->len);
 	(void)memcpy(nfy->value, params->data, params->len);
 }
 
@@ -2524,10 +2530,8 @@ static int gatt_notify(struct bt_conn *conn, uint16_t handle,
 
 	LOG_DBG("conn %p handle 0x%04x", conn, handle);
 
-	nfy = net_buf_add(buf, sizeof(*nfy));
+	nfy = net_buf_add(buf, sizeof(*nfy) + params->len);
 	nfy->handle = sys_cpu_to_le16(handle);
-
-	net_buf_add(buf, params->len);
 	memcpy(nfy->value, params->data, params->len);
 
 	bt_att_set_tx_meta_data(buf, params->func, params->user_data, BT_ATT_CHAN_OPT(params));
@@ -2692,10 +2696,8 @@ static int gatt_indicate(struct bt_conn *conn, uint16_t handle,
 
 	bt_att_set_tx_meta_data(buf, NULL, NULL, BT_ATT_CHAN_OPT(params));
 
-	ind = net_buf_add(buf, sizeof(*ind));
+	ind = net_buf_add(buf, sizeof(*ind) + params->len);
 	ind->handle = sys_cpu_to_le16(handle);
-
-	net_buf_add(buf, params->len);
 	memcpy(ind->value, params->data, params->len);
 
 	LOG_DBG("conn %p handle 0x%04x", conn, handle);

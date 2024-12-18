@@ -82,6 +82,7 @@ struct i3c_ctrl {
 DT_FOREACH_STATUS_OKAY(cdns_i3c, I3C_CTRL_FN)
 DT_FOREACH_STATUS_OKAY(nuvoton_npcx_i3c, I3C_CTRL_FN)
 DT_FOREACH_STATUS_OKAY(nxp_mcux_i3c, I3C_CTRL_FN)
+DT_FOREACH_STATUS_OKAY(st_stm32_i3c, I3C_CTRL_FN)
 /* zephyr-keep-sorted-stop */
 
 #define I3C_CTRL_LIST_ENTRY(node_id)                                                               \
@@ -96,6 +97,7 @@ const struct i3c_ctrl i3c_list[] = {
 	DT_FOREACH_STATUS_OKAY(cdns_i3c, I3C_CTRL_LIST_ENTRY)
 	DT_FOREACH_STATUS_OKAY(nuvoton_npcx_i3c, I3C_CTRL_LIST_ENTRY)
 	DT_FOREACH_STATUS_OKAY(nxp_mcux_i3c, I3C_CTRL_LIST_ENTRY)
+	DT_FOREACH_STATUS_OKAY(st_stm32_i3c, I3C_CTRL_LIST_ENTRY)
 	/* zephyr-keep-sorted-stop */
 };
 
@@ -1054,7 +1056,7 @@ static int cmd_i3c_ccc_rstact_bc(const struct shell *sh, size_t argc, char **arg
 	return ret;
 }
 
-/* i3c ccc rstact <device> <target> <defining byte> */
+/* i3c ccc rstact <device> <target> <"set"/"get"> <defining byte> */
 static int cmd_i3c_ccc_rstact(const struct shell *sh, size_t argc, char **argv)
 {
 	const struct device *dev, *tdev;
@@ -1068,11 +1070,11 @@ static int cmd_i3c_ccc_rstact(const struct shell *sh, size_t argc, char **argv)
 		return ret;
 	}
 
-	action = strtol(argv[5], NULL, 16);
+	action = strtol(argv[4], NULL, 16);
 
-	if (strcmp(argv[4], "get") == 0) {
+	if (strcmp(argv[3], "get") == 0) {
 		ret = i3c_ccc_do_rstact_fmt3(desc, action, &data);
-	} else if (strcmp(argv[4], "set") == 0) {
+	} else if (strcmp(argv[3], "set") == 0) {
 		ret = i3c_ccc_do_rstact_fmt2(desc, action);
 	} else {
 		shell_error(sh, "I3C: invalid parameter");

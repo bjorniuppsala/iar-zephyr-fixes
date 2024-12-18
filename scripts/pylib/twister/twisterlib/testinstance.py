@@ -1,6 +1,6 @@
 # vim: set syntax=python ts=4 :
 #
-# Copyright (c) 2018-2022 Intel Corporation
+# Copyright (c) 2018-2024 Intel Corporation
 # Copyright 2022 NXP
 # Copyright (c) 2024 Arm Limited (or its affiliates). All rights reserved.
 #
@@ -79,7 +79,7 @@ class TestInstance:
                 source_dir_rel,
                 testsuite.name
             )
-        self.run_id = self._get_run_id()
+        self.run_id = None
         self.domains = None
         # Instance need to use sysbuild if a given suite or a platform requires it
         self.sysbuild = testsuite.sysbuild or platform.sysbuild
@@ -89,6 +89,9 @@ class TestInstance:
         self.init_cases()
         self.filters = []
         self.filter_type = None
+
+    def setup_run_id(self):
+        self.run_id = self._get_run_id()
 
     def record(self, recording, fname_csv="recording.csv"):
         if recording:
@@ -169,6 +172,9 @@ class TestInstance:
 
     def __lt__(self, other):
         return self.name < other.name
+
+    def compose_case_name(self, tc_name) -> str:
+        return self.testsuite.compose_case_name(tc_name)
 
     def set_case_status_by_name(self, name, status, reason=None):
         tc = self.get_case_or_create(name)
@@ -261,9 +267,9 @@ class TestInstance:
         simulation = options.sim_name
 
         simulator = self.platform.simulator_by_name(simulation)
-        if os.name == 'nt':
+        if os.name == 'nt' and simulator:
             # running on simulators is currently supported only for QEMU on Windows
-            if (not simulator) or simulator.name not in ('na', 'qemu'):
+            if simulator.name not in ('na', 'qemu'):
                 return False
 
             # check presence of QEMU on Windows

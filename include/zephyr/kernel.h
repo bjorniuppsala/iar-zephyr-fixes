@@ -2544,9 +2544,10 @@ struct k_fifo {
  */
 #define k_fifo_put(fifo, data) \
 	({ \
-	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_fifo, put, fifo, data); \
-	k_queue_append(&(fifo)->_queue, data); \
-	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, put, fifo, data); \
+	void *_data = data; \
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_fifo, put, fifo, _data); \
+	k_queue_append(&(fifo)->_queue, _data); \
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, put, fifo, _data); \
 	})
 
 /**
@@ -2567,9 +2568,10 @@ struct k_fifo {
  */
 #define k_fifo_alloc_put(fifo, data) \
 	({ \
-	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_fifo, alloc_put, fifo, data); \
-	int fap_ret = k_queue_alloc_append(&(fifo)->_queue, data); \
-	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, alloc_put, fifo, data, fap_ret); \
+	void *_data = data; \
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_fifo, alloc_put, fifo, _data); \
+	int fap_ret = k_queue_alloc_append(&(fifo)->_queue, _data); \
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_fifo, alloc_put, fifo, _data, fap_ret); \
 	fap_ret; \
 	})
 
@@ -2766,9 +2768,10 @@ struct k_lifo {
  */
 #define k_lifo_put(lifo, data) \
 	({ \
-	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_lifo, put, lifo, data); \
-	k_queue_prepend(&(lifo)->_queue, data); \
-	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, put, lifo, data); \
+	void *_data = data; \
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_lifo, put, lifo, _data); \
+	k_queue_prepend(&(lifo)->_queue, _data); \
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, put, lifo, _data); \
 	})
 
 /**
@@ -2789,9 +2792,10 @@ struct k_lifo {
  */
 #define k_lifo_alloc_put(lifo, data) \
 	({ \
-	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_lifo, alloc_put, lifo, data); \
-	int lap_ret = k_queue_alloc_prepend(&(lifo)->_queue, data); \
-	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, alloc_put, lifo, data, lap_ret); \
+	void *_data = data; \
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_lifo, alloc_put, lifo, _data); \
+	int lap_ret = k_queue_alloc_prepend(&(lifo)->_queue, _data); \
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_lifo, alloc_put, lifo, _data, lap_ret); \
 	lap_ret; \
 	})
 
@@ -3606,6 +3610,22 @@ int k_work_queue_drain(struct k_work_q *queue, bool plug);
  */
 int k_work_queue_unplug(struct k_work_q *queue);
 
+/** @brief Stop a work queue.
+ *
+ * Stops the work queue thread and ensures that no further work will be processed.
+ * This call is blocking and guarantees that the work queue thread has terminated
+ * cleanly if successful, no work will be processed past this point.
+ *
+ * @param queue Pointer to the queue structure.
+ * @param timeout Maximum time to wait for the work queue to stop.
+ *
+ * @retval 0 if the work queue was stopped
+ * @retval -EALREADY if the work queue was not started (or already stopped)
+ * @retval -EBUSY if the work queue is actively processing work items
+ * @retval -ETIMEDOUT if the work queue did not stop within the stipulated timeout
+ */
+int k_work_queue_stop(struct k_work_q *queue, k_timeout_t timeout);
+
 /** @brief Initialize a delayable work structure.
  *
  * This must be invoked before scheduling a delayable work structure for the
@@ -3915,6 +3935,8 @@ enum {
 	K_WORK_QUEUE_DRAIN = BIT(K_WORK_QUEUE_DRAIN_BIT),
 	K_WORK_QUEUE_PLUGGED_BIT = 3,
 	K_WORK_QUEUE_PLUGGED = BIT(K_WORK_QUEUE_PLUGGED_BIT),
+	K_WORK_QUEUE_STOP_BIT = 4,
+	K_WORK_QUEUE_STOP = BIT(K_WORK_QUEUE_STOP_BIT),
 
 	/* Static work queue flags */
 	K_WORK_QUEUE_NO_YIELD_BIT = 8,

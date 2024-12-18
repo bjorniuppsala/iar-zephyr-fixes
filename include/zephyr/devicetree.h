@@ -899,6 +899,17 @@
 	DT_CAT5(node_id, _P_, prop, _IDX_, idx)
 
 /**
+ * @brief Get the last element of an array type property
+ *
+ * @param node_id node identifier
+ * @param prop lowercase-and-underscores property name
+ *
+ * @return a representation of the last element of the property
+ */
+#define DT_PROP_LAST(node_id, prop) \
+	DT_PROP_BY_IDX(node_id, prop, UTIL_DEC(DT_PROP_LEN(node_id, prop)))
+
+/**
  * @brief Like DT_PROP(), but with a fallback to @p default_value
  *
  * If the value exists, this expands to DT_PROP(node_id, prop).
@@ -5242,5 +5253,6 @@
 #include <zephyr/devicetree/can.h>
 #include <zephyr/devicetree/reset.h>
 #include <zephyr/devicetree/mbox.h>
+#include <zephyr/devicetree/port-endpoint.h>
 
 #endif /* ZEPHYR_INCLUDE_DEVICETREE_H_ */

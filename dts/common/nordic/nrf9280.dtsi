@@ -74,6 +74,10 @@
 	reserved-memory {
 		#address-cells = <1>;
 		#size-cells = <1>;
+
+		suit_storage_partition: memory@e6b7000 {
+			reg = <0xe6b7000 DT_SIZE_K(40)>;
+		};
 	};
 
 	clocks {
@@ -149,7 +153,7 @@
 			ranges = <0x0 0x52000000 0x1000000>;
 
 			cpuapp_hsfll: clock@d000 {
-				compatible = "nordic,nrf-hsfll";
+				compatible = "nordic,nrf-hsfll-local";
 				#clock-cells = <0>;
 				reg = <0xd000 0x1000>;
 				clocks = <&fll16m>;
@@ -201,7 +205,7 @@
 			ranges = <0x0 0x53000000 0x1000000>;
 
 			cpurad_hsfll: clock@d000 {
-				compatible = "nordic,nrf-hsfll";
+				compatible = "nordic,nrf-hsfll-local";
 				#clock-cells = <0>;
 				reg = <0xd000 0x1000>;
 				clocks = <&fll16m>;

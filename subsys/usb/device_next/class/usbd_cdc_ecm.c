@@ -164,7 +164,6 @@ static struct net_buf *cdc_ecm_buf_alloc(const uint8_t ep)
 	}
 
 	bi = udc_get_buf_info(buf);
-	memset(bi, 0, sizeof(struct udc_buf_info));
 	bi->ep = ep;
 
 	return buf;
@@ -449,7 +448,6 @@ static int usbd_cdc_ecm_init(struct usbd_class_data *const c_data)
 	const uint8_t if_num = desc->if0.bInterfaceNumber;
 
 	/* Update relevant b*Interface fields */
-	desc->iad.bFirstInterface = if_num;
 	desc->if0_union.bControlInterface = if_num;
 	desc->if0_union.bSubordinateInterface0 = if_num + 1;
 	LOG_DBG("CDC ECM class initialized");
