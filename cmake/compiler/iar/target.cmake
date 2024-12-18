@@ -134,7 +134,6 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
     --cpu=${ICCARM_CPU}
     --no_var_align
     --no_const_align
-    --zephyr
 
     -DRTT_USE_ASM=0       #WA for VAAK-232
 

@@ -88,7 +88,7 @@ set_property(TARGET compiler-cpp PROPERTY no_rtti --no_rtti)
 set_compiler_property(PROPERTY coverage)
 
 # Security canaries flags.
-set_compiler_property(PROPERTY security_canaries --stack_protection)
+set_compiler_property(PROPERTY security_canaries --stack_protection --zephyr)
 
 set_compiler_property(PROPERTY security_fortify)
 
