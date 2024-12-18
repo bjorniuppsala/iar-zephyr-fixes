@@ -73,6 +73,9 @@ set(ZEPHYR_LINK_STAGE_EXECUTABLE zephyr_pre${ZEPHYR_CURRENT_LINKER_PASS})
 
 #ensure that autoconf #defines are available to the linker script generator
 zephyr_linker_include_generated(FILE ${CMAKE_CURRENT_BINARY_DIR}/zephyr/include/generated/zephyr/autoconf.h)
+#the linker generator also needs sections.h to be able to access e.g. _APP_SMEM_SECTION_NAME
+#for linkerscripts that do not support c-preprocessing.
+zephyr_linker_include_generated(FILE ${ZEPHYR_BASE}/include/zephyr/linker/sections.h)
 
 # ZEPHYR_PREBUILT_EXECUTABLE is used outside of this file, therefore keep the
 # existing variable to allow slowly cleanup of linking stage handling.
@@ -1234,10 +1237,9 @@ if(CONFIG_USERSPACE)
   set(APP_SMEM_UNALIGNED_LIB app_smem_unaligned_output_obj_renamed_lib)
   list(APPEND LINKER_PASS_${ZEPHYR_CURRENT_LINKER_PASS}_DEFINE "LINKER_APP_SMEM_UNALIGNED")
   
-  foreach(dep ${APP_SMEM_ALIGNED_LD} ${APP_SMEM_UNALIGNED_LD} ${APP_SMEM_PINNED_ALIGNED_LD} ${APP_SMEM_PINNED_UNALIGNED_LD})
-    zephyr_linker_include_generated(FILE ${dep})
+  foreach(dep ${APP_SMEM_UNALIGNED_LD} ${APP_SMEM_PINNED_UNALIGNED_LD})
+    zephyr_linker_include_generated(FILE ${dep} PASS LINKER_APP_SMEM_UNALIGNED)
   endforeach()
-
 
   add_custom_command(
     OUTPUT ${APP_SMEM_ALIGNED_LD} ${APP_SMEM_PINNED_ALIGNED_LD}
@@ -1258,6 +1260,9 @@ if(CONFIG_USERSPACE)
     COMMAND_EXPAND_LISTS
     COMMENT "Generating app_smem_aligned linker section"
     )
+    foreach(dep ${APP_SMEM_ALIGNED_LD} ${APP_SMEM_PINNED_ALIGNED_LD})
+      zephyr_linker_include_generated(FILE ${dep} PASS NOT LINKER_APP_SMEM_UNALIGNED)
+    endforeach()
 endif()
 
 if(CONFIG_USERSPACE)
