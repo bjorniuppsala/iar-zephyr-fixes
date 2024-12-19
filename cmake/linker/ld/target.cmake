@@ -39,7 +39,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
         -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
         -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
         -P ${ZEPHYR_BASE}/cmake/linker/ld/ld_script.cmake
-        --trace-expand --trace-redirect=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.cmaketrace
+        #--trace-expand --trace-redirect=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.cmaketrace
     )
   else()
     set(template_script_defines ${linker_pass_define})

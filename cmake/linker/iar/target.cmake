@@ -54,7 +54,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
       ${IAR_LIB_USED}
       -P ${ZEPHYR_BASE}/cmake/linker/iar/config_file_script.cmake
-      --trace-expand --trace-redirect=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.cmaketrace
+      #--trace-expand --trace-redirect=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}.cmaketrace
   )
 
 endmacro()
