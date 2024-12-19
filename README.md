@@ -1,9 +1,7 @@
-This is a IAR internal fork of zephyr for internal and partner use.
-It contains the required cmake/toolchain files necessary to compile, build and run zephyr projects using IAR compiler and linker.
-It also contains patches improving zephyrs compatibility with non-GNU compilers. But we are working on upstreaming these patches.
+This is an IAR internal fork of Zephyr for internal and partner use. It contains the required CMake/toolchain files necessary to compile, build and run zephyr projects using IAR compiler and linker. It also contains patches improving Zephyr's compatibility with non-GNU compilers, and we are aiming for upstreaming these patches.
 
 Currently we are supporting selected ARM Cortex-M targets.
-Since we are using the `CMAKE_LINKER_GENERATOR` mechanism to integrate ilink this means that configurations and modules not supported by `CMAKE_LINKER_GENERATOR` is not supported.
+Since we are using the `CMAKE_LINKER_GENERATOR` mechanism to integrate ilink, this means that configurations and modules not supported by `CMAKE_LINKER_GENERATOR`, are not supported.
 (e.g. `CONFIG_USERSPACE`)
 
 
@@ -34,7 +32,7 @@ Additionally, the following plaforms/boards have passed twister tests `--level a
 
 ## Obtaining an IAR Toolchain
 
-A Development version of the IAR build tools for Arm is required to work with this fork. It will be continuously updated, and you find it in the [GitHub Releases](https://github.com/iarsystems/zephyr/releases) section.
+A Development version of the IAR build tools for Arm is required to work with this fork. It will be continuously updated, and you find it in the [GitHub Releases](https://github.com/iarsystems/zephyr/releases) section (available soon).
 
 To run the tools, a *Bearer Token* is required for authentication and authorization. It will be distributed to partners together with installation instructions. If there are any issues with this, please contact our FAE team at fae.emea@iar.com and they will assist.
 
@@ -72,9 +70,9 @@ $ zephyr/iar_init_zephyr.sh
 
 * Creates a new or resumes an existing docker container as identified by `<container-name>`
 * `[<iar-toolchain-path>]` (optional) is the path to an IAR toolchain
-* `[device]` (optional) requires HW attached via usb that uses /dev/ttyACM0 as serial
+* `[device]` (optional) requires HW attached via USB that uses /dev/ttyACM0 as serial
 
-The folling will look for a toolchain in the standard IAR install directory:
+The following will look for a toolchain in the standard IAR install directory:
 
 ```
 $ cd iar-zephyrproject
