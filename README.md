@@ -32,7 +32,7 @@ Additionally, the following plaforms/boards have passed twister tests `--level a
 
 ## Obtaining an IAR Toolchain
 
-A Development version of the IAR build tools for Arm is required to work with this fork. It will be continuously updated, and you find it in the [GitHub Releases](https://github.com/iarsystems/zephyr/releases) section (available soon).
+A Development version of the IAR build tools for Arm is required to work with this fork. It will be continuously updated, and you find it in the [GitHub Releases](https://github.com/iarsystems/zephyr/releases) section.
 
 To run the tools, a *Bearer Token* is required for authentication and authorization. It will be distributed to partners together with installation instructions. If there are any issues with this, please contact our FAE team at fae.emea@iar.com and they will assist.
 
