@@ -32,11 +32,11 @@ function(process_region)
     if(NOT nosymbols)
       if(${name} STREQUAL .ramfunc)
         create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_load_start
-          EXPR "(@.textrw_init$$Base@)"
+          EXPR "@ADDR(.textrw_init)@"
           )
       else()
         create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_load_start
-          EXPR "(@Load$$${name_clean}$$Base@)"
+          EXPR "@LOADADDR(${name_clean})@"
           )
       endif()
     endif()
@@ -68,12 +68,12 @@ function(process_region)
 
     if("${symbol_val}" STREQUAL "${name_clean}")
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_size
-        EXPR "(@${name_clean}${ZI}$$Length@)"
+        EXPR "@SIZE(${name_clean}${ZI})@"
         )
     else()
       # These seem to be thing that can't be transformed to $$Length
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_size
-        EXPR "(@${symbol_val}${ZI}$$Limit@ - @${name_clean}${ZI}$$Base@)"
+        EXPR "(@END(${symbol_val}${ZI})@ - @ADDR(${name_clean}${ZI})@)"
         )
 
     endif()
@@ -83,7 +83,7 @@ function(process_region)
       # A trick to add the symbol for the nxp devices
       # _flash_used = LOADADDR(.last_section) + SIZEOF(.last_section) - __rom_region_start;
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL _flash_used
-        EXPR "(@Load$$last_section$$Base@ + @last_section$$Length@ - @__rom_region_start@)"
+        EXPR "(@LOADADDR(last_section)@ + @SIZE(last_section)@ - @__rom_region_start@)"
         )
     endif()
 
@@ -91,10 +91,10 @@ function(process_region)
       # The below two symbols is meant to make aliases to the _vector_table symbol.
       list(GET symbols 0 symbol_start)
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __Vectors
-        EXPR "(@${symbol_start}$$Base@)"
+        EXPR "@ADDR(${symbol_start})@"
         )
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __vector_table
-        EXPR "(@${symbol_start}$$Base@)"
+        EXPR "@ADDR(${symbol_start})@"
         )
     endif()
 
@@ -112,17 +112,17 @@ function(process_region)
     get_property(last_section_name GLOBAL PROPERTY ${section}_NAME_CLEAN)
 
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_load_start
-      EXPR "(@Load$$${first_section_name}$$Base@)"
+      EXPR "@LOADADDR(${first_section_name})@"
       )
 
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_start
-      EXPR "(@${first_section_name}$$Base@)"
+      EXPR "@ADDR(${first_section_name})@"
       )
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_end
-      EXPR "(@${last_section_name}$$Limit@)"
+      EXPR "@END(${last_section_name})@"
       )
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_size
-      EXPR "(@${last_section_name}$$Limit@ - @${first_section_name}$$Base@)"
+      EXPR "(@END(${last_section_name})@ - @ADDR(${first_section_name}))@"
       )
 
   endforeach()
@@ -133,7 +133,7 @@ function(process_region)
     get_property(expr GLOBAL PROPERTY ${symbol}_EXPR)
     if(NOT DEFINED expr)
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_size
-        EXPR "(@${name}$$Base@)"
+        EXPR "@(ADDR(${name})@"
         )
     endif()
   endforeach()
@@ -451,10 +451,10 @@ function(section_to_string)
   endif()
 
   foreach(start_symbol ${start_syms})
-    set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${start_symbol} = (${name_clean}$$Base)")
+    set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${start_symbol} = ADDR(${name_clean})")
   endforeach()
   foreach(end_symbol ${end_syms})
-    set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${end_symbol} = (${name_clean}$$Limit)")
+    set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${end_symbol} = END(${name_clean})")
   endforeach()
 
   if(NOT nosymbols)
@@ -462,8 +462,8 @@ function(section_to_string)
       set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_start = (__iar_tls$$INIT_DATA$$Base)")
       set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_end = (__iar_tls$$INIT_DATA$$Limit)")
     else()
-      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_start = (${name_clean}$$Base)")
-      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_end = (${name_clean}$$Limit)")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_start = ADDR(${name_clean})")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "__${name_clean}_end = END(${name_clean})")
     endif()
   endif()
 
@@ -527,10 +527,7 @@ function(section_to_string)
     set(block_attr)
     set(block_attr_str)
 
-    set(TEMP "${TEMP}\n  {")
-    set(TEMP "${TEMP}\n   section ${name},")
-    set(TEMP "${TEMP}\n   section ${name}.*")
-    set(TEMP "${TEMP}\n  }")
+    set(TEMP "${TEMP} { ${part}section ${name}, ${part}section ${name}.* }")
     if (${length} GREATER 0)
       set(TEMP "${TEMP},")
     endif()
@@ -563,7 +560,7 @@ function(section_to_string)
     if(DEFINED symbol_start)
       # set(TEMP "${TEMP}\n  section ${symbol_start},")
       # set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${symbol_start}")
-      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_start} = (${name_clean}_${idx}$$Base)")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_start} = ADDR(${name_clean}_${idx})")
     endif()
 
     if(DEFINED first_index AND first_index EQUAL ${idx})
@@ -712,7 +709,7 @@ function(section_to_string)
     if(DEFINED symbol_end)
       # set(TEMP "${TEMP},\n  section ${symbol_end}")
       # set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${symbol_end}")
-      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_end} = (${name_clean}_${idx}$$Limit)")
+      set_property(GLOBAL APPEND PROPERTY ILINK_SYMBOL_ICF "${symbol_end} = END(${name_clean}_${idx})")
     endif()
     if (${length} GREATER 0)
       if(NOT "${idx}" STREQUAL "${last_index}")
@@ -793,7 +790,7 @@ function(symbol_to_string)
         "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
         )
     else()
-      if(expr MATCHES "Base|Limit|Length")
+      if((expr MATCHES "Base|Limit|Length") OR (expr MATCHES "ADDR\\(|END\\(|SIZE\\("))
         # Anything like $$Base/$$Limit/$$Length should be an image symbol
         if( "${symbol}" STREQUAL "__tdata_size")
           # This will handle the alignment of the TBSS block
@@ -830,7 +827,7 @@ function(symbol_to_string)
   else()
     # Handle things like ADDR(.ramfunc)
     if(${expr} MATCHES "^[A-Za-z]?ADDR\\(.+\\)")
-      string(REGEX REPLACE "^[A-Za-z]?ADDR\\((.+)\\)" "(\\1$$Base)" expr ${expr})
+      # string(REGEX REPLACE "^[A-Za-z]?ADDR\\((.+)\\)" "(\\1$$Base)" expr ${expr})
       set(${STRING_STRING}
         "${${STRING_STRING}}define image symbol ${symbol} = ${expr};\n"
         )
