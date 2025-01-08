@@ -1787,7 +1787,6 @@ Release Notes:
   maintainers:
     - simonguinot
   collaborators:
-    - mbolivar-ampere
     - soburi
     - thedjnK
   files:
@@ -4027,6 +4026,7 @@ STM32 Platforms:
     - GeorgeCGV
     - marwaiehm-st
     - mathieuchopstm
+    - djiatsaf-st
   files:
     - boards/st/
     - drivers/*/*stm32*.c
@@ -4518,7 +4518,7 @@ West:
   maintainers:
     - pdgendt
   collaborators:
-    - mbolivar-ampere
+    - mbolivar
     - carlescufi
     - swinslow
   files:

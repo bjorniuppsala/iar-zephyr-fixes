@@ -1154,9 +1154,7 @@ static int cmd_wifi_status(const struct shell *sh, size_t argc, char *argv[])
 		PR("DTIM: %d\n", status.dtim_period);
 		PR("TWT: %s\n",
 		   status.twt_capable ? "Supported" : "Not supported");
-		PR("Current PHY TX rate (Mbps) : %d.%03d\n",
-		   status.current_phy_tx_rate / 1000,
-		   status.current_phy_tx_rate % 1000);
+		PR("Current PHY TX rate (Mbps) : %d\n", status.current_phy_tx_rate);
 	}
 
 	return 0;
@@ -2108,6 +2106,40 @@ static int cmd_wifi_ap_config_params(const struct shell *sh, size_t argc,
 			   strerror(-ret));
 		return -ENOEXEC;
 	}
+
+	return 0;
+}
+
+static int cmd_wifi_ap_set_rts_threshold(const struct shell *sh, size_t argc, char *argv[])
+{
+	struct net_if *iface = net_if_get_wifi_sap();
+	unsigned int rts_threshold = -1; /* Default value if user supplies "off" argument */
+	int err = 0;
+
+	context.sh = sh;
+
+	if (strcmp(argv[1], "off") != 0) {
+		long rts_val = shell_strtol(argv[1], 10, &err);
+
+		if (err) {
+			shell_error(sh, "Unable to parse input (err %d)", err);
+			return err;
+		}
+
+		rts_threshold = (unsigned int)rts_val;
+	}
+
+	if (net_mgmt(NET_REQUEST_WIFI_AP_RTS_THRESHOLD, iface,
+		     &rts_threshold, sizeof(rts_threshold))) {
+		shell_fprintf(sh, SHELL_WARNING,
+			      "Setting RTS threshold failed.\n");
+		return -ENOEXEC;
+	}
+
+	if ((int)rts_threshold >= 0)
+		shell_fprintf(sh, SHELL_NORMAL, "RTS threshold: %d\n", rts_threshold);
+	else
+		shell_fprintf(sh, SHELL_NORMAL, "RTS threshold is off\n");
 
 	return 0;
 }
@@ -3426,6 +3458,12 @@ SHELL_STATIC_SUBCMD_SET_CREATE(
 		      "[pin] Only applicable for set.\n",
 		      cmd_wifi_ap_wps_pin, 1, 1),
 	SHELL_CMD_ARG(status, NULL, "Status of Wi-Fi SAP\n", cmd_wifi_ap_status, 1, 0),
+	SHELL_CMD_ARG(rts_threshold,
+		  NULL,
+		  "<rts_threshold: rts threshold/off>.\n",
+		  cmd_wifi_ap_set_rts_threshold,
+		  2,
+		  0),
 	SHELL_SUBCMD_SET_END);
 
 SHELL_SUBCMD_ADD((wifi), ap, &wifi_cmd_ap,

@@ -165,6 +165,8 @@ static int flash_sync(struct stream_flash_ctx *ctx)
 		return rc;
 	}
 
+#if defined(CONFIG_STREAM_FLASH_POST_WRITE_CALLBACK)
+
 	if (ctx->callback) {
 		/* Invert to ensure that caller is able to discover a faulty
 		 * flash_read() even if no error code is returned.
@@ -186,6 +188,8 @@ static int flash_sync(struct stream_flash_ctx *ctx)
 			return rc;
 		}
 	}
+
+#endif
 
 	ctx->bytes_written += ctx->buf_bytes;
 	ctx->buf_bytes = 0U;
@@ -272,15 +276,6 @@ int stream_flash_init(struct stream_flash_ctx *ctx, const struct device *fdev,
 		return -EFAULT;
 	}
 
-#ifdef CONFIG_STREAM_FLASH_PROGRESS
-	int rc = settings_subsys_init();
-
-	if (rc != 0) {
-		LOG_ERR("Error %d initializing settings subsystem", rc);
-		return rc;
-	}
-#endif
-
 	struct _inspect_flash inspect_flash_ctx = {
 		.buf_len = buf_len,
 		.total_size = 0
@@ -317,7 +312,12 @@ int stream_flash_init(struct stream_flash_ctx *ctx, const struct device *fdev,
 	ctx->offset = offset;
 	ctx->available = (size == 0 ? inspect_flash_ctx.total_size - offset :
 				      size);
+
+#if !defined(CONFIG_STREAM_FLASH_POST_WRITE_CALLBACK)
+	ARG_UNUSED(cb);
+#else
 	ctx->callback = cb;
+#endif
 
 #ifdef CONFIG_STREAM_FLASH_ERASE
 	ctx->last_erased_page_start_offset = -1;
@@ -328,6 +328,15 @@ int stream_flash_init(struct stream_flash_ctx *ctx, const struct device *fdev,
 }
 
 #ifdef CONFIG_STREAM_FLASH_PROGRESS
+static int stream_flash_settings_init(void)
+{
+	int rc = settings_subsys_init();
+
+	if (rc != 0) {
+		LOG_ERR("Error %d initializing settings subsystem", rc);
+	}
+	return rc;
+}
 
 int stream_flash_progress_load(struct stream_flash_ctx *ctx,
 			       const char *settings_key)
@@ -336,9 +345,12 @@ int stream_flash_progress_load(struct stream_flash_ctx *ctx,
 		return -EFAULT;
 	}
 
-	int rc = settings_load_subtree_direct(settings_key,
-					      settings_direct_loader,
-					      (void *) ctx);
+	int rc = stream_flash_settings_init();
+
+	if (rc == 0) {
+		rc = settings_load_subtree_direct(settings_key, settings_direct_loader,
+						  (void *)ctx);
+	}
 
 	if (rc != 0) {
 		LOG_ERR("Error %d while loading progress for \"%s\"",
@@ -355,9 +367,12 @@ int stream_flash_progress_save(const struct stream_flash_ctx *ctx,
 		return -EFAULT;
 	}
 
-	int rc = settings_save_one(settings_key,
-				   &ctx->bytes_written,
-				   sizeof(ctx->bytes_written));
+	int rc = stream_flash_settings_init();
+
+	if (rc == 0) {
+		rc = settings_save_one(settings_key, &ctx->bytes_written,
+				       sizeof(ctx->bytes_written));
+	}
 
 	if (rc != 0) {
 		LOG_ERR("Error %d while storing progress for \"%s\"",
@@ -374,7 +389,11 @@ int stream_flash_progress_clear(const struct stream_flash_ctx *ctx,
 		return -EFAULT;
 	}
 
-	int rc = settings_delete(settings_key);
+	int rc = stream_flash_settings_init();
+
+	if (rc == 0) {
+		rc = settings_delete(settings_key);
+	}
 
 	if (rc != 0) {
 		LOG_ERR("Error %d while deleting progress for \"%s\"",
