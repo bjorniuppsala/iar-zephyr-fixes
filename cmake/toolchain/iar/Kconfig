@@ -9,10 +9,6 @@ choice LINKER_SCRIPT
 	default CMAKE_LINKER_GENERATOR
 endchoice
 
-config STACK_CANARIES
-	bool
-	default n
-
 config TOOLCHAIN_IAR_SUPPORTS_USERSPACE
 	def_bool n
 	select TOOLCHAIN_SUPPORTS_USERSPACE
