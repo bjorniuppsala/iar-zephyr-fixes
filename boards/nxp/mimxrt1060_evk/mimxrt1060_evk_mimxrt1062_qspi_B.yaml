@@ -12,7 +12,6 @@ toolchain:
   - zephyr
   - gnuarmemb
   - xtools
-  - iar
 ram: 32768
 flash: 8192
 supported:
