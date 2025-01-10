@@ -8,7 +8,6 @@ toolchain:
   - zephyr
   - gnuarmemb
   - xtools
-  - iar
 ram: 16
 flash: 256
 testing:
