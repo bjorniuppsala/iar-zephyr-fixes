@@ -9,8 +9,8 @@ find_program(CMAKE_LINKER
 )
 
 add_custom_target(${IAR_LINKER})
-
-function(toolchain_ld_force_undefined_symbols)
+set(ILINK_THUMB_CALLS_WARNING_SUPPRESSED)
+function(toolchain_ld_force_undefined_symbols "")
 #  foreach(symbol ${ARGN})
 #    zephyr_link_libraries(--place_holder=${symbol})
 #  endforeach()
@@ -24,7 +24,11 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
   set(cmake_linker_script_settings
       ${PROJECT_BINARY_DIR}/include/generated/ld_script_settings_${linker_pass_define}.cmake
   )
-
+  if ( "${linker_pass_define}" STREQUAL "LINKER_ZEPHYR_PREBUILT" )
+    set(ILINK_THUMB_CALLS_WARNING_SUPPRESSED "--diag_suppress=Lt056")
+  else()
+    set(ILINK_THUMB_CALLS_WARNING_SUPPRESSED "")
+  endif()
   file(GENERATE OUTPUT ${cmake_linker_script_settings} CONTENT
        "set(FORMAT \"$<TARGET_PROPERTY:linker,FORMAT>\" CACHE INTERNAL \"\")\n
         set(ENTRY \"$<TARGET_PROPERTY:linker,ENTRY>\" CACHE INTERNAL \"\")\n
@@ -106,6 +110,7 @@ function(toolchain_ld_link_elf)
     ${ILINK_BUFFERED_WRITE}
     ${ILINK_TLS_LIBRARY}
     ${ILINK_TZONE_LIBRARY}
+    ${ILINK_THUMB_CALLS_WARNING_SUPPRESSED}
     # Do not remove symbols
     #--no_remove
     ${ILINK_XCL}
