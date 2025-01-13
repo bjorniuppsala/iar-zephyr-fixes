@@ -1,6 +1,4 @@
 /*
- * Copyright (c) 2022 IAR Systems AB
- *
  * SPDX-License-Identifier: Apache-2.0
  */
 
