@@ -75,7 +75,7 @@ function(process_region)
     else()
       # These seem to be thing that can't be transformed to $$Length
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_size
-        EXPR "(@END(${symbol_val}${ZI})@ - @ADDR(${name_clean}${ZI})@)"
+        EXPR "(@ADDR(${symbol_val}${ZI})@ - @ADDR(${name_clean}${ZI})@)"
         )
 
     endif()
@@ -124,7 +124,7 @@ function(process_region)
       EXPR "@END(${last_section_name})@"
       )
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_size
-      EXPR "(@END(${last_section_name})@ - @ADDR(${first_section_name}))@"
+      EXPR "(@(__${name}_end)@ - @(__${name}_start)@)"
       )
 
   endforeach()
