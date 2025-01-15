@@ -317,8 +317,11 @@ function(group_to_string)
       # message(FATAL_ERROR "Need either vma or lma")
     endif()
 
-    set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
-
+    if("${name_clean}" STREQUAL "k_heap_area" AND (IAR_LIBC))  # These defines are not available, TBD: Find what works
+        set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block HEAP };\n")
+    else()
+      set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
+    endif()
   endforeach()
 
   get_parent(OBJECT ${STRING_OBJECT} PARENT parent TYPE SYSTEM)
@@ -485,7 +488,15 @@ function(section_to_string)
     set(TEMP "${TEMP}${first_index_section}\n")
   endif()
 
-  set(TEMP "${TEMP}define block ${name_clean} with fixed order")
+  if("${name_clean}" STREQUAL "k_heap_area") # Add check that size is not specified with a define CONFIG_HEAP_MEM_POOL_SIZE=xxxx
+    if (IAR_LIBC)  # These defines are not available, TBD: Find what works
+      set(TEMP "${TEMP}define block HEAP with fixed order, expanding size")
+    else()
+      set(TEMP "${TEMP}define block ${name_clean} with fixed order, expanding size")
+    endif()
+  else()
+    set(TEMP "${TEMP}define block ${name_clean} with fixed order")
+  endif()
   if (align)
     set(TEMP "${TEMP}, alignment=${align}")
   else()

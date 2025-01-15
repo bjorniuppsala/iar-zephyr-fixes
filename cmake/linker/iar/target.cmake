@@ -10,6 +10,7 @@ find_program(CMAKE_LINKER
 
 add_custom_target(${IAR_LINKER})
 set(ILINK_THUMB_CALLS_WARNING_SUPPRESSED)
+set(IAR_LIB_USED)
 function(toolchain_ld_force_undefined_symbols "")
 #  foreach(symbol ${ARGN})
 #    zephyr_link_libraries(--place_holder=${symbol})
@@ -29,6 +30,12 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
   else()
     set(ILINK_THUMB_CALLS_WARNING_SUPPRESSED "")
   endif()
+  if ( CONFIG_IAR_LIBC OR CONFIG_IAR_LIBCPP )
+    set(IAR_LIB_USED "-DIAR_LIBC=1")
+  else()
+    set(IAR_LIB_USED "")
+  endif()
+
   file(GENERATE OUTPUT ${cmake_linker_script_settings} CONTENT
        "set(FORMAT \"$<TARGET_PROPERTY:linker,FORMAT>\" CACHE INTERNAL \"\")\n
         set(ENTRY \"$<TARGET_PROPERTY:linker,ENTRY>\" CACHE INTERNAL \"\")\n
@@ -53,6 +60,7 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
       -DCONFIG_LINKER_LAST_SECTION_ID=${CONFIG_LINKER_LAST_SECTION_ID}
       -DCONFIG_LINKER_LAST_SECTION_ID_PATTERN=${CONFIG_LINKER_LAST_SECTION_ID_PATTERN}
       -DOUT_FILE=${CMAKE_CURRENT_BINARY_DIR}/${linker_script_gen}
+      ${IAR_LIB_USED}
       -P ${ZEPHYR_BASE}/cmake/linker/iar/config_file_script.cmake
   )
 
