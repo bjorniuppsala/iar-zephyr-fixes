@@ -13,6 +13,8 @@ function(process_region)
 
   process_region_common(${ARGN})
 
+  set_property(GLOBAL PROPERTY ILINK_REGION_SYMBOL_ICF)
+
   get_property(empty GLOBAL PROPERTY ${REGION_OBJECT}_EMPTY)
   if(NOT empty)
     # For scatter files we move any system symbols into first non-empty load section.
@@ -74,9 +76,8 @@ function(process_region)
         )
     else()
       # These seem to be thing that can't be transformed to $$Length
-      create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_size
-        EXPR "(@${symbol_val}${ZI}@ - @ADDR(${name_clean}${ZI})@)"
-        )
+      set_property(GLOBAL APPEND PROPERTY ILINK_REGION_SYMBOL_ICF
+        "(${symbol_val}${ZI} - ADDR(${name_clean}${ZI}))")
 
     endif()
     set(ZI)
@@ -241,6 +242,11 @@ function(system_to_string)
   set(${STRING_STRING} "${${STRING_STRING}}\n")
 
   get_property(symbols_icf GLOBAL PROPERTY ILINK_SYMBOL_ICF)
+  foreach(image_symbol ${symbols_icf})
+    set(${STRING_STRING} "${${STRING_STRING}}define image symbol ${image_symbol};\n")
+  endforeach()
+
+  get_property(symbols_icf GLOBAL PROPERTY ILINK_REGION_SYMBOL_ICF)
   foreach(image_symbol ${symbols_icf})
     set(${STRING_STRING} "${${STRING_STRING}}define image symbol ${image_symbol};\n")
   endforeach()
