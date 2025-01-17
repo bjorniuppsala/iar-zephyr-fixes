@@ -59,6 +59,7 @@ zephyr_linker_group(NAME RAM_REGION VMA RAM LMA ROM_REGION)
 zephyr_linker_group(NAME TEXT_REGION GROUP ROM_REGION SYMBOL SECTION)
 zephyr_linker_group(NAME RODATA_REGION GROUP ROM_REGION)
 zephyr_linker_group(NAME DATA_REGION GROUP RAM_REGION SYMBOL SECTION)
+zephyr_linker_group(NAME NOINIT_REGION GROUP RAM_REGION SYMBOL SECTION)
 
 # should go to a relocation.cmake - from include/linker/rel-sections.ld - start
 zephyr_linker_section(NAME  .rel.plt  HIDDEN)
@@ -82,45 +83,7 @@ zephyr_linker_section(NAME .text         GROUP TEXT_REGION)
 zephyr_linker_section_configure(SECTION .rel.plt  INPUT ".rel.iplt")
 zephyr_linker_section_configure(SECTION .rela.plt INPUT ".rela.iplt")
 
-if(CONFIG_USERSPACE)
-  zephyr_linker_section_configure(
-    SECTION
-    .text
-    INPUT
-    ".kobject_data.literal*"
-    ".kobject_data.text*"
-    SYMBOLS
-    _kobject_text_area_start
-    _kobject_text_area_end
-    )
-  zephyr_linker_symbol(
-    SYMBOL
-    _kobject_text_area_used
-    EXPR
-    "(@_kobject_text_area_end@ - @_kobject_text_area_start@)"
-    )
-
-  if(CONFIG_DYNAMIC_OBJECTS)
-    zephyr_linker_section_configure(
-      SECTION
-      .text
-      SYMBOLS
-      z_object_gperf_find
-      z_object_gperf_wordlist_foreach
-      PASS NOT LINKER_ZEPHYR_FINAL
-      )
-  else()
-    zephyr_linker_section_configure(
-      SECTION
-      .text
-      SYMBOLS
-      k_object_find
-      k_object_wordlist_foreach
-      PASS NOT LINKER_ZEPHYR_FINAL
-      )
-  endif()
-
-endif()
+include(${COMMON_ZEPHYR_LINKER_DIR}/kobject-text.cmake)
 
 zephyr_linker_section_configure(SECTION .text INPUT ".TEXT.*")
 zephyr_linker_section_configure(SECTION .text INPUT ".gnu.linkonce.t.*")
@@ -147,9 +110,9 @@ include(${COMMON_ZEPHYR_LINKER_DIR}/thread-local-storage.cmake)
 
 zephyr_linker_section(NAME .rodata GROUP RODATA_REGION)
 zephyr_linker_section_configure(SECTION .rodata INPUT ".gnu.linkonce.r.*")
-if(CONFIG_USERSPACE AND CONFIG_XIP)
-  zephyr_linker_section_configure(SECTION .rodata INPUT ".kobject_data.rodata*")
-endif()
+
+include(${COMMON_ZEPHYR_LINKER_DIR}/kobject-rom.cmake)
+
 zephyr_linker_section_configure(SECTION .rodata ALIGN 4)
 
 # ToDo - . = ALIGN(_region_min_align);
@@ -277,127 +240,14 @@ if(CONFIG_USERSPACE)
   # section ends on a 4 byte boundary. This wastes a maximum of 3 bytes.
   zephyr_linker_section_configure(SECTION .bss ALIGN 4)
 
-  zephyr_linker_section(NAME .noinit GROUP RAM_REGION TYPE NOLOAD NOINIT)
-
-  zephyr_linker_section_configure(
-    SECTION .noinit
-    INPUT ".user_stacks*"
-    SYMBOLS z_user_stacks_start z_user_stacks_end)
-  if(CONFIG_GEN_PRIV_STACKS)
-    zephyr_linker_section(NAME .priv_stacks_noinit GROUP DATA_REGION NOINPUT)
-    zephyr_linker_section_configure(
-      SECTION .priv_stacks_noinit
-      SYMBOLS z_priv_stacks_ram_start
-      )
-    zephyr_linker_section_configure(
-      SECTION .priv_stacks_noinit
-      INPUT ".priv_stacks.noinit"
-      PASS LINKER_ZEPHYR_FINAL
-      )
-    zephyr_linker_section_configure(
-      SECTION .priv_stacks_noinit
-      SYMBOLS z_priv_stacks_ram_end
-      )
-    if(KOBJECT_PRIV_STACKS_ALIGN)
-      zephyr_linker_symbol(
-        SYMBOL z_priv_stacks_ram_used
-        EXPR "(@z_priv_stacks_ram_end@ - @z_priv_stacks_ram_start@)"
-        PASS LINKER_ZEPHYR_FINAL
-        )
-    endif()
-
-  endif()
+  include(${COMMON_ZEPHYR_LINKER_DIR}/common-noinit.cmake)
 endif()
 
 zephyr_linker_section(NAME .data GROUP DATA_REGION)
 zephyr_linker_section_configure(SECTION .data INPUT ".kernel.*")
 
 include(${COMMON_ZEPHYR_LINKER_DIR}/common-ram.cmake)
-#include(kobject-data.ld
-if(CONFIG_USERSPACE)
-  zephyr_linker_section(NAME kobject_data GROUP ${K_OBJECTS_GROUP} NOINPUT)
-  zephyr_linker_section_configure(
-    SECTION kobject_data
-    SYMBOLS z_kobject_data_begin
-    )
-
-  #if !defined(LINKER_ZEPHYR_PREBUILT) && \
-  # !defined(LINKER_ZEPHYR_FINAL)
-  #ifdef CONFIG_DYNAMIC_OBJECTS
-  #    PROVIDE(_thread_idx_map = .);
-  #    . = . + CONFIG_MAX_THREAD_BYTES;
-  #endif
-  #endif /* !LINKER_ZEPHYR_PREBUILT && !LINKER_ZEPHYR_FINAL */
-  # We want NOT LINKER_ZEPHYR_PREBUILT && NOT LINKER_ZEPHYR_FINAL
-  # But we cant express that since we cna have only one PASS parameter. 
-  # So, just loop over the passes where we do want them and enter them there.
-  if(CONFIG_DYNAMIC_OBJECTS)
-    zephyr_linker_section_configure(
-      SECTION kobject_data
-      SYMBOLS _thread_idx_map
-      PASS NOT LINKER_ZEPHYR_PREBUILT
-      PASS NOT LINKER_ZEPHYR_FINAL
-      )
-    zephyr_linker_section_configure(
-      SECTION kobject_data
-      OFFSET ${CONFIG_MAX_THREAD_BYTES}
-      PASS NOT LINKER_ZEPHYR_PREBUILT
-      PASS NOT LINKER_ZEPHYR_FINAL
-      )
-  endif()
-
-
-  set(KOBJECT_DATA_ALIGN 4)
-  set(KOBJECT_DATA_SZ    0x308)
-
-
-  if(CONFIG_DYNAMIC_OBJECTS)
-    zephyr_linker_section_configure(
-      SECTION kobject_data
-      SYMBOLS _thread_idx_map
-      PASS LINKER_ZEPHYR_PREBUILT
-      )
-  endif()
-  if(KOBJECT_DATA_ALIGN)
-    zephyr_linker_section_configure(
-      SECTION kobject_data
-      ALIGN ${KOBJECT_DATA_ALIGN}
-      OFFSET ${KOBJECT_DATA_SZ}
-      PASS LINKER_ZEPHYR_PREBUILT
-      )
-  endif()
-
-  if(KOBJECT_DATA_ALIGN)
-    zephyr_linker_section_configure(
-      SECTION kobject_data
-      SYMBOLS _kobject_data_area_start
-      ALIGN ${KOBJECT_DATA_ALIGN}
-      #  PASS LINKER_ZEPHYR_FINAL
-      )
-  endif()
-  zephyr_linker_section_configure(
-    SECTION kobject_data
-    INPUT
-    ".kobject_data.data*"
-    ".kobject_data.sdata*"
-    PASS LINKER_ZEPHYR_FINAL
-    )
-  if(KOBJECT_DATA_ALIGN)
-    zephyr_linker_section_configure(
-      SECTION kobject_data
-      SYMBOLS _kobject_data_area_end
-      # PASS LINKER_ZEPHYR_FINAL
-      )
-    zephyr_linker_symbol(
-      SYMBOL
-      _kobject_data_area_used
-      EXPR
-      "(@_kobject_data_area_end@ - @_kobject_data_area_start@)"
-      )
-  endif()
-
-endif()
-
+include(${COMMON_ZEPHYR_LINKER_DIR}/kobject-data.cmake)
 
 if(NOT CONFIG_USERSPACE)
   zephyr_linker_section(NAME .bss VMA RAM LMA FLASH TYPE BSS)
@@ -407,7 +257,7 @@ if(NOT CONFIG_USERSPACE)
   # section ends on a 4 byte boundary. This wastes a maximum of 3 bytes.
   zephyr_linker_section_configure(SECTION .bss ALIGN 4)
 
-  zephyr_linker_section(NAME .noinit GROUP RAM_REGION TYPE NOLOAD NOINIT)
+  zephyr_linker_section(NAME .noinit GROUP NOINIT_REGION TYPE NOLOAD NOINIT)
   # This section is used for non-initialized objects that
   # will not be cleared during the boot process.
   zephyr_linker_section_configure(SECTION .noinit INPUT ".kernel_noinit.*")

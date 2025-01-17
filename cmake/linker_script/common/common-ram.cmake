@@ -29,9 +29,22 @@ if(CONFIG_USERSPACE)
   # initialized at build time, or initialized automatically at runtime
   # via iteration before the POST_KERNEL phase.
   #
-  # These two symbols only used by gen_kobject_list.py
-  #   _static_kernel_objects_begin = .;
   zephyr_linker_group(NAME ${K_OBJECTS_GROUP} GROUP DATA_REGION SYMBOL SECTION)
+
+  # gen_kobject_list.py expects the start and end symbols to be called 
+  # _static_kernel_objects_begin and _static_kernel_objects_end respectively...
+  zephyr_linker_symbol(
+    SYMBOL
+    _static_kernel_objects_begin
+    EXPR
+    "(@__k_objects_in_data_region_start@)"
+    )
+  zephyr_linker_symbol(
+    SYMBOL
+    _static_kernel_objects_end
+    EXPR
+    "(@__k_objects_in_data_region_end@)"
+    )
 else()
   set(K_OBJECTS_GROUP "DATA_REGION")
 endif()
