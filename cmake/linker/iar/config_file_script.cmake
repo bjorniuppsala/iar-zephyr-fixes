@@ -488,12 +488,8 @@ function(section_to_string)
     set(TEMP "${TEMP}${first_index_section}\n")
   endif()
 
-  if("${name_clean}" STREQUAL "k_heap_area") # Add check that size is not specified with a define CONFIG_HEAP_MEM_POOL_SIZE=xxxx
-    if (IAR_LIBC)  # These defines are not available, TBD: Find what works
-      set(TEMP "${TEMP}define block HEAP with fixed order, expanding size")
-    else()
-      set(TEMP "${TEMP}define block ${name_clean} with fixed order, expanding size")
-    endif()
+  if(IAR_LIBC AND ("${name_clean}" STREQUAL "k_heap_area")) # Add check that size is not specified with a define CONFIG_HEAP_MEM_POOL_SIZE=xxxx
+    set(TEMP "${TEMP}define block HEAP with fixed order, expanding size")
   else()
     set(TEMP "${TEMP}define block ${name_clean} with fixed order")
   endif()
