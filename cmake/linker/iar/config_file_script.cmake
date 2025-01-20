@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.17)
 
 set(SORT_TYPE_NAME Lexical)
 
+set_property(GLOBAL PROPERTY ILINK_REGION_SYMBOL_ICF)
+
 # This function post process the region for easier use.
 #
 # Tasks:
@@ -13,7 +15,6 @@ function(process_region)
 
   process_region_common(${ARGN})
 
-  set_property(GLOBAL PROPERTY ILINK_REGION_SYMBOL_ICF)
 
   get_property(empty GLOBAL PROPERTY ${REGION_OBJECT}_EMPTY)
   if(NOT empty)
@@ -77,8 +78,7 @@ function(process_region)
     else()
       # These seem to be thing that can't be transformed to $$Length
       set_property(GLOBAL APPEND PROPERTY ILINK_REGION_SYMBOL_ICF
-        "(${symbol_val}${ZI} - ADDR(${name_clean}${ZI}))")
-
+        "define image symbol __${name_clean}_size = (__${symbol_val}${ZI} - ADDR(${name_clean}${ZI}))")
     endif()
     set(ZI)
 
@@ -226,7 +226,6 @@ function(system_to_string)
   endforeach()
 
   set(${STRING_STRING} "${${STRING_STRING}}\n\n")
-
   set_property(GLOBAL PROPERTY ILINK_SYMBOL_ICF)
 
   set(${STRING_STRING} "${${STRING_STRING}}\n")
@@ -248,8 +247,19 @@ function(system_to_string)
 
   get_property(symbols_icf GLOBAL PROPERTY ILINK_REGION_SYMBOL_ICF)
   foreach(image_symbol ${symbols_icf})
-    set(${STRING_STRING} "${${STRING_STRING}}define image symbol ${image_symbol};\n")
+    set(${STRING_STRING} "${${STRING_STRING}}${image_symbol};\n")
   endforeach()
+
+  if(IAR_LIBC)
+    set(${STRING_STRING} "${${STRING_STRING}}if (K_HEAP_MEM_POOL_SIZE>0)\n{\n")
+    set(${STRING_STRING} "${${STRING_STRING}}  define block HEAP with alignment=8 { symbol kheap__system_heap };\n")
+    set(${STRING_STRING} "${${STRING_STRING}}}\nelse\n{\n")
+    set(${STRING_STRING} "${${STRING_STRING}}  define block HEAP with alignment=8, expanding size { };\n")
+    set(${STRING_STRING} "${${STRING_STRING}}}\n")
+    set(${STRING_STRING} "${${STRING_STRING}}\"DLib heap\": place in RAM { block HEAP };\n")
+#    set(${STRING_STRING} "${${STRING_STRING}}define exported symbol HEAP$$Base=kheap__system_heap;\n")
+#    set(${STRING_STRING} "${${STRING_STRING}}define exported symbol HEAP$$Limit=END(kheap__system_heap);\n")
+  endif()
 
   set(${STRING_STRING} ${${STRING_STRING}} PARENT_SCOPE)
 endfunction()
@@ -323,11 +333,7 @@ function(group_to_string)
       # message(FATAL_ERROR "Need either vma or lma")
     endif()
 
-    if("${name_clean}" STREQUAL "k_heap_area" AND (IAR_LIBC))  # These defines are not available, TBD: Find what works
-        set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block HEAP };\n")
-    else()
-      set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
-    endif()
+    set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
   endforeach()
 
   get_parent(OBJECT ${STRING_OBJECT} PARENT parent TYPE SYSTEM)
@@ -494,11 +500,8 @@ function(section_to_string)
     set(TEMP "${TEMP}${first_index_section}\n")
   endif()
 
-  if(IAR_LIBC AND ("${name_clean}" STREQUAL "k_heap_area")) # Add check that size is not specified with a define CONFIG_HEAP_MEM_POOL_SIZE=xxxx
-    set(TEMP "${TEMP}define block HEAP with fixed order, expanding size")
-  else()
-    set(TEMP "${TEMP}define block ${name_clean} with fixed order")
-  endif()
+  set(TEMP "${TEMP}define block ${name_clean} with fixed order")
+
   if (align)
     set(TEMP "${TEMP}, alignment=${align}")
   else()
