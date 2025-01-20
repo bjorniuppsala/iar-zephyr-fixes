@@ -240,7 +240,6 @@ static enum net_verdict ethernet_recv(struct net_if *iface,
 	uint8_t hdr_len = sizeof(struct net_eth_hdr);
 	uint16_t type;
 	struct net_linkaddr *lladdr;
-	sa_family_t family = AF_UNSPEC;
 	bool is_vlan_pkt = false;
 
 	/* This expects that the Ethernet header is in the first net_buf
@@ -315,18 +314,14 @@ static enum net_verdict ethernet_recv(struct net_if *iface,
 	case NET_ETH_PTYPE_IP:
 	case NET_ETH_PTYPE_ARP:
 		net_pkt_set_family(pkt, AF_INET);
-		family = AF_INET;
 		break;
 	case NET_ETH_PTYPE_IPV6:
 		net_pkt_set_family(pkt, AF_INET6);
-		family = AF_INET6;
 		break;
 	case NET_ETH_PTYPE_EAPOL:
-		family = AF_UNSPEC;
 		break;
 #if defined(CONFIG_NET_L2_PTP)
 	case NET_ETH_PTYPE_PTP:
-		family = AF_UNSPEC;
 		break;
 #endif
 	case NET_ETH_PTYPE_LLDP:
@@ -339,7 +334,6 @@ static enum net_verdict ethernet_recv(struct net_if *iface,
 #endif
 	default:
 		if (IS_ENABLED(CONFIG_NET_ETHERNET_FORWARD_UNRECOGNISED_ETHERTYPE)) {
-			family = AF_UNSPEC;
 			break;
 		}
 
@@ -398,8 +392,7 @@ static enum net_verdict ethernet_recv(struct net_if *iface,
 
 	ethernet_update_rx_stats(iface, hdr, net_pkt_get_len(pkt) + hdr_len);
 
-	if (IS_ENABLED(CONFIG_NET_ARP) &&
-	    family == AF_INET && type == NET_ETH_PTYPE_ARP) {
+	if (IS_ENABLED(CONFIG_NET_ARP) && type == NET_ETH_PTYPE_ARP) {
 		NET_DBG("ARP packet from %s received",
 			net_sprint_ll_addr((uint8_t *)hdr->src.addr,
 					   sizeof(struct net_eth_addr)));
@@ -681,9 +674,9 @@ static int ethernet_send(struct net_if *iface, struct net_pkt *pkt)
 {
 	const struct ethernet_api *api = net_if_get_device(iface)->api;
 	struct ethernet_context *ctx = net_if_l2_data(iface);
-	uint16_t ptype = 0;
-	int ret;
+	uint16_t ptype = htons(net_pkt_ll_proto_type(pkt));
 	struct net_pkt *orig_pkt = pkt;
+	int ret;
 
 	if (!api) {
 		ret = -ENOENT;
@@ -703,15 +696,12 @@ static int ethernet_send(struct net_if *iface, struct net_pkt *pkt)
 		goto send;
 	}
 
-	if (IS_ENABLED(CONFIG_NET_IPV4) &&
-	    net_pkt_family(pkt) == AF_INET) {
-		struct net_pkt *tmp;
+	if (IS_ENABLED(CONFIG_NET_IPV4) && net_pkt_family(pkt) == AF_INET) {
+		if (!net_pkt_ipv4_acd(pkt)) {
+			struct net_pkt *tmp;
 
-		if (net_pkt_ipv4_acd(pkt)) {
-			ptype = htons(NET_ETH_PTYPE_ARP);
-		} else {
 			tmp = ethernet_ll_prepare_on_ipv4(iface, pkt);
-			if (!tmp) {
+			if (tmp == NULL) {
 				ret = -ENOMEM;
 				goto error;
 			} else if (IS_ENABLED(CONFIG_NET_ARP) && tmp != pkt) {
@@ -719,49 +709,22 @@ static int ethernet_send(struct net_if *iface, struct net_pkt *pkt)
 				 * by an ARP request packet.
 				 */
 				pkt = tmp;
-				ptype = htons(NET_ETH_PTYPE_ARP);
-				net_pkt_set_family(pkt, AF_INET);
-			} else {
-				ptype = htons(NET_ETH_PTYPE_IP);
+				ptype = htons(net_pkt_ll_proto_type(pkt));
 			}
 		}
-	} else if (IS_ENABLED(CONFIG_NET_IPV6) &&
-		   net_pkt_family(pkt) == AF_INET6) {
-		ptype = htons(NET_ETH_PTYPE_IPV6);
 	} else if (IS_ENABLED(CONFIG_NET_SOCKETS_PACKET) &&
 		   net_pkt_family(pkt) == AF_PACKET) {
 		struct net_context *context = net_pkt_context(pkt);
 
-		if (context && net_context_get_type(context) == SOCK_DGRAM) {
-			struct sockaddr_ll *dst_addr;
-			struct sockaddr_ll_ptr *src_addr;
-
-			/* The destination address is set in remote for this
-			 * socket type.
-			 */
-			dst_addr = (struct sockaddr_ll *)&context->remote;
-			src_addr = (struct sockaddr_ll_ptr *)&context->local;
-
-			net_pkt_lladdr_dst(pkt)->addr = dst_addr->sll_addr;
-			net_pkt_lladdr_dst(pkt)->len =
-						sizeof(struct net_eth_addr);
-			net_pkt_lladdr_src(pkt)->addr = src_addr->sll_addr;
-			net_pkt_lladdr_src(pkt)->len =
-						sizeof(struct net_eth_addr);
-			ptype = dst_addr->sll_protocol;
-		} else {
+		if (!(context && net_context_get_type(context) == SOCK_DGRAM)) {
+			/* Raw packet, just send it */
 			goto send;
 		}
-	} else if (IS_ENABLED(CONFIG_NET_L2_PTP) && net_pkt_is_ptp(pkt)) {
-		ptype = htons(NET_ETH_PTYPE_PTP);
-	} else if (IS_ENABLED(CONFIG_NET_LLDP) && net_pkt_is_lldp(pkt)) {
-		ptype = htons(NET_ETH_PTYPE_LLDP);
-	} else if (IS_ENABLED(CONFIG_NET_ARP)) {
-		/* Unknown type: Unqueued pkt is an ARP reply.
-		 */
-		ptype = htons(NET_ETH_PTYPE_ARP);
-		net_pkt_set_family(pkt, AF_INET);
-	} else {
+	}
+
+	if (ptype == 0) {
+		/* Caller of this function has not set the ptype */
+		NET_ERR("No protocol set for pkt %p", pkt);
 		ret = -ENOTSUP;
 		goto error;
 	}
