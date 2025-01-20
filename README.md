@@ -1,4 +1,4 @@
-This is an IAR internal fork of Zephyr for internal and partner use. It contains the required CMake/toolchain files necessary to compile, build and run zephyr projects using IAR compiler and linker. It also contains patches improving Zephyr's compatibility with non-GNU compilers, and we are aiming for upstreaming these patches.
+This is an IAR internal fork of Zephyr for internal and partner use. It contains the required CMake/toolchain files necessary to compile, build and run zephyr projects using IAR compiler and linker. It also contains patches improving Zephyr's compatibility with non-GNU compilers, and we are aiming to upstreaming these patches.
 
 Currently we are supporting selected ARM Cortex-M targets.
 Since we are using the `CMAKE_LINKER_GENERATOR` mechanism to integrate ilink, this means that configurations and modules not supported by `CMAKE_LINKER_GENERATOR`, are not supported.
@@ -15,13 +15,13 @@ The following platfoms/boards are used for testing in CI and can be expected to 
 
 * `nrf52840dk/nrf52840`
 * `mimxrt1060_evk`
-* `qemu_cortex_m0`
-* `emu_cortex_m3`
+* `qemu_cortex_m3`
 
 Additionally, the following plaforms/boards have passed twister tests `--level acceptance` using IAR Toolchain:
 
 * `frdm_mcxn947/mcxn947/cpu0`
 * `ek_ra4e2`
+* `qemu_cortex_m0`
 
 ## Limitations
 
@@ -29,10 +29,13 @@ Additionally, the following plaforms/boards have passed twister tests `--level a
 * Currently TrustZone is not working. 
 * Currently only minimallibc is supported, this means Picolibc and Newlib is not supported. There is experimental support for IARs DLib.
 * Currently using the GNU Assembler for .S files
+* The current method for static initialization `initialize by address_translation` is experimental and will most likely be replaced before upstream PR.
+* If you get the error message ```Fatal error[LMS001]: [LMSC1020]: Timeout while initializing a connection to LMSC Daemon``` run the command `ulimit -n 1024` to limit the number of open file descriptors (LMSC-686).
+* Known issue that happens sometimes: ```Fatal error[LMS001]: [LMSC1085]: An error occurred in communication with the LMSC Daemon``` (LMSC-744).
 
 ## Obtaining an IAR Toolchain
 
-A Development version of the IAR build tools for Arm is required to work with this fork. It will be continuously updated, and you find it in the [GitHub Releases](https://github.com/iarsystems/zephyr/releases) section.
+A Development version of the IAR build tools for ARM is required to work with this fork. It will be continuously updated, and you find it in the [GitHub Releases](https://github.com/iarsystems/zephyr/releases) section.
 
 To run the tools, a *Bearer Token* is required for authentication and authorization. It will be distributed to partners together with installation instructions. If there are any issues with this, please contact our FAE team at fae.emea@iar.com and they will assist.
 
@@ -41,7 +44,6 @@ To run the tools, a *Bearer Token* is required for authentication and authorizat
 Common causes for test fails:
 * `CONFIG_USERSPACE` disabled makes some tests unable to build (usually filtered out by twister)
 * Constants placed in RAM causes pbits placed in RAM which causes flash errors.
-* .noinit sections are currently being initialized. This is harmless but takes space in ROM.
 
 ## How to feedback and report problems
 
