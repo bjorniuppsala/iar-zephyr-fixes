@@ -144,7 +144,7 @@ do {                                                                    \
 /* Use this instead of the IAR keyword __ramfunc to make sure it
  * ends up in the correct section.
  */
-#define __ramfunc __attribute__((noinline, long_call, section(".ramfunc")))
+#define __ramfunc __attribute__((noinline, section(".ramfunc")))
 #endif /* !CONFIG_XIP */
 
 // TG-WG: ICCARM does not support __fallthrough

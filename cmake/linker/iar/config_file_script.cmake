@@ -37,7 +37,7 @@ function(process_region)
     if(NOT nosymbols)
       if(${name} STREQUAL .ramfunc)
         create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_load_start
-          EXPR "@ADDR(.textrw_init)@"
+          EXPR "@ADDR(.ramfunc_init)@"
           )
       else()
         create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_load_start
@@ -673,7 +673,7 @@ function(section_to_string)
       endif()
 
       if(${setting} STREQUAL .ramfunc)
-        set(TEMP "${TEMP} section .textrw,")
+#        set(TEMP "${TEMP} section .textrw,")
       endif()
 
       set(section_type "")
@@ -769,13 +769,18 @@ function(section_to_string)
 
   if(DEFINED group_parent_vma AND DEFINED group_parent_lma)
     if(DEFINED current_sections)
-      set(TEMP "${TEMP}\ninitialize by address_translation\n")
-      set(TEMP "${TEMP}{\n")
+      set(TEMP2 "\ninitialize by address_translation\n")
+      set(TEMP2 "${TEMP2}{\n")
       foreach(section ${current_sections})
-        set(TEMP "${TEMP}  ${section},\n")
+        if ( "${section}" STREQUAL "section .ramfunc")
+          set(TEMP2 "\ninitialize manually\n")
+          set(TEMP2 "${TEMP2}{\n")
+        endif()
+        set(TEMP2 "${TEMP2}  ${section},\n")
       endforeach()
-      set(TEMP "${TEMP}};")
+      set(TEMP2 "${TEMP2}};")
       set(current_sections)
+      set(TEMP "${TEMP}${TEMP2}")
     endif()
   endif()
 
