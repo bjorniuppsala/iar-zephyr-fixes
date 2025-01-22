@@ -31,7 +31,8 @@ Additionally, the following plaforms/boards have passed twister tests `--level a
 * Currently using the GNU Assembler for .S files
 * The current method for static initialization `initialize by address_translation` is experimental and will most likely be replaced before upstream PR.
 * If you get the error message ```Fatal error[LMS001]: [LMSC1020]: Timeout while initializing a connection to LMSC Daemon``` run the command `ulimit -n 1024` to limit the number of open file descriptors (LMSC-686).
-* Known issue that happens sometimes: ```Fatal error[LMS001]: [LMSC1085]: An error occurred in communication with the LMSC Daemon``` (LMSC-744).
+* Known issue that happens rarely and randomly: ```Fatal error[LMS001]: [LMSC1085]: An error occurred in communication with the LMSC Daemon``` (LMSC-744).
+Workaround using `export IAR_LMS_DAEMON_LICENSE_TOKEN_USAGE_TELEMETRY=0`
 
 ## Obtaining an IAR Toolchain
 
