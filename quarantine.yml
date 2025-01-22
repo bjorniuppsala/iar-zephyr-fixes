@@ -1,5 +1,4 @@
 - scenarios:
-  - sample.basic.fade_led
-  - sample.drivers.led.led_pwm
+  - kernel.tickless.concept # Known upstream issue https://github.com/zephyrproject-rtos/zephyr/issues/83895
   platforms:
-  - mimxrt1060_evk
+  - nrf52840dk/nrf52840
