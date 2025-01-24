@@ -4,9 +4,9 @@ IAR Arm Toolchain
 #. Download and install a release of  `IAR Arm Toolchain`_ (EWARM/CXARM) on your host.
 
 .. note::
-   Right now, a Development version of the IAR build tools for Arm is required to work with Zephyr. 
-   It is distributed to selected partners and customers for evaluation. If you are interested in being 
-   part of this program, please send a request to our FAE team at fae.emea@iar.com.
+   As of now, a Development version of the IAR build tools for Arm is required to work with Zephyr.
+   It is distributed to selected partners and customers for evaluation. If you are interested in being
+   part of this program, please send a request to the IAR FAE team at fae.emea@iar.com.
 
 #. Make sure you have :ref:`Zephyr SDK <toolchain_zephyr_sdk>` installed on your host.
 
