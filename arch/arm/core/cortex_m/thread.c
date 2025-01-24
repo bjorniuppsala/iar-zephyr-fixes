@@ -21,26 +21,6 @@
 #include <stdbool.h>
 #include <cmsis_core.h>
 
-
-// IARTODO: This should be fixed by upping the version of CMSIS headers.
-// This happens when you use ICCARM > 9.40.x but CMSIS_5 headers instead of CMSIS_6.
-#if defined(__ICCARM__) && defined(__enable_fault_irq)
-
-#undef __enable_fault_irq
-#undef __disable_fault_irq
-
-_Pragma("inline=forced") __intrinsic void __disable_fault_irq()
-{
-__ASM volatile ("CPSID F" ::: "memory");
-}
-
-_Pragma("inline=forced") __intrinsic void __enable_fault_irq()
-{
-__ASM volatile ("CPSIE F" ::: "memory");
-}
-
-#endif
-
 #if (MPU_GUARD_ALIGN_AND_SIZE_FLOAT > MPU_GUARD_ALIGN_AND_SIZE)
 #define FP_GUARD_EXTRA_SIZE	(MPU_GUARD_ALIGN_AND_SIZE_FLOAT - \
 				 MPU_GUARD_ALIGN_AND_SIZE)
@@ -593,7 +573,7 @@ void arch_switch_to_main_thread(struct k_thread *main_thread, char *stack_ptr,
 	 * we do not intend to return after calling z_thread_entry.
 	 */
 	__asm__ volatile (
-	"movs   r4,  %0\n"	/* force _main to be stored in a register */
+	"mov   r4,  %0\n"	/* force _main to be stored in a register */
 	"msr   PSP, %1\n"	/* __set_PSP(stack_ptr) */
 
 	"movs  r0,  #0\n"	/* arch_irq_unlock(0) */
@@ -661,7 +641,7 @@ FUNC_NORETURN void z_arm_switch_to_main_no_multithreading(
 	"msr  PSPLIM, %[_psplim]\n" /* __set_PSPLIM(_psplim) */
 #endif
 	"msr  PSP, %[_psp]\n"       /* __set_PSP(psp) */
-	"movs r0, #0\n"
+	"mov r0, #0\n"
 	"ldr r1, =arch_irq_unlock_outlined\n"
 	"blx r1\n"
 
