@@ -315,7 +315,7 @@ zephyr_linker_section_configure(SECTION .data INPUT ".kernel.*")
 include(${COMMON_ZEPHYR_LINKER_DIR}/common-ram.cmake)
 #include(kobject-data.ld
 if(CONFIG_USERSPACE)
-  zephyr_linker_section(NAME kobject_data GROUP DATA_REGION NOINPUT)
+  zephyr_linker_section(NAME kobject_data GROUP ${K_OBJECTS_GROUP} NOINPUT)
   zephyr_linker_section_configure(
     SECTION kobject_data
     SYMBOLS z_kobject_data_begin
@@ -328,22 +328,27 @@ if(CONFIG_USERSPACE)
   #    . = . + CONFIG_MAX_THREAD_BYTES;
   #endif
   #endif /* !LINKER_ZEPHYR_PREBUILT && !LINKER_ZEPHYR_FINAL */
+  # We want NOT LINKER_ZEPHYR_PREBUILT && NOT LINKER_ZEPHYR_FINAL
+  # But we cant express that since we cna have only one PASS parameter. 
+  # So, just loop over the passes where we do want them and enter them there.
   if(CONFIG_DYNAMIC_OBJECTS)
     zephyr_linker_section_configure(
       SECTION kobject_data
       SYMBOLS _thread_idx_map
       PASS NOT LINKER_ZEPHYR_PREBUILT
+      PASS NOT LINKER_ZEPHYR_FINAL
       )
     zephyr_linker_section_configure(
       SECTION kobject_data
       OFFSET ${CONFIG_MAX_THREAD_BYTES}
       PASS NOT LINKER_ZEPHYR_PREBUILT
+      PASS NOT LINKER_ZEPHYR_FINAL
       )
   endif()
 
 
   set(KOBJECT_DATA_ALIGN 4)
-  set(KOBJECT_DATA_SZ    1580)
+  set(KOBJECT_DATA_SZ    0x308)
 
 
   if(CONFIG_DYNAMIC_OBJECTS)
