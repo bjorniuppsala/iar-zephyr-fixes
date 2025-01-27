@@ -406,10 +406,7 @@ zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,required>
 # @Intent: Enforce standard integer type correspondence to match Zephyr usage.
 # (must be after compiler specific flags)
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
-  if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
-    #zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,iar_do_not_use>>")
-    #zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,imacros>> ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h")
-  else()
+  if(NOT ${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
     zephyr_compile_options("SHELL: $<TARGET_PROPERTY:compiler,imacros> ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h")
   endif()
 endif()
