@@ -114,7 +114,7 @@ list(APPEND IAR_COMMON_FLAGS
   --diag_suppress=Pe1143 # arithmetic on pointer to void or function type
   --diag_suppress=Be006  # possible conflict for segment/section "xxx"
   #--diag_suppress=Pa181  # incompatible redefinition of macro
-  --diag_suppress=Pe1153  # declaration does not match its alias variable "xxx"
+  --diag_suppress=Pe1153 # declaration does not match its alias variable "xxx"
   --diag_suppress=Pe191  # type qualifier is meaningless on cast type
   --diag_suppress=Pe177  # function "xxx" was declared but never referenced
   --diag_suppress=Pa182  # bit mask appears to contain significant bits that do not affect the result
@@ -126,6 +126,8 @@ list(APPEND IAR_COMMON_FLAGS
   --diag_suppress=Pe231  # declaration is not visible outside of function
   --diag_suppress=Pa131  # this is a function pointer constant. Did you intend a function call?
   --diag_suppress=Pe2949 # function "main" cannot be declared in a linkage-specification
+  --diag_suppress=Pe236  # controlling expression is constant
+
 )
 
 if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
