@@ -51,11 +51,3 @@ set(CROSS_COMPILE ${TOOLCHAIN_HOME}/bin/)
 
 set(TOOLCHAIN_HAS_NEWLIB OFF CACHE BOOL "True if toolchain supports NewLib")
 
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(CONFIG_SEMIHOST y CACHE BOOL "Enable semihosting")
-    set(CONFIG_SEMIHOST_CONSOLE y CACHE BOOL "Enable semihosting console")
-    set(CONFIG_UART_CONSOLE n CACHE BOOL "Disable uart console")
-    set(CONFIG_SERIAL n CACHE BOOL "Disable serial")
-  endif()
-endif()
