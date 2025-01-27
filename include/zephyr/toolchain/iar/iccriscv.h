@@ -194,17 +194,6 @@ do {                                                                    \
 
 #define FUNC_NO_STACK_PROTECTOR _Pragma("no_stack_protect")
 
-/*
- * These are some array size values set to 0 in zephyr but we need
- * them to be 1 since iccarm does not support 0 size arrays.
- */
-#ifndef CONFIG_SHELL_CMD_BUFF_SIZE
-//#define CONFIG_SHELL_CMD_BUFF_SIZE 1
-#endif
-#ifndef CONFIG_SHELL_PRINTF_BUFF_SIZE
-//#define CONFIG_SHELL_PRINTF_BUFF_SIZE 1
-#endif
-
 #ifndef __attribute_const__
 #if __VER__ > 0x09000000
 #define __attribute_const__ __attribute__((const))
