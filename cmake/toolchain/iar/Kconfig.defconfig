@@ -57,3 +57,8 @@ config CODING_GUIDELINE_CHECK
 config TC_PROVIDES_POSIX_C_LANG_SUPPORT_R
 	bool
 	default n
+
+# ICCARM does not support <threads.h>
+config COMMON_LIBC_THRD
+	bool
+	default n
