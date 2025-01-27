@@ -3,7 +3,7 @@
 # Configures binary tools as GNU binutils
 include(extensions)
 
-#Specifically choose arm-zephyr-eabi from the zephyr sdk for objcopy & objcopy
+# Specifically choose arm-zephyr-eabi from the zephyr sdk for objcopy and friends
 
 
 if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
