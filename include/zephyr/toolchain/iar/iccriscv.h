@@ -15,13 +15,13 @@
  */
 
 /* ICCARM supports its own #pragma diag_{warning,default,error,warning}. */
-//#define TOOLCHAIN_HAS_PRAGMA_DIAG 0
+/* #define TOOLCHAIN_HAS_PRAGMA_DIAG 0 */
 
 #define TOOLCHAIN_HAS_C_GENERIC 1
 
 #define TOOLCHAIN_HAS_C_AUTO_TYPE 1
 
-//#define TOOLCHAIN_HAS_ZLA 1
+/* #define TOOLCHAIN_HAS_ZLA 1 */
 
 /*
  * Older versions of ICCARM do not define __BYTE_ORDER__, so it must be manually
@@ -145,7 +145,7 @@ do {                                                                    \
 #define __ramfunc __attribute__((noinline, long_call, section(".ramfunc")))
 #endif /* !CONFIG_XIP */
 
-// TG-WG: ICCARM does not support __fallthrough
+/* TG-WG: ICCARM does not support __fallthrough */
 #define __fallthrough  [[fallthrough]]
 
 #ifndef __packed
@@ -159,11 +159,6 @@ do {                                                                    \
 #ifndef __noinline
 #define __noinline        __attribute__((noinline))
 #endif
-
-#ifndef __noinit
-// #define __noinit __no_init
-#endif
-
 
 #define __alignof(x) _Alignof(x)
 
@@ -229,7 +224,7 @@ do {                                                                    \
 /* the Zephyr uses it so we replace it with an attribute((weak))      */
 #define __weak __attribute__((__weak__))
 
-/* Builtins */ 
+/* Builtins */
 
 #include <intrinsics.h>
 

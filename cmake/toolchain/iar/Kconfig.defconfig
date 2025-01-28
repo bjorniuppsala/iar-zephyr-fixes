@@ -51,7 +51,7 @@ config LINKER_USE_NO_RELAX
 
 # ICCARM support C17 with some additional features from C23
 config REQUIRES_STD_C17
-	bool 
+	bool
 	default y
 
 config CODING_GUIDELINE_CHECK

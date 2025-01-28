@@ -15,13 +15,13 @@
  */
 
 /* ICCARM supports its own #pragma diag_{warning,default,error,warning}. */
-//#define TOOLCHAIN_HAS_PRAGMA_DIAG 0
+/* #define TOOLCHAIN_HAS_PRAGMA_DIAG 0 */
 
 #define TOOLCHAIN_HAS_C_GENERIC 1
 
 #define TOOLCHAIN_HAS_C_AUTO_TYPE 1
 
-//#define TOOLCHAIN_HAS_ZLA 1
+/* #define TOOLCHAIN_HAS_ZLA 1 */
 
 /*
  * Older versions of ICCARM do not define __BYTE_ORDER__, so it must be manually
@@ -149,7 +149,7 @@ do {                                                                    \
 #define __ramfunc __attribute__((noinline, section(".ramfunc")))
 #endif /* !CONFIG_XIP */
 
-// TG-WG: ICCARM does not support __fallthrough
+/* TG-WG: ICCARM does not support __fallthrough */
 #define __fallthrough  [[fallthrough]]
 
 #ifndef __packed
@@ -173,9 +173,9 @@ do {                                                                    \
 #define __may_alias     __attribute__((__may_alias__))
 
 #ifndef __printf_like
-//#ifdef CONFIG_ENFORCE_ZEPHYR_STDINT
-//#define __printf_like(f, a)   __attribute__((format (printf, f, a)))
-//#else
+/* #ifdef CONFIG_ENFORCE_ZEPHYR_STDINT
+ * #define __printf_like(f, a)   __attribute__((format (printf, f, a)))
+ * #else */
 /*
  * The Zephyr stdint convention enforces int32_t = int, int64_t = long long,
  * and intptr_t = long so that short string format length modifiers can be
@@ -186,7 +186,6 @@ do {                                                                    \
  * validation in that case and let the other configs do it.
  */
 #define __printf_like(f, a)
-//#endif
 #endif
 
 #define __used		__attribute__((__used__))
@@ -208,9 +207,9 @@ do {                                                                    \
 #endif
 
 #ifndef __must_check
-//#warning "The attribute __warn_unused_result is not supported in ICCARM".
+/* #warning "The attribute __warn_unused_result is not supported in ICCARM". */
 #define __must_check
-//#define __must_check __attribute__((warn_unused_result))
+/* #define __must_check __attribute__((warn_unused_result)) */
 #endif
 
 #define __PRAGMA(...) _Pragma(#__VA_ARGS__)
@@ -235,11 +234,6 @@ do {                                                                    \
 /* Builtins */
 
 #include <intrinsics.h>
-
-// *TC-WG: lib/os/cbprintf_* is ignoring HAS_BUILTIN___builtin_clzl == 0
-//#define __builtin_clzl
-//#define HAS_BUILTIN___builtin_clzll 0
-// *TC-WG: lib/os/cbprintf_* is ignoring HAS_BUILTIN___builtin_ctz == 0
 
 /*
  * Be *very* careful with these. You cannot filter out __DEPRECATED_MACRO with

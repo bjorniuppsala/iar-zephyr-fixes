@@ -67,7 +67,7 @@
 
 #define __SIZE_TYPE__   __SIZE_T_TYPE__
 #define __SIZE_MAX__    __SIZE_T_MAX__
-#define __SIZE_WIDTH__ (__SIZEOF_SIZE_T__)*8
+#define __SIZE_WIDTH__ ((__SIZEOF_SIZE_T__)*8)
 /* #define __SIZEOF_SIZE_T__ 4 */
 
 /*
