@@ -2,46 +2,50 @@
 
 
 config MISRA_SANE
-  bool
-  default y
+	bool
+	default y
 
-#must use default n here
 config PICOLIBC_SUPPORTED
-  bool
-  default n
+	bool
+	default n
 
 config MINIMAL_LIBCPP_SUPPORTED
-  bool
-  default n
+	bool
+	default n
 
 config TOOLCHAIN_HAS_BUILTIN_FFS
-  bool
-  default n
+	bool
+	default n
 
 config FP16
-  bool
-  default y
+	bool
+	default y
 
 config IAR_LIBC_SUPPORTED
-  bool
-  default y
+	bool
+	default y
 
 config FULL_LIBCPP_SUPPORTED
-  bool
-  default y
+	bool
+	default y
 
+config COMPILER_FREESTANDING
+	bool
+	default y
+
+config CBPRINTF_LIBC_SUBSTS
+	bool
+	default y
+
+# IAR uses a little bit more stack than GCC
 config TEST_EXTRA_STACK_SIZE
-  int
-  default 64
-
-config THREAD_LOCAL_STORAGE
-  bool
-  default y
+	int
+	default 64
 
 # ICCARM does not support relaxation
 config LINKER_USE_NO_RELAX
-  bool
-  default y
+	bool
+	default y
 
 # ICCARM support C17 with some additional features from C23
 config REQUIRES_STD_C17
