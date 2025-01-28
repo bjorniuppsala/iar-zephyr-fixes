@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2025 IAR Systems AB
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -12,7 +13,8 @@
 #define ZEPHYR_INCLUDE_TOOLCHAIN_ICCARM_MISSING_DEFS_H_
 
  /* We need to define NULL with a parenthesis around _NULL
-  * otherwise the DEBRACE macros won't work correctly */
+  * otherwise the DEBRACE macros won't work correctly
+  */
 
 #undef NULL
 #define NULL   (_NULL)
@@ -65,8 +67,8 @@
 
 #define __SIZE_TYPE__   __SIZE_T_TYPE__
 #define __SIZE_MAX__    __SIZE_T_MAX__
-#define __SIZE_WIDTH__ (__SIZEOF_SIZE_T__)*8)
-//#define __SIZEOF_SIZE_T__ 4
+#define __SIZE_WIDTH__ (__SIZEOF_SIZE_T__)*8
+/* #define __SIZEOF_SIZE_T__ 4 */
 
 /*
  * The following defines are inferred from the ICCARM provided defines

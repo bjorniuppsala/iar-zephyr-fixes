@@ -50,4 +50,3 @@ endif()
 set(CROSS_COMPILE ${TOOLCHAIN_HOME}/bin/)
 
 set(TOOLCHAIN_HAS_NEWLIB OFF CACHE BOOL "True if toolchain supports NewLib")
-

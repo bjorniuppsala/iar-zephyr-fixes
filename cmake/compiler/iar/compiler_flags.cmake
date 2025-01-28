@@ -53,12 +53,12 @@ set(IAR_WARNING_DW2
 
 set(IAR_WARNING_DW3 )
 
-set_compiler_property(PROPERTY warning_dw_1 
-  ${IAR_WARNING_DW_3} 
-  ${IAR_WARNING_DW_2} 
+set_compiler_property(PROPERTY warning_dw_1
+  ${IAR_WARNING_DW_3}
+  ${IAR_WARNING_DW_2}
   ${IAR_WARNING_DW_1} )
 
-set_compiler_property(PROPERTY warning_dw_2 
+set_compiler_property(PROPERTY warning_dw_2
   ${IAR_WARNING_DW3}
   ${IAR_WARNING_DW2} )
 

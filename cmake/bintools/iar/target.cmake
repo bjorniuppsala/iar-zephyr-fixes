@@ -45,4 +45,3 @@ endif()
 
 # Include bin tool properties
 include(${ZEPHYR_BASE}/cmake/bintools/iar/target_bintools.cmake)
-

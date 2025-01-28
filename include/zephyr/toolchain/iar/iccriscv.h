@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2025 IAR Systems AB
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -41,7 +43,7 @@
 #endif /* __ORDER_PDP_ENDIAN__ */
 
 #ifndef __BYTE_ORDER__
-#if defined(__BIG_ENDIAN__) 
+#if defined(__BIG_ENDIAN__)
 
 #define __BYTE_ORDER__                  __ORDER_BIG_ENDIAN__
 

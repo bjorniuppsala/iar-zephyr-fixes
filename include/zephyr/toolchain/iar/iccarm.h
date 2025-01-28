@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2025 IAR Systems AB
+ *
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -230,7 +232,7 @@ do {                                                                    \
 /* the Zephyr uses it so we replace it with an attribute((weak))      */
 #define __weak __attribute__((__weak__))
 
-/* Builtins */ 
+/* Builtins */
 
 #include <intrinsics.h>
 
