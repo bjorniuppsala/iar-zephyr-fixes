@@ -80,8 +80,6 @@ list(APPEND IAR_COMMON_FLAGS
   --do_explicit_init_in_named_sections
   --macro_positions_in_diagnostics
   --no_wrap_diagnostics
-
-  --vla
 )
 
 if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
