@@ -53,4 +53,3 @@ size_t __write(int handle,
   }
   return nChars;
 }
-
