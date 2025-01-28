@@ -42,7 +42,7 @@ For example:
 .. note::
 
    The IAR Toolchain uses ``ilink`` for linking. This is incompatible with Zephyr’s
-   linker script template, which works with GNU ld. Zephyr’s `IAR Arm Toolchain` depends on
+   linker script template, which works with GNU ld. Zephyr’s IAR Arm Toolchain depends on
    Zephyr’s CMake linker script generator, which supports generating icf-files.
    Basic icf-file support is in place, but there are still areas which are not fully
    supported by the CMake linker script generator.
