@@ -22,6 +22,8 @@ set_compiler_property(PROPERTY optimization_size -Ohz)
 # compiling.
 set_compiler_property(PROPERTY warning_base
   --diag_error=Pe223     # function "xxx" declared implicitly
+  --diag_warning=Pe054   # too few arguments in invocation of macro
+  --diag_warning=Pe144   # a value of type "void *" cannot be used to initialize an entity of type [...] "void (*)(struct onoff_manager *, int)"
   --diag_warning=Pe167   # argument of type "void *" is incompatible with [...] "void (*)(void *, void *, void *)"
   --diag_suppress=Pe1675 # unrecognized GCC pragma
   --diag_suppress=Pe111  # statement is unreachable
