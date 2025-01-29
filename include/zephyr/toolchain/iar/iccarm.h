@@ -24,7 +24,7 @@
 /* #define TOOLCHAIN_HAS_ZLA 1 */
 
 /*
- * Older versions of ICCARM do not define __BYTE_ORDER__, so it must be manually
+ * IAR do not define __BYTE_ORDER__, so it must be manually
  * detected and defined using arch-specific definitions.
  */
 
@@ -43,24 +43,15 @@
 #endif /* __ORDER_PDP_ENDIAN__ */
 
 #ifndef __BYTE_ORDER__
-#if defined(__BIG_ENDIAN__) || defined(__ARMEB__) || \
-    defined(__THUMBEB__) || defined(__AARCH64EB__) || \
-    defined(__MIPSEB__) || defined(__TC32EB__)
 
-#define __BYTE_ORDER__                  __ORDER_BIG_ENDIAN__
-
-#elif defined(__LITTLE_ENDIAN__) || defined(__ARMEL__) || \
-      defined(__THUMBEL__) || defined(__AARCH64EL__) || \
-      defined(__MIPSEL__) || defined(__TC32EL__)
-
+#if __LITTLE_ENDIAN__ == 1
 #define __BYTE_ORDER__                  __ORDER_LITTLE_ENDIAN__
-
 #else
+#define __BYTE_ORDER__                  __ORDER_BIG_ENDIAN__
+#endif /* __LITTLE_ENDIAN__ == 1 */
 
-#error "__BYTE_ORDER__ is not defined and cannot be automatically resolved"
-
-#endif
 #endif /* __BYTE_ORDER__ */
+
 
 #if defined(__cplusplus) && (__cplusplus >= 201103L)
 #define BUILD_ASSERT(EXPR, MSG...)  static_assert(EXPR, "" MSG)
@@ -79,7 +70,8 @@
 #endif
 
 /* By default, restrict is recognized in Standard C
- * __restrict is always recognized */
+ * __restrict is always recognized
+ */
 #define ZRESTRICT __restrict
 
 #include <zephyr/toolchain/common.h>
@@ -278,25 +270,21 @@ do {                                                                    \
  * correctly.  This is an elfism. Use #if 0 for a.out.
  */
 
-#define GTEXT(sym) .global sym; .type sym, %function
-#define GDATA(sym) .global sym; .type sym, %object
-#define WTEXT(sym) .weak sym; .type sym, %function
-#define WDATA(sym) .weak sym; .type sym, %object
+/* This is not implemented yet for IAR */
+#define GTEXT(sym)
+#define GDATA(sym)
+#define WTEXT(sym)
+#define WDATA(sym)
 
-#define SECTION_VAR(sect, sym)  .section .sect.sym; sym:
-#define SECTION_FUNC(sect, sym)						\
-	.section .sect.sym, "ax";					\
-				FUNC_CODE()				\
-				PERFOPT_ALIGN; sym :		\
-							FUNC_INSTR(sym)
-#define SECTION_SUBSEC_FUNC(sect, subsec, sym)				\
-		.section .sect.subsec, "ax"; PERFOPT_ALIGN; sym :
+#define SECTION_VAR(sect, sym)
+#define SECTION_FUNC(sect, sym)
+#define SECTION_SUBSEC_FUNC(sect, subsec, sym)
 
 #endif /* _ASMLANGUAGE */
 
 
 /*
- * These macros generate absolute symbols for ICCARM
+ * These macros generate absolute symbols for IAR
  */
 
 /* create an extern reference to the absolute symbol */
@@ -316,14 +304,14 @@ do {                                                                    \
  * for assignment to the named symbol.
  */
 #define GEN_ABSOLUTE_SYM(name, value) \
-  __PRAGMA(public_equ = #name, (unsigned)value)
+	__PRAGMA(public_equ = #name, (unsigned int)value)
 
 /*
  * GEN_ABSOLUTE_SYM_KCONFIG() is outputted by the build system
  * to generate named symbol/value pairs for kconfigs.
  */
 #define GEN_ABSOLUTE_SYM_KCONFIG(name, value) \
-  __PRAGMA(public_equ = #name, (unsigned)value)
+	__PRAGMA(public_equ = #name, (unsigned int)value)
 
 #define compiler_barrier() do { \
 	__asm volatile("" ::: "memory"); \
@@ -379,7 +367,7 @@ do {                                                                    \
  * @return X rounded up to the next power of two
  */
 #define Z_POW2_CEIL(x) \
-   ((x) <= 2UL ? (x) : (1UL << (8 * sizeof(long) - __builtin_clzl((x) - 1))))
+	((x) <= 2UL ? (x) : (1UL << (8 * sizeof(long) - __builtin_clzl((x) - 1))))
 
 /**
  * @brief Check whether or not a value is a power of 2
