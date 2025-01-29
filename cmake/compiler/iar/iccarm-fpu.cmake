@@ -39,7 +39,6 @@ if(CONFIG_FPU)
       set(FPU_FOR_Cortex-M33          FPv5${PRECISION_TOKEN})
       set(FPU_FOR_Cortex-M33.no_dsp   FPv5${PRECISION_TOKEN})
       set(FPU_FOR_Cortex-M55          auto)
-      #set(FPU_FOR_cortex-m55+nomve.fp auto)
       set(FPU_FOR_Cortex-M55.no_mve   auto)
       # We don't have this one?
       set(FPU_FOR_Cortex-M55.no_dsp   auto)
