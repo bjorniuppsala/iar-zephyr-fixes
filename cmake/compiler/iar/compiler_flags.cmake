@@ -4,7 +4,6 @@
 
 # Compiler options for the IAR C/C++ Compiler for Arm
 
-
 #####################################################
 # This section covers flags related to optimization #
 #####################################################
@@ -30,17 +29,16 @@ set_compiler_property(PROPERTY warning_base
   --diag_suppress=Pe1675 # unrecognized GCC pragma
   --diag_suppress=Pe111  # statement is unreachable
   --diag_suppress=Pe1143 # arithmetic on pointer to void or function type
-  --diag_suppress=Pe068  # integer conversion resulted in a change of sign)
-  )
+  --diag_suppress=Pe068) # integer conversion resulted in a change of sign)
 
 
-set(IAR_WARNING_DW_1   # >100
+set(IAR_WARNING_DW_1
   --diag_suppress=Pe188  # enumerated type mixed with another type
   --diag_suppress=Pe128  # loop is not reachable
   --diag_suppress=Pe550  # variable "res" was set but never used
   --diag_suppress=Pe546  # transfer of control bypasses initialization
-  --diag_suppress=Pe186  # pointless comparison of unsigned integer with zero
-)
+  --diag_suppress=Pe186) # pointless comparison of unsigned integer with zero
+
 set(IAR_WARNING_DW2
   --diag_suppress=Pe1097 # unknown attribute
   --diag_suppress=Pe381  # extra ";" ignored
@@ -50,19 +48,18 @@ set(IAR_WARNING_DW2
   --diag_suppress=Pe167  # argument of type "onoff_notify_fn" is incompatible with...
   --diag_suppress=Pe144  # a value of type "void *" cannot be used to initialize...
   --diag_suppress=Pe177  # function "xxx" was declared but never referenced
-  --diag_suppress=Pe513  # a value of type "void *" cannot be assigned to an entity of type "int (*)(int)"
-)
+  --diag_suppress=Pe513) # a value of type "void *" cannot be assigned to an entity of type "int (*)(int)"
 
-set(IAR_WARNING_DW3 )
+set(IAR_WARNING_DW3)
 
 set_compiler_property(PROPERTY warning_dw_1
   ${IAR_WARNING_DW_3}
   ${IAR_WARNING_DW_2}
-  ${IAR_WARNING_DW_1} )
+  ${IAR_WARNING_DW_1})
 
 set_compiler_property(PROPERTY warning_dw_2
   ${IAR_WARNING_DW3}
-  ${IAR_WARNING_DW2} )
+  ${IAR_WARNING_DW2})
 
 # no suppressions
 set_compiler_property(PROPERTY warning_dw_3  ${IAR_WARNING_DW3})
@@ -118,7 +115,6 @@ set_property(TARGET compiler-cpp PROPERTY no_exceptions --no_exceptions)
 
 # Flag for disabling rtti in C++
 set_property(TARGET compiler-cpp PROPERTY no_rtti --no_rtti)
-
 
 ###################################################
 # This section covers all remaining C / C++ flags #
