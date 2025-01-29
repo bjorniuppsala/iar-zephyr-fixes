@@ -9,7 +9,7 @@
 
 static int _stdout_hook_default(int c)
 {
-	(void)(c);	/* Prevent warning about unused argument */
+	(void)(c); /* Prevent warning about unused argument */
 
 	return EOF;
 }
@@ -27,9 +27,7 @@ int fputc(int c, FILE *f)
 }
 
 #pragma weak __write
-size_t __write(int handle,
-	       const unsigned char *buf,
-	       size_t bufSize)
+size_t __write(int handle, const unsigned char *buf, size_t bufSize)
 {
 	size_t nChars = 0;
 	/* Check for the command to flush all handles */
@@ -37,15 +35,15 @@ size_t __write(int handle,
 		return 0;
 	}
 	/* Check for stdout and stderr
-		 (only necessary if FILE descriptors are enabled.) */
+	 * (only necessary if FILE descriptors are enabled.)
+	 */
 	if (handle != 1 && handle != 2) {
 		return -1;
 	}
-	for (/* Empty */; bufSize > 0; --bufSize)
-	{
+	for (/* Empty */; bufSize > 0; --bufSize) {
 		int ret = (_stdout_hook)(*buf);
-		if (ret == EOF)
-		{
+
+		if (ret == EOF) {
 			break;
 		}
 		++buf;
