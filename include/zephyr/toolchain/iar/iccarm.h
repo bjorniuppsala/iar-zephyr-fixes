@@ -165,9 +165,6 @@ do {                                                                    \
 #define __may_alias     __attribute__((__may_alias__))
 
 #ifndef __printf_like
-/* #ifdef CONFIG_ENFORCE_ZEPHYR_STDINT
- * #define __printf_like(f, a)   __attribute__((format (printf, f, a)))
- * #else */
 /*
  * The Zephyr stdint convention enforces int32_t = int, int64_t = long long,
  * and intptr_t = long so that short string format length modifiers can be
