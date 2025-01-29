@@ -15,15 +15,13 @@ menu "IAR library options"
 config IAR_SEMIHOSTING
 	bool "Use the IAR semihosting implementation."
 	depends on IAR_LIBC
-	default n
 	help
 	  Use the semihosting implementation in the IAR library
 	  instead of the Zephyr implementation.
 
 config IAR_BUFFERED_WRITE
 	bool "Use buffered write"
-        depends on IAR_SEMIHOSTING
-	default n
+	depends on IAR_SEMIHOSTING
 	help
 	  Instead of printing one character at a time
 	  this option uses a buffer to print a line

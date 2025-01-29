@@ -1,3 +1,5 @@
+# Copyright (c) 2025 IAR Systems AB
+#
 # SPDX-License-Identifier: Apache-2.0
 
 # Configures binary tools as GNU binutils
@@ -5,8 +7,7 @@ include(extensions)
 
 # Specifically choose arm-zephyr-eabi from the zephyr sdk for objcopy and friends
 
-
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   set(IAR_ZEPHYR_HOME ${ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/bin)
   set(IAR_GNU_PREFIX arm-zephyr-eabi-)
 elseif("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccriscv")
@@ -41,7 +42,6 @@ if(NOT CMAKE_GDB OR GDB_CFG_ERR)
     set(CMAKE_GDB ${CMAKE_GDB_NO_PY} CACHE FILEPATH "Path to a program." FORCE)
   endif()
 endif()
-
 
 # Include bin tool properties
 include(${ZEPHYR_BASE}/cmake/bintools/iar/target_bintools.cmake)

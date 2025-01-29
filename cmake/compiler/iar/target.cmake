@@ -94,9 +94,6 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
     --diag_suppress=Ta184  # Using zero sized arrays except for as last member of a struct is discouraged and dereferencing elements in such an array has undefined behavior
   )
 else()
-  list(APPEND IAR_COMMON_FLAGS
-
-  )
 endif()
 
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
