@@ -1,3 +1,5 @@
+# Copyright (c) 2025 IAR Systems AB
+#
 # SPDX-License-Identifier: Apache-2.0
 
 # Determines what argument to give to --fpu= based on the

@@ -1,3 +1,5 @@
+# Copyright (c) 2025 IAR Systems AB
+#
 # SPDX-License-Identifier: Apache-2.0
 
 zephyr_get(IAR_TOOLCHAIN_PATH)
@@ -42,7 +44,7 @@ set(COMPILER iar)
 set(LINKER iar)
 set(BINTOOLS iar)
 
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   set(SYSROOT_TARGET arm)
 else()
   set(SYSROOT_TARGET riscv)

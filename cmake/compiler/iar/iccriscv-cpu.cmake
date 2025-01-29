@@ -1,3 +1,5 @@
+# Copyright (c) 2025 IAR Systems AB
+#
 # SPDX-License-Identifier: Apache-2.0
 
 # Determines what argument to give to --cpu= based on the
@@ -18,17 +20,17 @@ else()
   string(CONCAT riscv_march ${riscv_march} "32")
 endif()
 
-if (CONFIG_RISCV_ISA_RV32E)
+if(CONFIG_RISCV_ISA_RV32E)
   string(CONCAT riscv_mabi ${riscv_mabi} "e")
   string(CONCAT riscv_march ${riscv_march} "e")
 else()
   string(CONCAT riscv_march ${riscv_march} "i")
 endif()
 
-if (CONFIG_RISCV_ISA_EXT_M)
+if(CONFIG_RISCV_ISA_EXT_M)
   string(CONCAT riscv_march ${riscv_march} "m")
 endif()
-if (CONFIG_RISCV_ISA_EXT_A)
+if(CONFIG_RISCV_ISA_EXT_A)
   string(CONCAT riscv_march ${riscv_march} "a")
 endif()
 

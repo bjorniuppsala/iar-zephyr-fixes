@@ -1,6 +1,6 @@
+# Copyright (c) 2025 IAR Systems AB
+#
 # SPDX-License-Identifier: Apache-2.0
-
-#set(CMAKE_REQUIRED_QUIET 0)
 
 # Avoids running the linker during try_compile()
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
@@ -31,7 +31,7 @@ find_program(CMAKE_AR
   REQUIRED )
 
 set(CMAKE_ASM_COMPILER)
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   find_program(CMAKE_ASM_COMPILER
     arm-zephyr-eabi-gcc
     PATHS ${ZEPHYR_SDK_INSTALL_DIR}/arm-zephyr-eabi/bin
@@ -48,7 +48,7 @@ message(STATUS "Found assembler ${CMAKE_ASM_COMPILER}")
 set(ICC_BASE ${ZEPHYR_BASE}/cmake/compiler/iar)
 
 
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   # Used for settings correct cpu/fpu option for gnu assembler
   include(${ZEPHYR_BASE}/cmake/gcc-m-cpu.cmake)
   include(${ZEPHYR_BASE}/cmake/gcc-m-fpu.cmake)
@@ -57,7 +57,7 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   include(${ICC_BASE}/iccarm-cpu.cmake)
   include(${ICC_BASE}/iccarm-fpu.cmake)
 endif()
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccriscv")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccriscv")
   # Used for settings correct cpu/fpu option for gnu assembler
   include(${ZEPHYR_BASE}/cmake/gcc-m-cpu.cmake)
   include(${ZEPHYR_BASE}/cmake/gcc-m-fpu.cmake)
@@ -82,7 +82,7 @@ list(APPEND IAR_COMMON_FLAGS
   --no_wrap_diagnostics
 )
 
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   list(APPEND IAR_COMMON_FLAGS
     --endian=little
     --cpu=${ICCARM_CPU}
@@ -119,7 +119,7 @@ list(APPEND IAR_COMMON_FLAGS
 )
 
 # Minimal ASM compiler flags
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   list(APPEND TOOLCHAIN_ASM_FLAGS
     -mcpu=${GCC_M_CPU}
     -mabi=aapcs
@@ -132,13 +132,13 @@ if(CONFIG_DEBUG)
   list(APPEND TOOLCHAIN_ASM_FLAGS -gdwarf-4)
 endif()
 
-if (DEFINED CONFIG_ARM_SECURE_FIRMWARE)
+if(DEFINED CONFIG_ARM_SECURE_FIRMWARE)
   list(APPEND IAR_COMMON_FLAGS --cmse)
   list(APPEND TOOLCHAIN_ASM_FLAGS -mcmse)
 endif()
 
 # 64-bit
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   if(CONFIG_ARM64)
     list(APPEND IAR_COMMON_FLAGS --abi=lp64)
     list(APPEND TOOLCHAIN_LD_FLAGS --abi=lp64)
@@ -157,7 +157,7 @@ if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   endif()
 endif()
 
-if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   if(CONFIG_IAR_LIBC)
     # Zephyr requires AEABI portability to ensure correct functioning of the C
     # library, for example error numbers, errno.h.

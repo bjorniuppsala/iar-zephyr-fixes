@@ -1,3 +1,5 @@
+# Copyright (c) 2025 IAR Systems AB
+#
 # SPDX-License-Identifier: Apache-2.0
 
 # Compiler options for the IAR C/C++ Compiler for Arm

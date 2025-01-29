@@ -1,5 +1,7 @@
+# Copyright (c) 2025 IAR Systems AB
+#
 # SPDX-License-Identifier: Apache-2.0
-#set(CMAKE_REQUIRED_QUIET 0)
+
 set_property(TARGET linker PROPERTY devices_start_symbol "_device_list_start")
 find_program(CMAKE_LINKER
   NAMES ${CROSS_COMPILE}${IAR_LINKER}
@@ -25,12 +27,12 @@ macro(configure_linker_script linker_script_gen linker_pass_define)
   set(cmake_linker_script_settings
       ${PROJECT_BINARY_DIR}/include/generated/ld_script_settings_${linker_pass_define}.cmake
   )
-  if ( "${linker_pass_define}" STREQUAL "LINKER_ZEPHYR_PREBUILT" )
+  if("${linker_pass_define}" STREQUAL "LINKER_ZEPHYR_PREBUILT")
     set(ILINK_THUMB_CALLS_WARNING_SUPPRESSED "--diag_suppress=Lt056")
   else()
     set(ILINK_THUMB_CALLS_WARNING_SUPPRESSED "")
   endif()
-  if ( CONFIG_IAR_LIBC OR CONFIG_IAR_LIBCPP )
+  if(CONFIG_IAR_LIBC OR CONFIG_IAR_LIBCPP)
     set(IAR_LIB_USED "-DIAR_LIBC=1")
   else()
     set(IAR_LIB_USED "")
