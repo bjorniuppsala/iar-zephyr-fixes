@@ -69,9 +69,6 @@ endif()
 set(IAR_COMMON_FLAGS)
 # Minimal C compiler flags
 
-list(APPEND TOOLCHAIN_C_FLAGS
-  --vla
-)
 list(APPEND IAR_COMMON_FLAGS
   "SHELL: --preinclude"
   "${ZEPHYR_BASE}/include/zephyr/toolchain/iar/iar_missing_defs.h"
@@ -86,41 +83,16 @@ if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   list(APPEND IAR_COMMON_FLAGS
     --endian=little
     --cpu=${ICCARM_CPU}
-    --no_var_align
-    --no_const_align
 
     -DRTT_USE_ASM=0       #WA for VAAK-232
 
     --diag_suppress=Ta184  # Using zero sized arrays except for as last member of a struct is discouraged and dereferencing elements in such an array has undefined behavior
   )
-else()
 endif()
-
-if(CONFIG_ENFORCE_ZEPHYR_STDINT)
-  list(APPEND IAR_COMMON_FLAGS
-    "SHELL: --preinclude ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h"
-  )
-endif()
-
-# Place test command line options here so not to pollute the necessary
-list(APPEND IAR_COMMON_FLAGS
-  #--enable_gnu_compatibility
-
-  # Note that cmake de-duplication removes a second '.' argument, so for
-  # options that uses '.' as destination we must wrap them with "SHELL:<command line option>"
-  #"SHELL:-lCH  ."
-  #"SHELL:--preprocess=c ."
-  #--no_cross_jump
-
-#  -r
-#  --separate_cluster_for_initialized_variables
-# --warnings_are_errors
-#  --trace BE_CODEGEN
-)
 
 # Minimal ASM compiler flags
-if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
-  list(APPEND TOOLCHAIN_ASM_FLAGS
+if ("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
+  list(APPEND IAR_ASM_FLAGS
     -mcpu=${GCC_M_CPU}
     -mabi=aapcs
     -DRTT_USE_ASM=0       #WA for VAAK-232
@@ -129,12 +101,12 @@ endif()
 
 if(CONFIG_DEBUG)
   # GCC defaults to Dwarf 5 output
-  list(APPEND TOOLCHAIN_ASM_FLAGS -gdwarf-4)
+  list(APPEND IAR_ASM_FLAGS -gdwarf-4)
 endif()
 
 if(DEFINED CONFIG_ARM_SECURE_FIRMWARE)
   list(APPEND IAR_COMMON_FLAGS --cmse)
-  list(APPEND TOOLCHAIN_ASM_FLAGS -mcmse)
+  list(APPEND IAR_ASM_FLAGS -mcmse)
 endif()
 
 # 64-bit
@@ -147,12 +119,12 @@ if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
     list(APPEND IAR_COMMON_FLAGS --aeabi)
     if(CONFIG_COMPILER_ISA_THUMB2)
       list(APPEND IAR_COMMON_FLAGS --thumb)
-      list(APPEND TOOLCHAIN_ASM_FLAGS -mthumb)
+      list(APPEND IAR_ASM_FLAGS -mthumb)
     endif()
 
     if(CONFIG_FPU)
       list(APPEND IAR_COMMON_FLAGS --fpu=${ICCARM_FPU})
-      list(APPEND TOOLCHAIN_ASM_FLAGS -mfpu=${GCC_M_FPU})
+      list(APPEND IAR_ASM_FLAGS -mfpu=${GCC_M_FPU})
     endif()
   endif()
 endif()
@@ -165,17 +137,22 @@ if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
   endif()
 endif()
 
-if(CONFIG_IAR_LIBCPP)
-  message(STATUS "IAR C++ library used")
-endif()
-
 if(CONFIG_IAR_LIBC)
   message(STATUS "IAR C library used")
   # Zephyr uses the type FILE for normal LIBC while IAR
   # only has it for full LIBC support, so always choose
   # full libc when using IAR C libraries.
-  list(APPEND TOOLCHAIN_C_FLAGS --dlib_config full)
+  list(APPEND IAR_COMMON_FLAGS --dlib_config full)
 endif()
 
-list(APPEND TOOLCHAIN_C_FLAGS ${IAR_COMMON_FLAGS})
-list(APPEND TOOLCHAIN_CXX_FLAGS ${IAR_COMMON_FLAGS})
+foreach(F ${IAR_COMMON_FLAGS})
+  list(APPEND TOOLCHAIN_C_FLAGS $<$<COMPILE_LANGUAGE:C>:${F}>)
+  list(APPEND TOOLCHAIN_C_FLAGS $<$<COMPILE_LANGUAGE:CXX>:${F}>)
+endforeach()
+
+foreach(F ${IAR_ASM_FLAGS})
+  list(APPEND TOOLCHAIN_C_FLAGS $<$<COMPILE_LANGUAGE:ASM>:${F}>)
+endforeach()
+
+set(CONFIG_COMPILER_FREESTANDING 1)
+set(CONFIG_CBPRINTF_LIBC_SUBSTS 1)

@@ -231,21 +231,8 @@ SOC_* symbol.")
 endif()
 
 # Apply the final optimization flag(s)
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
-  zephyr_compile_options($<$<COMPILE_LANGUAGE:C>:${OPTIMIZATION_FLAG}>)
-  zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:${OPTIMIZATION_FLAG}>)
-  if (${OPTIMIZATION_FLAG} STREQUAL "-Ohz")
-    zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:-Oz>)
-  elseif (${OPTIMIZATION_FLAG} STREQUAL "-Ol")
-    zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:-O0>)
-  elseif (${OPTIMIZATION_FLAG} STREQUAL "-Ohs")
-    zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:-O2>)
-  elseif (${OPTIMIZATION_FLAG} STREQUAL "-On")
-    zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:-O0>)
-  endif()
-else()
-  zephyr_compile_options(${OPTIMIZATION_FLAG})
-endif()
+zephyr_compile_options($<$<COMPILE_LANGUAGE:C>:${OPTIMIZATION_FLAG}>)
+zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:${OPTIMIZATION_FLAG}>)
 
 if(CONFIG_LTO)
   zephyr_compile_options($<TARGET_PROPERTY:compiler,optimization_lto>)
@@ -333,13 +320,9 @@ if(CONFIG_CODING_GUIDELINE_CHECK)
 endif()
 
 # @Intent: Set compiler specific macro inclusion of AUTOCONF_H
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
-  zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,imacros> ${AUTOCONF_H}>")
-  zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:CXX>:$<TARGET_PROPERTY:compiler,imacros> ${AUTOCONF_H}>")
-  zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,imacros> ${AUTOCONF_H}>")
-else()
-  zephyr_compile_options("SHELL: $<TARGET_PROPERTY:compiler,imacros> ${AUTOCONF_H}")
-endif()
+zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,imacros> ${AUTOCONF_H}>")
+zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:CXX>:$<TARGET_PROPERTY:compiler,imacros> ${AUTOCONF_H}>")
+zephyr_compile_options("SHELL: $<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,imacros> ${AUTOCONF_H}>")
 
 if(CONFIG_COMPILER_FREESTANDING)
   # @Intent: Set compiler specific flag for bare metal freestanding option
@@ -373,31 +356,9 @@ if(CONFIG_COMPILER_COLOR_DIAGNOSTICS)
 zephyr_compile_options($<TARGET_PROPERTY:compiler,diagnostic>)
 endif()
 
-
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
-
-  if(TOOLCHAIN_C_FLAGS)
-    foreach(F ${TOOLCHAIN_C_FLAGS})
-      zephyr_compile_options($<$<COMPILE_LANGUAGE:C>:${F}>)
-    endforeach()
-  endif()
-
-  if(TOOLCHAIN_CXX_FLAGS)
-    foreach(F ${TOOLCHAIN_CXX_FLAGS})
-      zephyr_compile_options($<$<COMPILE_LANGUAGE:CXX>:${F}>)
-    endforeach()
-  endif()
-
-  if(TOOLCHAIN_ASM_FLAGS)
-    foreach(F ${TOOLCHAIN_ASM_FLAGS})
-      zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:${F}>)
-    endforeach()
-  endif()
-else()
-  zephyr_compile_options(
-    ${TOOLCHAIN_C_FLAGS}
-  )
-endif()
+zephyr_compile_options(
+  ${TOOLCHAIN_C_FLAGS}
+)
 
 # @Intent: Obtain compiler specific flags related to assembly
 # ToDo: Remember to get feedback from Oticon on this, as they might use the `ASM_BASE_FLAG` since this is done this way.
@@ -406,9 +367,9 @@ zephyr_compile_options($<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,required>
 # @Intent: Enforce standard integer type correspondence to match Zephyr usage.
 # (must be after compiler specific flags)
 if(CONFIG_ENFORCE_ZEPHYR_STDINT)
-  if(NOT ${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
-    zephyr_compile_options("SHELL: $<TARGET_PROPERTY:compiler,imacros> ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h")
-  endif()
+  zephyr_compile_options("SHELL:$<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,imacros> ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h>")
+  zephyr_compile_options("SHELL:$<$<COMPILE_LANGUAGE:CXX>:$<TARGET_PROPERTY:compiler,imacros> ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h>")
+  zephyr_compile_options("SHELL:$<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,imacros> ${ZEPHYR_BASE}/include/zephyr/toolchain/zephyr_stdint.h>")
 endif()
 
 # Common toolchain-agnostic assembly flags
