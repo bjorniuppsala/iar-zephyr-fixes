@@ -24,13 +24,6 @@ config COMPILER_FREESTANDING
 config CBPRINTF_LIBC_SUBSTS
 	default y
 
-# Disable GEN_ISR_TABLES for now, ilink is having
-# problems discarding intList
-#
-
-config GEN_ISR_TABLES
-	default n
-
 # IAR uses a little bit more stack than GCC
 config TEST_EXTRA_STACK_SIZE
 	default 64
