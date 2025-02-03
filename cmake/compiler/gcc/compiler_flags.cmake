@@ -256,3 +256,7 @@ set_compiler_property(PROPERTY no_builtin_malloc -fno-builtin-malloc)
 set_compiler_property(PROPERTY specs -specs=)
 
 set_compiler_property(PROPERTY include_file -include)
+
+set_compiler_property(PROPERTY cmse -mcmse)
+
+set_property(TARGET asm PROPERTY cmse -mcmse)

@@ -2,13 +2,10 @@
 
 # '-mcmse' enables the generation of code for the Secure state of the ARMv8-M
 # Security Extensions. This option is required when building a Secure firmware.
-if(${ZEPHYR_TOOLCHAIN_VARIANT} STREQUAL "iar")
-  SET(CONFIG_CMSE_FLAG )
-else()
-  SET(CONFIG_CMSE_FLAG -mcmse)
-endif()
-zephyr_compile_options_ifdef(CONFIG_ARM_SECURE_FIRMWARE ${CONFIG_CMSE_FLAG})
 
+zephyr_compile_options_ifdef(CONFIG_ARM_SECURE_FIRMWARE $<$<COMPILE_LANGUAGE:C>:$<TARGET_PROPERTY:compiler,cmse>>)
+zephyr_compile_options_ifdef(CONFIG_ARM_SECURE_FIRMWARE $<$<COMPILE_LANGUAGE:CXX>:$<TARGET_PROPERTY:compiler,cmse>>)
+zephyr_compile_options_ifdef(CONFIG_ARM_SECURE_FIRMWARE $<$<COMPILE_LANGUAGE:ASM>:$<TARGET_PROPERTY:asm,cmse>>)
 
 if(CONFIG_ARM_FIRMWARE_HAS_SECURE_ENTRY_FUNCS)
 

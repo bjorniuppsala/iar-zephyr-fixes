@@ -152,3 +152,8 @@ set_compiler_property(PROPERTY specs)
 
 # Compiler flag for defining preinclude files.
 set_compiler_property(PROPERTY include_file)
+
+# Compiler flag for trustzone
+set_compiler_property(PROPERTY cmse)
+
+set_property(TARGET asm PROPERTY cmse)

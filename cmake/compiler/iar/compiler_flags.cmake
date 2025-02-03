@@ -165,3 +165,7 @@ set_compiler_property(PROPERTY no_position_independent)
 
 # Compiler flag for defining preinclude files.
 set_compiler_property(PROPERTY include_file --preinclude)
+
+set_compiler_property(PROPERTY cmse --cmse)
+
+set_property(TARGET asm PROPERTY cmse -mcmse)
