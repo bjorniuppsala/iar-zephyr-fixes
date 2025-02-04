@@ -24,6 +24,10 @@ config COMPILER_FREESTANDING
 config CBPRINTF_LIBC_SUBSTS
 	default y
 
+# IAR has slightly different types
+config ENFORCE_ZEPHYR_STDINT
+	default n
+
 # IAR uses a little bit more stack than GCC
 config TEST_EXTRA_STACK_SIZE
 	default 64
