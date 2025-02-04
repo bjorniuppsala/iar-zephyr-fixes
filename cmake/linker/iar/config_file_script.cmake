@@ -65,22 +65,18 @@ function(process_region)
       endif()
     endforeach()
 
-    if("${type}" STREQUAL BSS)
-      set(ZI "$$ZI")
-    endif()
-
     # Symbols translation here.
 
     get_property(symbol_val GLOBAL PROPERTY SYMBOL_TABLE___${name_clean}_end)
 
     if("${symbol_val}" STREQUAL "${name_clean}")
       create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name_clean}_size
-        EXPR "@SIZE(${name_clean}${ZI})@"
+        EXPR "@SIZE(${name_clean})@"
         )
     else()
       # These seem to be thing that can't be transformed to $$Length
       set_property(GLOBAL APPEND PROPERTY ILINK_REGION_SYMBOL_ICF
-        "define image symbol __${name_clean}_size = (__${symbol_val}${ZI} - ADDR(${name_clean}${ZI}))")
+        "define image symbol __${name_clean}_size = (__${symbol_val} - ADDR(${name_clean}))")
     endif()
     set(ZI)
 
@@ -110,15 +106,35 @@ function(process_region)
     get_property(name GLOBAL PROPERTY ${group}_NAME)
     string(TOLOWER ${name} name)
 
+    get_property(group_type  GLOBAL PROPERTY ${group}_OBJ_TYPE)
+    get_property(parent      GLOBAL PROPERTY ${group}_PARENT)
+    get_property(parent_type GLOBAL PROPERTY ${parent}_OBJ_TYPE)
+    # Need to find the init manually group or parent
+    if(${parent_type} STREQUAL GROUP)
+      get_property(vma GLOBAL PROPERTY ${parent}_VMA)
+      get_property(lma GLOBAL PROPERTY ${parent}_LMA)
+    else()
+      get_property(vma GLOBAL PROPERTY ${group}_VMA)
+      get_property(lma GLOBAL PROPERTY ${group}_LMA)
+    endif()
+
+
     get_objects(LIST sections OBJECT ${group} TYPE SECTION)
     list(GET sections 0 section)
     get_property(first_section_name GLOBAL PROPERTY ${section}_NAME_CLEAN)
     list(POP_BACK sections section)
     get_property(last_section_name GLOBAL PROPERTY ${section}_NAME_CLEAN)
 
-    create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_load_start
-      EXPR "@LOADADDR(${first_section_name})@"
-      )
+    if(DEFINED vma AND DEFINED lma)
+      # Something to init
+      create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_load_start
+        EXPR "@ADDR(${first_section_name}_init)@"
+        )
+    else()
+      create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_load_start
+        EXPR "@LOADADDR(${first_section_name})@"
+        )
+    endif()
 
     create_symbol(OBJECT ${REGION_OBJECT} SYMBOL __${name}_start
       EXPR "@ADDR(${first_section_name})@"
@@ -248,6 +264,7 @@ function(system_to_string)
   endforeach()
 
   get_property(symbols_icf GLOBAL PROPERTY ILINK_REGION_SYMBOL_ICF)
+  set(${STRING_STRING} "${${STRING_STRING}}\n")
   foreach(image_symbol ${symbols_icf})
     set(${STRING_STRING} "${${STRING_STRING}}${image_symbol};\n")
   endforeach()
@@ -336,6 +353,10 @@ function(group_to_string)
     endif()
 
     set(${STRING_STRING} "${${STRING_STRING}}\"${name}\": place in ${ILINK_CURRENT_NAME} { block ${name_clean} };\n")
+    if(DEFINED vma AND DEFINED lma)
+      set(${STRING_STRING} "${${STRING_STRING}}\"${name}_init\": place in ${lma} { block ${name_clean}_init };\n")
+    endif()
+
   endforeach()
 
   get_parent(OBJECT ${STRING_OBJECT} PARENT parent TYPE SYSTEM)
@@ -438,10 +459,24 @@ function(section_to_string)
     endif()
   endif()
 
+  if(DEFINED group_parent_vma AND DEFINED group_parent_lma)
+    # Something to init
+    set(part "rw ")
+  else()
+    set(part)
+  endif()
+
+
   set_property(GLOBAL PROPERTY ILINK_CURRENT_SECTIONS)
 
   string(REGEX REPLACE "^[\.]" "" name_clean "${name}")
   string(REPLACE "." "_" name_clean "${name_clean}")
+
+  # WA for 'Error[Lc036]: no block or place matches the pattern "ro data section .tdata_init"'
+  if ("${name_clean}" STREQUAL "tdata")
+    set(TEMP "${TEMP}define block ${name_clean}_init { ro section .tdata_init };\n")
+    set(TEMP "${TEMP}\"${name_clean}_init\": place in ${ILINK_CURRENT_NAME} { block ${name_clean}_init };\n\n")
+  endif()
 
   get_property(indicies GLOBAL PROPERTY ${STRING_SECTION}_SETTINGS_INDICIES)
   # ZIP_LISTS partner
@@ -506,6 +541,10 @@ function(section_to_string)
 
   if(align)
     set(TEMP "${TEMP}, alignment=${align}")
+  elseif(subalign)
+    set(TEMP "${TEMP}, alignment = ${subalign}")
+  elseif(part)
+    set(TEMP "${TEMP}, alignment = input")
   else()
     set(TEMP "${TEMP}, alignment=4")
   endif()
@@ -533,10 +572,12 @@ function(section_to_string)
     set(TEMP "${TEMP}\n  block ${name_clean}_winput")
     if(align)
       list(APPEND block_attr "alignment = ${align}")
+    elseif(subalign)
+      list(APPEND block_attr "alignment = ${subalign}")
+    elseif(part)
+      # list(APPEND block_attr "alignment = input")
     else()
-      if(subalign)
-        list(APPEND block_attr "alignment = ${subalign}")
-      endif()
+      list(APPEND block_attr "alignment=4")
     endif()
     list(APPEND block_attr "fixed order")
 
@@ -594,10 +635,12 @@ function(section_to_string)
       endif()
       if(align)
         list(APPEND block_attr "alignment = ${align}")
+      elseif(subalign)
+        list(APPEND block_attr "alignment = ${subalign}")
+      elseif(part)
+        # list(APPEND block_attr "alignment = input")
       else()
-        if(subalign)
-          list(APPEND block_attr "alignment = ${subalign}")
-        endif()
+        list(APPEND block_attr "alignment=4")
       endif()
       list(APPEND block_attr "fixed order")
 
@@ -625,10 +668,12 @@ function(section_to_string)
     endif()
     if(align)
       list(APPEND block_attr "alignment = ${align}")
+    elseif(subalign)
+      list(APPEND block_attr "alignment = ${subalign}")
+    elseif(part)
+      # list(APPEND block_attr "alignment = input")
     else()
-      if(subalign)
-        list(APPEND block_attr "alignment = ${subalign}")
-      endif()
+      list(APPEND block_attr "alignment=4")
     endif()
 
     # LD
@@ -674,10 +719,6 @@ function(section_to_string)
         set(first "")
       endif()
 
-      if(${setting} STREQUAL .ramfunc)
-#        set(TEMP "${TEMP} section .textrw,")
-      endif()
-
       set(section_type "")
 
       # build for ram, no section_type
@@ -695,7 +736,7 @@ function(section_to_string)
       #		message(FATAL_ERROR "How to handle this? lma=${lma} vma=${vma}")
       # endif()
 
-      set(TEMP "${TEMP}${section_type} section ${setting}")
+      set(TEMP "${TEMP}${section_type} ${part}section ${setting}")
       set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "section ${setting}")
       set(section_type "")
 
@@ -714,11 +755,12 @@ function(section_to_string)
       endif()
       set(ANY_FLAG "")
       foreach(flag ${flags})
-        if("${flag}" STREQUAL +RO OR "${flag}" STREQUAL +XO)
-          set(ANY_FLAG "readonly")
-        elseif("${flag}" STREQUAL +RW)
-          set(ANY_FLAG "readwrite")
-        elseif("${flag}" STREQUAL +ZI)
+        # if("${flag}" STREQUAL +RO OR "${flag}" STREQUAL +XO)
+        #   set(ANY_FLAG "readonly")
+        # # elseif("${flag}" STREQUAL +RW)
+        # #   set(ANY_FLAG "readwrite")
+        # else
+        if("${flag}" STREQUAL +ZI)
           set(ANY_FLAG "zeroinit")
           set_property(GLOBAL APPEND PROPERTY ILINK_CURRENT_SECTIONS "${ANY_FLAG}")
         endif()
@@ -771,18 +813,22 @@ function(section_to_string)
 
   if(DEFINED group_parent_vma AND DEFINED group_parent_lma)
     if(DEFINED current_sections)
-      set(TEMP2 "\ninitialize by address_translation\n")
-      set(TEMP2 "${TEMP2}{\n")
+      # "${TEMP}" is there too keep the ';' else it will be a list
+      string(REGEX REPLACE "(block[ \t\r\n]+)([^ \t\r\n]+)" "\\1\\2_init" INIT_TEMP "${TEMP}")
+      string(REGEX REPLACE "(rw)([ \t\r\n]+)(section[ \t\r\n]+)([^ \t\r\n,]+)" "\\1\\2\\3\\4_init" INIT_TEMP "${INIT_TEMP}")
+      string(REGEX REPLACE "(rw)([ \t\r\n]+)(section[ \t\r\n]+)" "ro\\2\\3" INIT_TEMP "${INIT_TEMP}")
+      string(REGEX REPLACE "alphabetical order, " "" INIT_TEMP "${INIT_TEMP}")
+      string(REGEX REPLACE "{ readwrite }" "{ }" INIT_TEMP "${INIT_TEMP}")
+
+      set(TEMP "${TEMP}\n${INIT_TEMP}\n")
+      set(TEMP "${TEMP}\ninitialize manually with copy friendly\n")
+      set(TEMP "${TEMP}{\n")
       foreach(section ${current_sections})
-        if("${section}" STREQUAL "section .ramfunc")
-          set(TEMP2 "\ninitialize manually\n")
-          set(TEMP2 "${TEMP2}{\n")
-        endif()
-        set(TEMP2 "${TEMP2}  ${section},\n")
+        set(TEMP "${TEMP}  ${section},\n")
       endforeach()
-      set(TEMP2 "${TEMP2}};")
+      set(TEMP "${TEMP}};")
       set(current_sections)
-      set(TEMP "${TEMP}${TEMP2}")
+
     endif()
   endif()
 
