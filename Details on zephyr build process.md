@@ -40,7 +40,7 @@ This is where all the parts come together, filling in the small blanks from pre1
 
 
 
-##Improvements for IAR
+## Improvements for IAR
 
 in kobject_prebuilt_hash iccarm does not see that asso_values is constant. so it ends up in kobject_data.data rather than .rodata. This consumes 0x100 bytes extra ram compared to gcc, *2 due to the size-calulcations in gen_kobject_placeholder.p (--datapct 100)
 
@@ -50,6 +50,6 @@ in kobject_prebuilt_hash iccarm does not see that asso_values is constant. so it
 ### application partitions, app_smem, gen_app_partitions.py
 Getting the alignment right both APP_SHARED_ALIGN so that both _app_smem_start  and _app_smem_end and ensuring that each partition's part_start and _part_end are aligned to SMEM_PARTITION_ALIGN requires some more tinkering. 
 Both of these macros are #defined into . = ALIGN(something) or even two consequtive ones. This is ofcourse not possible to use with ilink, so we need some other variable that either gen_app_partitions.py or the generator itself can handle. 
-With the £variables£ it is easy enough to give access to the values, but the logic from each ld-skeleton/toolchain must be modified to generate those definitions into e.g. autoconf.h
+With the @variables@ it is easy enough to give access to the values, but the logic from each ld-skeleton/toolchain must be modified to generate those definitions into e.g. autoconf.h
 
 How do we get the choice of LINKER_APP_SMEM_UNALIGNED done? It seems to be -D defined by the cmake scripts just when generating pass 0.
