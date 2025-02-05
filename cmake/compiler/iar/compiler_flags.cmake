@@ -131,6 +131,13 @@ set_compiler_property(PROPERTY security_canaries_strong --stack_protection)
 set_compiler_property(PROPERTY security_canaries_all --security_canaries_all_is_not_supported)
 set_compiler_property(PROPERTY security_canaries_explicit --security_canaries_explicit_is_not_supported)
 
+if(CONFIG_STACK_CANARIES_TLS)
+  check_set_compiler_property(APPEND PROPERTY security_canaries --stack_protector_guard=tls)
+  check_set_compiler_property(APPEND PROPERTY security_canaries_strong --stack_protector_guard=tls)
+  check_set_compiler_property(APPEND PROPERTY security_canaries_all --stack_protector_guard=tls)
+  check_set_compiler_property(APPEND PROPERTY security_canaries_explicit --stack_protector_guard=tls)
+endif()
+
 set_compiler_property(PROPERTY security_fortify)
 
 # Flag for a hosted (no-freestanding) application
