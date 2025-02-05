@@ -17,7 +17,6 @@ function(process_region)
 
   process_region_common(${ARGN})
 
-
   get_property(empty GLOBAL PROPERTY ${REGION_OBJECT}_EMPTY)
   if(NOT empty)
     # For scatter files we move any system symbols into first non-empty load section.
@@ -117,7 +116,6 @@ function(process_region)
       get_property(vma GLOBAL PROPERTY ${group}_VMA)
       get_property(lma GLOBAL PROPERTY ${group}_LMA)
     endif()
-
 
     get_objects(LIST sections OBJECT ${group} TYPE SECTION)
     list(GET sections 0 section)
@@ -473,7 +471,7 @@ function(section_to_string)
   string(REPLACE "." "_" name_clean "${name_clean}")
 
   # WA for 'Error[Lc036]: no block or place matches the pattern "ro data section .tdata_init"'
-  if ("${name_clean}" STREQUAL "tdata")
+  if("${name_clean}" STREQUAL "tdata")
     set(TEMP "${TEMP}define block ${name_clean}_init { ro section .tdata_init };\n")
     set(TEMP "${TEMP}\"${name_clean}_init\": place in ${ILINK_CURRENT_NAME} { block ${name_clean}_init };\n\n")
   endif()
