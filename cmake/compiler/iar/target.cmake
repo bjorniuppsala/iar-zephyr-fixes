@@ -81,6 +81,7 @@ if("${IAR_TOOLCHAIN_VARIANT}" STREQUAL "iccarm")
                            # member of a struct is discouraged and
                            # dereferencing elements in such an array has
                            # undefined behavior
+    --diag_suppress=Go029  # arch/arm/syscall.h",160  Error[Go029]: Variable "ret" is used uninitialized at this location in the sourcecode.
   )
 endif()
 
